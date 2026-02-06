@@ -17,6 +17,12 @@ import BlogPostPage from "./pages/BlogPost";
 import Locations from "./pages/Locations";
 import LandingPage from "./pages/LandingPage";
 
+// Service Pages
+import DomainHostingPage from "./pages/services/DomainHosting";
+import WebDevelopmentPage from "./pages/services/WebDevelopment";
+import SoftwareDevelopmentPage from "./pages/services/SoftwareDevelopment";
+import DigitalMarketingPage from "./pages/services/DigitalMarketing";
+
 // Auth Pages
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
@@ -59,6 +65,13 @@ const LanguageRoutes = () => {
           <Route path="/bn/blog/tag/:tagSlug" element={<Blog />} />
           <Route path="/bn/locations" element={<Locations />} />
           <Route path="/bn/locations/:slug" element={<Locations />} />
+          
+          {/* Bangla - Service Pages */}
+          <Route path="/bn/services/domain-hosting" element={<DomainHostingPage />} />
+          <Route path="/bn/services/web-development" element={<WebDevelopmentPage />} />
+          <Route path="/bn/services/software-development" element={<SoftwareDevelopmentPage />} />
+          <Route path="/bn/services/digital-marketing" element={<DigitalMarketingPage />} />
+          
           <Route path="/bn/auth/login" element={<Login />} />
           <Route path="/bn/auth/register" element={<Register />} />
           <Route path="/bn/auth/forgot-password" element={<ForgotPassword />} />
@@ -91,6 +104,13 @@ const LanguageRoutes = () => {
           <Route path="/en/blog/tag/:tagSlug" element={<Blog />} />
           <Route path="/en/locations" element={<Locations />} />
           <Route path="/en/locations/:slug" element={<Locations />} />
+          
+          {/* English - Service Pages */}
+          <Route path="/en/services/domain-hosting" element={<DomainHostingPage />} />
+          <Route path="/en/services/web-development" element={<WebDevelopmentPage />} />
+          <Route path="/en/services/software-development" element={<SoftwareDevelopmentPage />} />
+          <Route path="/en/services/digital-marketing" element={<DigitalMarketingPage />} />
+          
           <Route path="/en/auth/login" element={<Login />} />
           <Route path="/en/auth/register" element={<Register />} />
           <Route path="/en/auth/forgot-password" element={<ForgotPassword />} />
