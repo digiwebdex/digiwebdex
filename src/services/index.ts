@@ -4,3 +4,4 @@ export { invoiceService } from './invoiceService';
 export { notificationService } from './notificationService';
 export { manualPaymentService } from './manualPaymentService';
 export { domainService } from './domainService';
+export * from './hosting';
