@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import logo from '@/assets/logo.png';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -105,9 +106,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           <div className="flex h-16 items-center justify-between border-b px-4 sticky top-0 bg-card z-10">
             {!collapsed && (
               <Link to={basePath} className="flex items-center gap-2">
-                <div className="gradient-button h-8 w-8 flex items-center justify-center rounded-lg font-bold text-lg">
-                  D
-                </div>
+                <img src={logo} alt="Digiwebdex" className="h-8 w-auto" />
                 <span className="font-bold text-lg">Admin</span>
               </Link>
             )}

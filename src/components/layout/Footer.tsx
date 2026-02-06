@@ -4,6 +4,7 @@ import { useLanguage } from '@/lib/i18n';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Facebook, Twitter, Linkedin, Instagram, Mail, Phone, MapPin, Send } from 'lucide-react';
+import logo from '@/assets/logo.png';
 
 export function Footer() {
   const { language, t } = useLanguage();
@@ -38,9 +39,7 @@ export function Footer() {
           {/* Brand Section */}
           <div className="space-y-4">
             <Link to={basePath || '/'} className="flex items-center gap-2">
-              <div className="gradient-button h-10 w-10 flex items-center justify-center rounded-lg font-bold text-xl">
-                D
-              </div>
+              <img src={logo} alt="Digiwebdex" className="h-12 w-auto" />
               <span className="font-bold text-2xl">Digiwebdex</span>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">

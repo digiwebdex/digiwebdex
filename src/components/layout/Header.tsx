@@ -12,6 +12,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { Menu, Moon, Sun, Globe, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import logo from '@/assets/logo.png';
 
 export function Header() {
   const { language, setLanguage, t } = useLanguage();
@@ -41,9 +42,7 @@ export function Header() {
       <div className="container-custom flex h-16 items-center justify-between">
         {/* Logo */}
         <Link to={basePath || '/'} className="flex items-center gap-2">
-          <div className="gradient-button h-8 w-8 flex items-center justify-center rounded-lg font-bold text-lg">
-            D
-          </div>
+          <img src={logo} alt="Digiwebdex" className="h-10 w-auto" />
           <span className="font-bold text-xl">Digiwebdex</span>
         </Link>
 
