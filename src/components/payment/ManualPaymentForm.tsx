@@ -79,6 +79,7 @@ export function ManualPaymentForm({
           notes: notes.trim() || undefined,
         },
         user.id,
+        user.email,
         screenshot || undefined
       );
 

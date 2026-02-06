@@ -113,6 +113,7 @@ class ManualPaymentService {
   async submitPayment(
     params: SubmitManualPaymentParams,
     userId: string,
+    userEmail?: string,
     screenshotFile?: File
   ): Promise<{ data: ManualPayment | null; error: Error | null }> {
     try {
@@ -143,6 +144,15 @@ class ManualPaymentService {
         .single();
 
       if (error) throw error;
+
+      // Trigger payment submitted notification
+      if (userEmail) {
+        await notificationService.triggerEvent('PAYMENT_SUCCESS', userId, userEmail, {
+          amount: params.amount,
+          transaction_id: params.transactionId,
+          order_number: params.orderId || 'N/A',
+        });
+      }
 
       return { data: data as ManualPayment, error: null };
     } catch (err) {
