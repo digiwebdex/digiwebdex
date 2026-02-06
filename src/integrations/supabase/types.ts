@@ -1055,6 +1055,84 @@ export type Database = {
           },
         ]
       }
+      revenue_summary: {
+        Row: {
+          active_domains_count: number
+          active_hosting_count: number
+          arr: number
+          created_at: string
+          digital_marketing_revenue: number
+          domain_revenue: number
+          hosting_revenue: number
+          id: string
+          month: string
+          mrr: number
+          new_orders_count: number
+          other_revenue: number
+          overdue_invoices_amount: number
+          overdue_invoices_count: number
+          paid_invoices_count: number
+          pending_invoices_amount: number
+          pending_invoices_count: number
+          renewal_rate: number | null
+          software_development_revenue: number
+          suspended_hosting_count: number
+          total_revenue: number
+          updated_at: string
+          web_development_revenue: number
+        }
+        Insert: {
+          active_domains_count?: number
+          active_hosting_count?: number
+          arr?: number
+          created_at?: string
+          digital_marketing_revenue?: number
+          domain_revenue?: number
+          hosting_revenue?: number
+          id?: string
+          month: string
+          mrr?: number
+          new_orders_count?: number
+          other_revenue?: number
+          overdue_invoices_amount?: number
+          overdue_invoices_count?: number
+          paid_invoices_count?: number
+          pending_invoices_amount?: number
+          pending_invoices_count?: number
+          renewal_rate?: number | null
+          software_development_revenue?: number
+          suspended_hosting_count?: number
+          total_revenue?: number
+          updated_at?: string
+          web_development_revenue?: number
+        }
+        Update: {
+          active_domains_count?: number
+          active_hosting_count?: number
+          arr?: number
+          created_at?: string
+          digital_marketing_revenue?: number
+          domain_revenue?: number
+          hosting_revenue?: number
+          id?: string
+          month?: string
+          mrr?: number
+          new_orders_count?: number
+          other_revenue?: number
+          overdue_invoices_amount?: number
+          overdue_invoices_count?: number
+          paid_invoices_count?: number
+          pending_invoices_amount?: number
+          pending_invoices_count?: number
+          renewal_rate?: number | null
+          software_development_revenue?: number
+          suspended_hosting_count?: number
+          total_revenue?: number
+          updated_at?: string
+          web_development_revenue?: number
+        }
+        Relationships: []
+      }
       seo_settings: {
         Row: {
           created_at: string
