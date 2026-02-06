@@ -1,6 +1,15 @@
 import React from 'react';
 import { Layout } from '@/components/layout';
-import { HeroSection, ServicesSection, FeaturesSection, CTASection } from '@/components/home';
+import { 
+  HeroSection, 
+  TrustSection, 
+  ServicesSection, 
+  PortfolioSection, 
+  WhyChooseUsSection, 
+  ProcessSection, 
+  TestimonialsSection, 
+  CTASection 
+} from '@/components/home';
 import { AffiliateTracker } from '@/components/affiliate';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SchemaMarkup } from '@/components/seo/SchemaMarkup';
@@ -29,8 +38,12 @@ const Home = () => {
       <SchemaMarkup schema={localBusinessSchema} id="local-business-schema" />
       <AffiliateTracker />
       <HeroSection />
+      <TrustSection />
       <ServicesSection />
-      <FeaturesSection />
+      <PortfolioSection />
+      <WhyChooseUsSection />
+      <ProcessSection />
+      <TestimonialsSection />
       <CTASection />
     </Layout>
   );

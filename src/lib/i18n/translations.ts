@@ -20,12 +20,25 @@ export const translations = {
     },
     // Hero Section
     hero: {
-      badge: 'বিশ্বস্ত ডিজিটাল সলিউশন',
+      badge: 'বাংলাদেশের বিশ্বস্ত ডিজিটাল পার্টনার',
       title: 'আপনার ব্যবসাকে',
       titleHighlight: 'ডিজিটাল করুন',
       subtitle: 'ওয়েব ডেভেলপমেন্ট, সফটওয়্যার সলিউশন এবং ডিজিটাল মার্কেটিং সেবায় আমরা আপনার পাশে আছি।',
       cta: 'শুরু করুন',
-      ctaSecondary: 'সেবা দেখুন',
+      ctaSecondary: 'ফ্রি কনসালটেশন',
+    },
+    // Domain Search
+    domainSearch: {
+      title: 'আপনার পছন্দের ডোমেইন খুঁজুন',
+      placeholder: 'yourdomain.com',
+      button: 'খুঁজুন',
+    },
+    // Trust Section
+    trust: {
+      clients: 'সন্তুষ্ট ক্লায়েন্ট',
+      projects: 'সম্পন্ন প্রজেক্ট',
+      uptime: 'আপটাইম গ্যারান্টি',
+      experience: 'বছরের অভিজ্ঞতা',
     },
     // Stats
     stats: {
@@ -36,6 +49,7 @@ export const translations = {
     },
     // Services
     services: {
+      badge: 'আমাদের সেবা',
       title: 'আমাদের সেবাসমূহ',
       subtitle: 'আপনার ব্যবসার জন্য সম্পূর্ণ ডিজিটাল সলিউশন',
       domainHosting: {
@@ -54,7 +68,76 @@ export const translations = {
         title: 'ডিজিটাল মার্কেটিং',
         description: 'এসইও, সোশ্যাল মিডিয়া এবং কন্টেন্ট মার্কেটিং',
       },
+      graphics: {
+        title: 'গ্রাফিক্স ডিজাইন',
+        description: 'লোগো, ব্র্যান্ডিং এবং ক্রিয়েটিভ ডিজাইন সেবা',
+      },
       learnMore: 'বিস্তারিত দেখুন',
+    },
+    // Portfolio
+    portfolio: {
+      badge: 'আমাদের কাজ',
+      title: 'সাম্প্রতিক প্রজেক্ট',
+      subtitle: 'আমাদের সফল প্রজেক্টগুলো দেখুন',
+      viewAll: 'সব দেখুন',
+    },
+    // Why Choose Us
+    whyUs: {
+      badge: 'আমাদের বিশেষত্ব',
+      title: 'কেন আমাদের বেছে নেবেন?',
+      subtitle: 'আমরা সেরা সেবা প্রদানে প্রতিশ্রুতিবদ্ধ',
+      automation: {
+        title: 'অটোমেশন ফার্স্ট',
+        description: 'সব কিছু অটোমেটেড - দ্রুত এবং নির্ভুল সেবা',
+      },
+      security: {
+        title: 'সর্বোচ্চ নিরাপত্তা',
+        description: 'আপনার ডেটা আমাদের কাছে সম্পূর্ণ সুরক্ষিত',
+      },
+      fast: {
+        title: 'দ্রুত ডেলিভারি',
+        description: 'সময়মত প্রজেক্ট সম্পন্ন করার গ্যারান্টি',
+      },
+      support: {
+        title: '২৪/৭ সাপোর্ট',
+        description: 'যেকোনো সময় আমাদের টিম আপনার পাশে',
+      },
+      quality: {
+        title: 'প্রিমিয়াম কোয়ালিটি',
+        description: 'প্রতিটি প্রজেক্টে সেরা মান নিশ্চিত',
+      },
+      scalable: {
+        title: 'স্কেলেবল সলিউশন',
+        description: 'আপনার ব্যবসার সাথে বড় হতে পারে',
+      },
+    },
+    // Process
+    process: {
+      badge: 'আমাদের প্রক্রিয়া',
+      title: 'আমরা কিভাবে কাজ করি',
+      subtitle: 'সহজ ৪ ধাপে আপনার প্রজেক্ট সম্পন্ন',
+      consultation: {
+        title: 'পরামর্শ',
+        description: 'আপনার প্রয়োজন বুঝে সেরা সলিউশন প্রস্তাব',
+      },
+      planning: {
+        title: 'পরিকল্পনা',
+        description: 'বিস্তারিত রোডম্যাপ এবং টাইমলাইন তৈরি',
+      },
+      development: {
+        title: 'ডেভেলপমেন্ট',
+        description: 'দক্ষ টিম দ্বারা প্রজেক্ট নির্মাণ',
+      },
+      launch: {
+        title: 'লঞ্চ',
+        description: 'টেস্টিং এবং সফল ডেপ্লয়মেন্ট',
+      },
+    },
+    // Testimonials
+    testimonials: {
+      badge: 'প্রশংসাপত্র',
+      title: 'ক্লায়েন্টরা কি বলেন',
+      subtitle: 'আমাদের সন্তুষ্ট ক্লায়েন্টদের মতামত',
     },
     // Features
     features: {
@@ -149,12 +232,25 @@ export const translations = {
     },
     // Hero Section
     hero: {
-      badge: 'Trusted Digital Solutions',
+      badge: 'Bangladesh\'s Trusted Digital Partner',
       title: 'Transform Your Business',
       titleHighlight: 'Digitally',
       subtitle: 'We provide web development, software solutions, and digital marketing services to help your business grow.',
       cta: 'Get Started',
-      ctaSecondary: 'View Services',
+      ctaSecondary: 'Free Consultation',
+    },
+    // Domain Search
+    domainSearch: {
+      title: 'Find your perfect domain',
+      placeholder: 'yourdomain.com',
+      button: 'Search',
+    },
+    // Trust Section
+    trust: {
+      clients: 'Happy Clients',
+      projects: 'Projects Delivered',
+      uptime: 'Uptime Guarantee',
+      experience: 'Years Experience',
     },
     // Stats
     stats: {
@@ -165,6 +261,7 @@ export const translations = {
     },
     // Services
     services: {
+      badge: 'Our Services',
       title: 'Our Services',
       subtitle: 'Complete digital solutions for your business',
       domainHosting: {
@@ -183,7 +280,76 @@ export const translations = {
         title: 'Digital Marketing',
         description: 'SEO, social media, and content marketing services',
       },
+      graphics: {
+        title: 'Graphics Design',
+        description: 'Logo, branding, and creative design services',
+      },
       learnMore: 'Learn More',
+    },
+    // Portfolio
+    portfolio: {
+      badge: 'Our Work',
+      title: 'Recent Projects',
+      subtitle: 'Explore our successful projects',
+      viewAll: 'View All',
+    },
+    // Why Choose Us
+    whyUs: {
+      badge: 'Our Advantages',
+      title: 'Why Choose Us?',
+      subtitle: 'We are committed to providing the best services',
+      automation: {
+        title: 'Automation First',
+        description: 'Everything automated - fast and accurate service',
+      },
+      security: {
+        title: 'Maximum Security',
+        description: 'Your data is completely secure with us',
+      },
+      fast: {
+        title: 'Fast Delivery',
+        description: 'Guaranteed on-time project completion',
+      },
+      support: {
+        title: '24/7 Support',
+        description: 'Our team is always by your side',
+      },
+      quality: {
+        title: 'Premium Quality',
+        description: 'Best quality assured in every project',
+      },
+      scalable: {
+        title: 'Scalable Solutions',
+        description: 'Grows with your business',
+      },
+    },
+    // Process
+    process: {
+      badge: 'Our Process',
+      title: 'How We Work',
+      subtitle: 'Complete your project in 4 simple steps',
+      consultation: {
+        title: 'Consultation',
+        description: 'Understanding your needs and proposing the best solution',
+      },
+      planning: {
+        title: 'Planning',
+        description: 'Creating detailed roadmap and timeline',
+      },
+      development: {
+        title: 'Development',
+        description: 'Building project with our skilled team',
+      },
+      launch: {
+        title: 'Launch',
+        description: 'Testing and successful deployment',
+      },
+    },
+    // Testimonials
+    testimonials: {
+      badge: 'Testimonials',
+      title: 'What Clients Say',
+      subtitle: 'Feedback from our satisfied clients',
     },
     // Features
     features: {

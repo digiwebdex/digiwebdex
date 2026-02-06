@@ -1,4 +1,10 @@
 export { HeroSection } from './HeroSection';
+export { TrustSection } from './TrustSection';
 export { ServicesSection } from './ServicesSection';
+export { PortfolioSection } from './PortfolioSection';
+export { WhyChooseUsSection } from './WhyChooseUsSection';
+export { ProcessSection } from './ProcessSection';
+export { TestimonialsSection } from './TestimonialsSection';
 export { FeaturesSection } from './FeaturesSection';
 export { CTASection } from './CTASection';
+export { DomainSearchBox } from './DomainSearchBox';
