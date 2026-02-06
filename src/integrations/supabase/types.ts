@@ -142,6 +142,87 @@ export type Database = {
           },
         ]
       }
+      domain_pricing: {
+        Row: {
+          base_price: number
+          created_at: string
+          currency: string | null
+          id: string
+          is_active: boolean | null
+          is_popular: boolean | null
+          margin_percent: number | null
+          renewal_price: number
+          sort_order: number | null
+          tld: string
+          transfer_price: number
+          updated_at: string
+        }
+        Insert: {
+          base_price?: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          margin_percent?: number | null
+          renewal_price?: number
+          sort_order?: number | null
+          tld: string
+          transfer_price?: number
+          updated_at?: string
+        }
+        Update: {
+          base_price?: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          margin_percent?: number | null
+          renewal_price?: number
+          sort_order?: number | null
+          tld?: string
+          transfer_price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      domain_search_logs: {
+        Row: {
+          created_at: string
+          domain_name: string
+          id: string
+          ip_address: string | null
+          is_available: boolean | null
+          price_shown: number | null
+          search_source: string | null
+          tld: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          domain_name: string
+          id?: string
+          ip_address?: string | null
+          is_available?: boolean | null
+          price_shown?: number | null
+          search_source?: string | null
+          tld: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          domain_name?: string
+          id?: string
+          ip_address?: string | null
+          is_available?: boolean | null
+          price_shown?: number | null
+          search_source?: string | null
+          tld?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       domains: {
         Row: {
           auto_renew: boolean | null
