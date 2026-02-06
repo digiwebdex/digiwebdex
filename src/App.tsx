@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
 import Contact from "./pages/Contact";
+import Domains from "./pages/Domains";
 
 // Auth Pages
 import Login from "./pages/auth/Login";
@@ -44,6 +45,7 @@ const LanguageRoutes = () => {
           {/* Bangla routes */}
           <Route path="/bn" element={<Home />} />
           <Route path="/bn/pricing" element={<Pricing />} />
+          <Route path="/bn/domains" element={<Domains />} />
           <Route path="/bn/contact" element={<Contact />} />
           <Route path="/bn/auth/login" element={<Login />} />
           <Route path="/bn/auth/register" element={<Register />} />
@@ -67,6 +69,7 @@ const LanguageRoutes = () => {
           {/* English routes */}
           <Route path="/en" element={<Home />} />
           <Route path="/en/pricing" element={<Pricing />} />
+          <Route path="/en/domains" element={<Domains />} />
           <Route path="/en/contact" element={<Contact />} />
           <Route path="/en/auth/login" element={<Login />} />
           <Route path="/en/auth/register" element={<Register />} />
