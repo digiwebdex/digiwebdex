@@ -56,7 +56,7 @@ export default function Register() {
           : 'Please check your email to verify your account.',
       }
     );
-    navigate(`${basePath}/auth/login`);
+    navigate(`${basePath}/auth/verify-email`);
   };
 
   return (

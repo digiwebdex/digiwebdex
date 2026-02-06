@@ -15,6 +15,9 @@ import Contact from "./pages/Contact";
 // Auth Pages
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
+import VerifyEmail from "./pages/auth/VerifyEmail";
 
 // Dashboard Pages
 import Dashboard from "./pages/dashboard/Dashboard";
@@ -41,6 +44,9 @@ const LanguageRoutes = () => {
           <Route path="/bn/contact" element={<Contact />} />
           <Route path="/bn/auth/login" element={<Login />} />
           <Route path="/bn/auth/register" element={<Register />} />
+          <Route path="/bn/auth/forgot-password" element={<ForgotPassword />} />
+          <Route path="/bn/auth/reset-password" element={<ResetPassword />} />
+          <Route path="/bn/auth/verify-email" element={<VerifyEmail />} />
           
           {/* Bangla - Protected Dashboard Routes */}
           <Route path="/bn/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -58,6 +64,9 @@ const LanguageRoutes = () => {
           <Route path="/en/contact" element={<Contact />} />
           <Route path="/en/auth/login" element={<Login />} />
           <Route path="/en/auth/register" element={<Register />} />
+          <Route path="/en/auth/forgot-password" element={<ForgotPassword />} />
+          <Route path="/en/auth/reset-password" element={<ResetPassword />} />
+          <Route path="/en/auth/verify-email" element={<VerifyEmail />} />
           
           {/* English - Protected Dashboard Routes */}
           <Route path="/en/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
