@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { translations, Language, TranslationKeys } from './translations';
 
@@ -9,20 +9,27 @@ interface LanguageContextType {
   isRTL: boolean;
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const defaultContext: LanguageContextType = {
+  language: 'bn',
+  setLanguage: () => {},
+  t: translations.bn,
+  isRTL: false,
+};
+
+const LanguageContext = createContext<LanguageContextType>(defaultContext);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   
   // Extract language from URL path
-  const getLanguageFromPath = (): Language => {
+  const getLanguageFromPath = useCallback((): Language => {
     const path = location.pathname;
     if (path.startsWith('/en')) return 'en';
     return 'bn'; // Default to Bangla
-  };
+  }, [location.pathname]);
 
-  const [language, setLanguageState] = useState<Language>(getLanguageFromPath);
+  const [language, setLanguageState] = useState<Language>(() => getLanguageFromPath());
 
   // Update language when URL changes
   useEffect(() => {
@@ -30,7 +37,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (urlLang !== language) {
       setLanguageState(urlLang);
     }
-  }, [location.pathname]);
+  }, [location.pathname, getLanguageFromPath, language]);
 
   // Update HTML lang attribute
   useEffect(() => {
@@ -51,7 +58,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
     // Add new language prefix
     if (newLang === 'bn') {
-      // Bangla is default, use /bn prefix for consistency
       newPath = `/bn${pathWithoutLang === '/' ? '' : pathWithoutLang}`;
     } else {
       newPath = `/en${pathWithoutLang === '/' ? '' : pathWithoutLang}`;
@@ -64,12 +70,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     setLanguageState(newLang);
   }, [location.pathname, navigate]);
 
-  const value: LanguageContextType = {
+  const value = useMemo<LanguageContextType>(() => ({
     language,
     setLanguage,
     t: translations[language],
-    isRTL: false, // Bangla is LTR
-  };
+    isRTL: false,
+  }), [language, setLanguage]);
 
   return (
     <LanguageContext.Provider value={value}>
@@ -80,9 +86,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
 export function useLanguage() {
   const context = useContext(LanguageContext);
-  if (context === undefined) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
-  }
   return context;
 }
 
