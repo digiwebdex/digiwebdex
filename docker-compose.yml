@@ -1,0 +1,58 @@
+# Digiwebdex Docker Compose Configuration
+# Production-ready multi-container setup
+
+version: '3.8'
+
+services:
+  # Main application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: digiwebdex-app
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/security-headers.conf:/etc/nginx/snippets/security-headers.conf:ro
+      - nginx-logs:/var/log/nginx
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - digiwebdex-network
+    labels:
+      - "com.digiwebdex.service=frontend"
+      - "com.digiwebdex.version=1.0.0"
+
+  # Log rotation and management
+  logrotate:
+    image: blacklabelops/logrotate
+    container_name: digiwebdex-logrotate
+    restart: unless-stopped
+    environment:
+      - LOGS_DIRECTORIES=/var/log/nginx
+      - LOGROTATE_INTERVAL=daily
+      - LOGROTATE_COPIES=7
+      - LOGROTATE_SIZE=10M
+    volumes:
+      - nginx-logs:/var/log/nginx
+    networks:
+      - digiwebdex-network
+
+volumes:
+  nginx-logs:
+    driver: local
+
+networks:
+  digiwebdex-network:
+    driver: bridge

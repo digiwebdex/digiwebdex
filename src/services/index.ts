@@ -9,3 +9,4 @@ export * from './renewal';
 export * from './analytics';
 export * from './affiliate';
 export * from './seo';
+export * from './security';
