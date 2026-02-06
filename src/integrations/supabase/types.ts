@@ -301,6 +301,271 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_categories: {
+        Row: {
+          created_at: string
+          description_bn: string | null
+          description_en: string | null
+          id: string
+          is_active: boolean | null
+          meta_description_bn: string | null
+          meta_description_en: string | null
+          meta_title_bn: string | null
+          meta_title_en: string | null
+          name_bn: string
+          name_en: string
+          parent_id: string | null
+          slug: string
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description_bn?: string | null
+          description_en?: string | null
+          id?: string
+          is_active?: boolean | null
+          meta_description_bn?: string | null
+          meta_description_en?: string | null
+          meta_title_bn?: string | null
+          meta_title_en?: string | null
+          name_bn: string
+          name_en: string
+          parent_id?: string | null
+          slug: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description_bn?: string | null
+          description_en?: string | null
+          id?: string
+          is_active?: boolean | null
+          meta_description_bn?: string | null
+          meta_description_en?: string | null
+          meta_title_bn?: string | null
+          meta_title_en?: string | null
+          name_bn?: string
+          name_en?: string
+          parent_id?: string | null
+          slug?: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "blog_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_post_tags: {
+        Row: {
+          id: string
+          post_id: string
+          tag_id: string
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          tag_id: string
+        }
+        Update: {
+          id?: string
+          post_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_post_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "blog_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_posts: {
+        Row: {
+          author_id: string | null
+          canonical_url: string | null
+          category_id: string | null
+          change_frequency: string | null
+          content_bn: string | null
+          content_en: string | null
+          created_at: string
+          excerpt_bn: string | null
+          excerpt_en: string | null
+          faq_items: Json | null
+          featured_image: string | null
+          id: string
+          is_featured: boolean | null
+          is_indexed: boolean | null
+          is_published: boolean | null
+          keywords: string[] | null
+          meta_description_bn: string | null
+          meta_description_en: string | null
+          meta_title_bn: string | null
+          meta_title_en: string | null
+          og_image: string | null
+          priority: number | null
+          published_at: string | null
+          reading_time_minutes: number | null
+          schema_markup: Json | null
+          slug: string
+          title_bn: string
+          title_en: string
+          updated_at: string
+          views_count: number | null
+        }
+        Insert: {
+          author_id?: string | null
+          canonical_url?: string | null
+          category_id?: string | null
+          change_frequency?: string | null
+          content_bn?: string | null
+          content_en?: string | null
+          created_at?: string
+          excerpt_bn?: string | null
+          excerpt_en?: string | null
+          faq_items?: Json | null
+          featured_image?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_indexed?: boolean | null
+          is_published?: boolean | null
+          keywords?: string[] | null
+          meta_description_bn?: string | null
+          meta_description_en?: string | null
+          meta_title_bn?: string | null
+          meta_title_en?: string | null
+          og_image?: string | null
+          priority?: number | null
+          published_at?: string | null
+          reading_time_minutes?: number | null
+          schema_markup?: Json | null
+          slug: string
+          title_bn: string
+          title_en: string
+          updated_at?: string
+          views_count?: number | null
+        }
+        Update: {
+          author_id?: string | null
+          canonical_url?: string | null
+          category_id?: string | null
+          change_frequency?: string | null
+          content_bn?: string | null
+          content_en?: string | null
+          created_at?: string
+          excerpt_bn?: string | null
+          excerpt_en?: string | null
+          faq_items?: Json | null
+          featured_image?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_indexed?: boolean | null
+          is_published?: boolean | null
+          keywords?: string[] | null
+          meta_description_bn?: string | null
+          meta_description_en?: string | null
+          meta_title_bn?: string | null
+          meta_title_en?: string | null
+          og_image?: string | null
+          priority?: number | null
+          published_at?: string | null
+          reading_time_minutes?: number | null
+          schema_markup?: Json | null
+          slug?: string
+          title_bn?: string
+          title_en?: string
+          updated_at?: string
+          views_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "blog_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_related_posts: {
+        Row: {
+          id: string
+          post_id: string
+          related_post_id: string
+          relevance_score: number | null
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          related_post_id: string
+          relevance_score?: number | null
+        }
+        Update: {
+          id?: string
+          post_id?: string
+          related_post_id?: string
+          relevance_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_related_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_related_posts_related_post_id_fkey"
+            columns: ["related_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_tags: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name_bn: string
+          name_en: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name_bn: string
+          name_en: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name_bn?: string
+          name_en?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       coupons: {
         Row: {
           applicable_services: Json | null
@@ -688,6 +953,189 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      landing_pages: {
+        Row: {
+          canonical_url: string | null
+          change_frequency: string | null
+          content_bn: string | null
+          content_en: string | null
+          created_at: string
+          faq_items: Json | null
+          h1_bn: string | null
+          h1_en: string | null
+          hero_image_url: string | null
+          id: string
+          internal_links: Json | null
+          is_indexed: boolean | null
+          is_published: boolean | null
+          keywords: string[] | null
+          location: string | null
+          meta_description_bn: string | null
+          meta_description_en: string | null
+          meta_title_bn: string | null
+          meta_title_en: string | null
+          og_image: string | null
+          page_type: string
+          priority: number | null
+          schema_markup: Json | null
+          service_type: string | null
+          slug: string
+          title_bn: string
+          title_en: string
+          updated_at: string
+          views_count: number | null
+        }
+        Insert: {
+          canonical_url?: string | null
+          change_frequency?: string | null
+          content_bn?: string | null
+          content_en?: string | null
+          created_at?: string
+          faq_items?: Json | null
+          h1_bn?: string | null
+          h1_en?: string | null
+          hero_image_url?: string | null
+          id?: string
+          internal_links?: Json | null
+          is_indexed?: boolean | null
+          is_published?: boolean | null
+          keywords?: string[] | null
+          location?: string | null
+          meta_description_bn?: string | null
+          meta_description_en?: string | null
+          meta_title_bn?: string | null
+          meta_title_en?: string | null
+          og_image?: string | null
+          page_type?: string
+          priority?: number | null
+          schema_markup?: Json | null
+          service_type?: string | null
+          slug: string
+          title_bn: string
+          title_en: string
+          updated_at?: string
+          views_count?: number | null
+        }
+        Update: {
+          canonical_url?: string | null
+          change_frequency?: string | null
+          content_bn?: string | null
+          content_en?: string | null
+          created_at?: string
+          faq_items?: Json | null
+          h1_bn?: string | null
+          h1_en?: string | null
+          hero_image_url?: string | null
+          id?: string
+          internal_links?: Json | null
+          is_indexed?: boolean | null
+          is_published?: boolean | null
+          keywords?: string[] | null
+          location?: string | null
+          meta_description_bn?: string | null
+          meta_description_en?: string | null
+          meta_title_bn?: string | null
+          meta_title_en?: string | null
+          og_image?: string | null
+          page_type?: string
+          priority?: number | null
+          schema_markup?: Json | null
+          service_type?: string | null
+          slug?: string
+          title_bn?: string
+          title_en?: string
+          updated_at?: string
+          views_count?: number | null
+        }
+        Relationships: []
+      }
+      location_pages: {
+        Row: {
+          address_bn: string | null
+          address_en: string | null
+          area: string | null
+          content_bn: string | null
+          content_en: string | null
+          created_at: string
+          district: string | null
+          division: string | null
+          geo_coordinates: Json | null
+          id: string
+          is_indexed: boolean | null
+          is_published: boolean | null
+          local_business_schema: Json | null
+          location_name_bn: string
+          location_name_en: string
+          meta_description_bn: string | null
+          meta_description_en: string | null
+          meta_title_bn: string | null
+          meta_title_en: string | null
+          phone: string | null
+          priority: number | null
+          services_offered: string[] | null
+          slug: string
+          title_bn: string
+          title_en: string
+          updated_at: string
+        }
+        Insert: {
+          address_bn?: string | null
+          address_en?: string | null
+          area?: string | null
+          content_bn?: string | null
+          content_en?: string | null
+          created_at?: string
+          district?: string | null
+          division?: string | null
+          geo_coordinates?: Json | null
+          id?: string
+          is_indexed?: boolean | null
+          is_published?: boolean | null
+          local_business_schema?: Json | null
+          location_name_bn: string
+          location_name_en: string
+          meta_description_bn?: string | null
+          meta_description_en?: string | null
+          meta_title_bn?: string | null
+          meta_title_en?: string | null
+          phone?: string | null
+          priority?: number | null
+          services_offered?: string[] | null
+          slug: string
+          title_bn: string
+          title_en: string
+          updated_at?: string
+        }
+        Update: {
+          address_bn?: string | null
+          address_en?: string | null
+          area?: string | null
+          content_bn?: string | null
+          content_en?: string | null
+          created_at?: string
+          district?: string | null
+          division?: string | null
+          geo_coordinates?: Json | null
+          id?: string
+          is_indexed?: boolean | null
+          is_published?: boolean | null
+          local_business_schema?: Json | null
+          location_name_bn?: string
+          location_name_en?: string
+          meta_description_bn?: string | null
+          meta_description_en?: string | null
+          meta_title_bn?: string | null
+          meta_title_en?: string | null
+          phone?: string | null
+          priority?: number | null
+          services_offered?: string[] | null
+          slug?: string
+          title_bn?: string
+          title_en?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       manual_payments: {
         Row: {
@@ -1637,6 +2085,45 @@ export type Database = {
           },
         ]
       }
+      sitemap_entries: {
+        Row: {
+          change_frequency: string | null
+          created_at: string
+          entity_id: string | null
+          id: string
+          is_active: boolean | null
+          last_modified: string | null
+          page_type: string
+          priority: number | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          change_frequency?: string | null
+          created_at?: string
+          entity_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_modified?: string | null
+          page_type: string
+          priority?: number | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          change_frequency?: string | null
+          created_at?: string
+          entity_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_modified?: string | null
+          page_type?: string
+          priority?: number | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1672,6 +2159,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_page_views: {
+        Args: { page_id: string; page_table: string }
+        Returns: undefined
       }
       is_admin_or_staff: { Args: { _user_id: string }; Returns: boolean }
     }

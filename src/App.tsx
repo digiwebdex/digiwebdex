@@ -12,6 +12,10 @@ import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
 import Contact from "./pages/Contact";
 import Domains from "./pages/Domains";
+import Blog from "./pages/Blog";
+import BlogPostPage from "./pages/BlogPost";
+import Locations from "./pages/Locations";
+import LandingPage from "./pages/LandingPage";
 
 // Auth Pages
 import Login from "./pages/auth/Login";
@@ -49,6 +53,12 @@ const LanguageRoutes = () => {
           <Route path="/bn/pricing" element={<Pricing />} />
           <Route path="/bn/domains" element={<Domains />} />
           <Route path="/bn/contact" element={<Contact />} />
+          <Route path="/bn/blog" element={<Blog />} />
+          <Route path="/bn/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/bn/blog/category/:categorySlug" element={<Blog />} />
+          <Route path="/bn/blog/tag/:tagSlug" element={<Blog />} />
+          <Route path="/bn/locations" element={<Locations />} />
+          <Route path="/bn/locations/:slug" element={<Locations />} />
           <Route path="/bn/auth/login" element={<Login />} />
           <Route path="/bn/auth/register" element={<Register />} />
           <Route path="/bn/auth/forgot-password" element={<ForgotPassword />} />
@@ -75,6 +85,12 @@ const LanguageRoutes = () => {
           <Route path="/en/pricing" element={<Pricing />} />
           <Route path="/en/domains" element={<Domains />} />
           <Route path="/en/contact" element={<Contact />} />
+          <Route path="/en/blog" element={<Blog />} />
+          <Route path="/en/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/en/blog/category/:categorySlug" element={<Blog />} />
+          <Route path="/en/blog/tag/:tagSlug" element={<Blog />} />
+          <Route path="/en/locations" element={<Locations />} />
+          <Route path="/en/locations/:slug" element={<Locations />} />
           <Route path="/en/auth/login" element={<Login />} />
           <Route path="/en/auth/register" element={<Register />} />
           <Route path="/en/auth/forgot-password" element={<ForgotPassword />} />
@@ -96,9 +112,9 @@ const LanguageRoutes = () => {
           <Route path="/en/admin/payments" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminPaymentVerification /></ProtectedRoute>} />
           <Route path="/en/admin/*" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminDashboard /></ProtectedRoute>} />
           
-          {/* Catch-all routes for both languages */}
-          <Route path="/bn/*" element={<Home />} />
-          <Route path="/en/*" element={<Home />} />
+          {/* Dynamic Landing Pages - must be before catch-all */}
+          <Route path="/bn/:slug" element={<LandingPage />} />
+          <Route path="/en/:slug" element={<LandingPage />} />
           
           {/* 404 */}
           <Route path="*" element={<NotFound />} />

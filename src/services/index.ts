@@ -8,3 +8,4 @@ export * from './hosting';
 export * from './renewal';
 export * from './analytics';
 export * from './affiliate';
+export * from './seo';
