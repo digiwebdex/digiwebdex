@@ -42,8 +42,8 @@ export function Header() {
       <div className="container-custom flex h-16 items-center justify-between">
         {/* Logo */}
         <Link to={basePath || '/'} className="flex items-center gap-2">
-          <img src={logo} alt="Digiwebdex" className="h-10 w-auto" />
-          <span className="font-bold text-xl">Digiwebdex</span>
+          <img src={logo} alt="DigiWebDex" className="h-10 w-auto" />
+          <span className="font-bold text-xl">DigiWebDex</span>
         </Link>
 
         {/* Desktop Navigation */}

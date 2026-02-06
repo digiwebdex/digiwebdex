@@ -39,8 +39,8 @@ export function Footer() {
           {/* Brand Section */}
           <div className="space-y-4">
             <Link to={basePath || '/'} className="flex items-center gap-2">
-              <img src={logo} alt="Digiwebdex" className="h-12 w-auto" />
-              <span className="font-bold text-2xl">Digiwebdex</span>
+              <img src={logo} alt="DigiWebDex" className="h-12 w-auto" />
+              <span className="font-bold text-2xl">DigiWebDex</span>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
               {t.footer.description}
