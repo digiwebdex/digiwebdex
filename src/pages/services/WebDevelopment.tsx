@@ -50,41 +50,41 @@ const WebDevelopmentPage = () => {
   const websiteTypes = [
     {
       icon: Briefcase,
-      title: language === 'bn' ? 'কর্পোরেট ওয়েবসাইট' : 'Corporate Website',
+      title: language === 'bn' ? 'স্টার্টার ওয়েবসাইট' : 'Starter Website',
       description: language === 'bn' 
-        ? 'প্রফেশনাল বিজনেস ওয়েবসাইট যা আপনার ব্র্যান্ড ইমেজ তুলে ধরে' 
-        : 'Professional business website that showcases your brand image',
-      price: language === 'bn' ? '৳৫,০০০ থেকে' : 'From ৳5,000',
+        ? '৫ পেজ, রেসপন্সিভ ডিজাইন, কন্টাক্ট ফর্ম, SEO অপ্টিমাইজড' 
+        : '5 pages, responsive design, contact form, SEO optimized',
+      price: language === 'bn' ? '৳১৫,০০০' : '৳15,000',
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/10',
     },
     {
       icon: ShoppingCart,
-      title: language === 'bn' ? 'ই-কমার্স' : 'E-commerce',
+      title: language === 'bn' ? 'বিজনেস ওয়েবসাইট' : 'Business Website',
       description: language === 'bn' 
-        ? 'অনলাইনে পণ্য বিক্রির জন্য সম্পূর্ণ ই-কমার্স সলিউশন' 
-        : 'Complete e-commerce solution for selling products online',
-      price: language === 'bn' ? '৳১৫,০০০ থেকে' : 'From ৳15,000',
+        ? '১৫ পেজ, কাস্টম ডিজাইন, ব্লগ, অ্যাডমিন প্যানেল' 
+        : '15 pages, custom design, blog, admin panel',
+      price: language === 'bn' ? '৳৩০,০০০' : '৳30,000',
       color: 'text-green-500',
       bgColor: 'bg-green-500/10',
     },
     {
       icon: Palette,
-      title: language === 'bn' ? 'পোর্টফোলিও' : 'Portfolio',
+      title: language === 'bn' ? 'ই-কমার্স ওয়েবসাইট' : 'E-commerce Website',
       description: language === 'bn' 
-        ? 'আপনার কাজ ও দক্ষতা প্রদর্শনের জন্য আকর্ষণীয় পোর্টফোলিও' 
-        : 'Attractive portfolio to showcase your work and skills',
-      price: language === 'bn' ? '৳৩,০০০ থেকে' : 'From ৳3,000',
+        ? 'আনলিমিটেড প্রোডাক্ট, পেমেন্ট গেটওয়ে, অর্ডার ম্যানেজমেন্ট' 
+        : 'Unlimited products, payment gateway, order management',
+      price: language === 'bn' ? '৳৫০,০০০' : '৳50,000',
       color: 'text-purple-500',
       bgColor: 'bg-purple-500/10',
     },
     {
       icon: Newspaper,
-      title: language === 'bn' ? 'নিউজ পোর্টাল' : 'News Portal',
+      title: language === 'bn' ? 'কাস্টম প্রজেক্ট' : 'Custom Project',
       description: language === 'bn' 
-        ? 'নিউজ ও ব্লগ পাবলিশিং এর জন্য ডায়নামিক CMS সাইট' 
-        : 'Dynamic CMS site for news and blog publishing',
-      price: language === 'bn' ? '৳১০,০০০ থেকে' : 'From ৳10,000',
+        ? 'আপনার প্রয়োজন অনুযায়ী কাস্টম সলিউশন' 
+        : 'Custom solution based on your requirements',
+      price: language === 'bn' ? 'কোটেশন নিন' : 'Get Quote',
       color: 'text-orange-500',
       bgColor: 'bg-orange-500/10',
     },
