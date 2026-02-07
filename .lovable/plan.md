@@ -1,188 +1,278 @@
-# Digiwebdex - SaaS + Service Marketplace
 
-## Project Overview
-A modern, bilingual (Bangla/English) service marketplace website with a clean, minimal design featuring subtle glassmorphism effects. Built with React + Vite + Tailwind CSS + Lovable Cloud.
+# Complete Admin Panel & Data Setup Plan
 
----
+## Overview
+DigiWebDex প্ল্যাটফর্মের জন্য সম্পূর্ণ অ্যাডমিন প্যানেল CRUD পেজ এবং ডাটাবেজ সিড ডাটা তৈরি করা হবে।
 
-## ✅ COMPLETED - Phase 1: Foundation & Core Pages
-
-### 1.1 Design System & Layout ✅
-- Clean & Minimal theme with glassmorphism cards and gradients
-- Dark/Light mode toggle with smooth transitions
-- Mobile-first responsive design
-- Typography with Bangla font support (Noto Sans Bengali)
-
-### 1.2 Multi-language Architecture ✅
-- URL-based language routing (`/bn/*` and `/en/*`)
-- Default language: Bangla
-- Language switcher in navigation
-- Full translation system
-
-### 1.3 Core Navigation & Layout ✅
-- Responsive header with blur effect
-- Mobile hamburger menu
-- Footer with contact info and social links
+## Current Status
+- 3 admin pages exist: Dashboard, Analytics, Payment Verification
+- 39 database tables ready (most empty)
+- Domain pricing has data (10 TLDs)
+- Services and service_packages tables are empty
 
 ---
 
-## ✅ COMPLETED - Phase 2: Database & Core System
+## Phase 1: Database Seed Data
 
-### 2.1 Database Schema ✅
-**Core Tables Created:**
-- `profiles` - User profile information
-- `user_roles` - Role-based access (admin, staff, client)
-- `service_categories` - Service categorization
-- `services` - Service definitions with bilingual support
-- `service_packages` - Pricing tiers with features
-- `orders` - Universal order engine with lifecycle
-- `order_meta` - Dynamic custom fields (JSON)
-- `invoices` - Auto-generated invoices
-- `payments` - Payment records with gateway support
-- `domains` - Domain management
-- `domain_logs` - Domain activity tracking
-- `servers` - Server configuration
-- `hosting_accounts` - Hosting account management
-- `projects` - Project tracking for dev services
-- `milestones` - Milestone billing support
-- `project_files` - File delivery system
-- `notification_templates` - Email/SMS/WhatsApp templates
-- `notifications` - Notification queue
-- `renewal_logs` - Renewal tracking
-- `coupons` - Discount system
-- `seo_settings` - Per-page SEO settings
-- `audit_logs` - System audit trail
-
-### 2.2 Security ✅
-- Row Level Security (RLS) on all tables
-- Role-based policies (admin, staff, client)
-- Security definer functions for role checks
-- Proper foreign key constraints
-- Performance indexes on key columns
-
-### 2.3 Helper Functions ✅
-- `generate_order_number()` - Auto order numbering
-- `generate_invoice_number()` - Auto invoice numbering
-- `has_role()` - Role checking function
-- `is_admin_or_staff()` - Admin/staff verification
-- `handle_new_user()` - Auto profile creation on signup
-
----
-
-## ✅ COMPLETED - Phase 3: Authentication & Services
-
-### 3.1 Authentication System ✅
-- AuthContext with session management
-- Login page with email/password
-- Registration page with validation
-- Protected routes with role checking
-- Auto profile & role creation on signup
-
-### 3.2 Service Layer ✅
-- `orderService` - Order creation, management, lifecycle
-- `paymentService` - Payment gateway integration structure
-- `invoiceService` - Invoice generation and management
-- `notificationService` - Multi-channel notification system
-
-### 3.3 Payment Gateway Structures ✅
-- SSLCommerz integration ready
-- bKash Checkout API structure
-- Nagad Merchant API structure
-- Manual Bank Transfer with proof upload
-
----
-
-## ✅ COMPLETED - Phase 4: Dashboards
-
-### 4.1 Client Dashboard ✅
-- Dashboard overview with stats
-- Orders list with status badges
-- Invoices with payment actions
-- Sidebar navigation
-
-### 4.2 Admin Dashboard ✅
-- Revenue analytics (total, monthly MRR)
-- Service statistics
-- Alert system (pending orders, expiring services)
-- Full admin navigation sidebar
-
----
-
-## ✅ COMPLETED - Phase 5: Public Pages
-
-### 5.1 Pricing Page ✅
-- Hosting plans (Basic, Business, Enterprise)
-- Web Development packages
-- Interactive pricing cards
-- Custom project CTA
-
-### 5.2 Contact Page ✅
-- Contact form with Zod validation
-- Contact information cards
-- Map placeholder
-
----
-
-## 🔄 IN PROGRESS - Remaining Tasks
-
-### Phase 6: Service Pages (TODO)
-- [ ] Domain & Hosting page with domain search
-- [ ] Web Development portfolio showcase
-- [ ] Software Development page
-- [ ] Digital Marketing services
-
-### Phase 7: Order System (TODO)
-- [ ] Order creation flow
-- [ ] Package selection
-- [ ] Checkout process
-- [ ] Payment page with gateway options
-
-### Phase 8: Admin Panel Modules (TODO)
-- [ ] Services management CRUD
-- [ ] Packages/pricing management
-- [ ] Orders management with filters
-- [ ] Invoice management
-- [ ] User management with roles
-- [ ] Blog CMS
-- [ ] SEO settings panel
-
-### Phase 9: Advanced Features (TODO)
-- [ ] PDF invoice generation
-- [ ] Email notifications via Resend
-- [ ] Domain availability checker structure
-- [ ] Hosting provisioning structure
-
----
-
-## Technical Stack
-
-- **Frontend**: React + Vite + TypeScript
-- **Styling**: Tailwind CSS + shadcn/ui
-- **Backend**: Lovable Cloud (Supabase)
-- **Database**: PostgreSQL with RLS
-- **Auth**: Supabase Auth with email/password
-- **State**: React Query + Context
-
----
-
-## File Structure
-
+### 1.1 Service Categories
+```text
++------------------+----------------------+
+| English          | Bengali              |
++------------------+----------------------+
+| Domain Services  | ডোমেইন সেবা          |
+| Web Hosting      | ওয়েব হোস্টিং         |
+| Web Development  | ওয়েব ডেভেলপমেন্ট     |
+| Software Dev     | সফটওয়্যার ডেভেলপমেন্ট |
+| Digital Marketing| ডিজিটাল মার্কেটিং     |
++------------------+----------------------+
 ```
-src/
-├── components/
-│   ├── admin/          # Admin panel components
-│   ├── dashboard/      # Client dashboard components
-│   ├── home/           # Home page sections
-│   ├── layout/         # Header, Footer, Layout
-│   └── ui/             # shadcn components
-├── hooks/              # Custom hooks
-├── lib/
-│   ├── auth/           # Auth context & protected routes
-│   └── i18n/           # Translations & language context
-├── pages/
-│   ├── admin/          # Admin pages
-│   ├── auth/           # Login, Register
-│   └── dashboard/      # Client dashboard pages
-├── services/           # Business logic services
-└── integrations/       # Supabase client & types
+
+### 1.2 Services (5 main services)
+- Domain Registration
+- Web Hosting (Shared, VPS, Dedicated)
+- Web Development
+- Software Development
+- Digital Marketing (SEO, Social Media, PPC)
+
+### 1.3 Service Packages (15+ packages)
+**Hosting Packages:**
+- Starter (1999 BDT/year)
+- Business (3999 BDT/year)
+- Enterprise (7999 BDT/year)
+
+**Web Development:**
+- Basic (15,000 BDT)
+- Professional (35,000 BDT)
+- E-commerce (75,000 BDT)
+
+**Software Development:**
+- Custom App (100,000+ BDT)
+- Enterprise Solution (500,000+ BDT)
+
+**Digital Marketing:**
+- SEO Basic (5,000 BDT/month)
+- Social Media (8,000 BDT/month)
+- Complete Package (15,000 BDT/month)
+
+---
+
+## Phase 2: Admin CRUD Pages (10 pages)
+
+### 2.1 Services Management (`/admin/services`)
+**Features:**
+- List all services with status badges
+- Create/Edit service modal with bilingual fields
+- Toggle active/inactive status
+- Drag-drop sorting
+
+**Fields:**
+- name_en, name_bn (required)
+- description_en, description_bn
+- service_type (enum: domain, hosting, web_development, etc.)
+- category_id (relation)
+- features_en, features_bn (JSON array)
+- is_active, sort_order
+
+### 2.2 Packages Management (`/admin/packages`)
+**Features:**
+- List packages grouped by service
+- Create/Edit with pricing details
+- Mark as popular
+- Copy package functionality
+
+**Fields:**
+- name_en, name_bn
+- price, setup_fee
+- billing_type (one_time, recurring, milestone)
+- billing_cycle_months
+- features_en, features_bn (JSON)
+- is_popular, is_active
+
+### 2.3 Orders Management (`/admin/orders`)
+**Features:**
+- List with filters (status, date range, service type)
+- View order details
+- Update order status
+- Add admin notes
+- Link to invoice and payment
+
+**Status Flow:**
+pending -> paid -> processing -> active/completed
+
+### 2.4 Invoices Management (`/admin/invoices`)
+**Features:**
+- List with status filters
+- View invoice details
+- Update status (paid, overdue, cancelled)
+- Print/Download PDF
+- Send reminder (future)
+
+### 2.5 Domains Management (`/admin/domains`)
+**Features:**
+- List all customer domains
+- View DNS records, nameservers
+- Update status
+- Renewal tracking
+- WHOIS lookup integration
+
+### 2.6 Hosting Management (`/admin/hosting`)
+**Features:**
+- List hosting accounts with server info
+- View credentials (encrypted)
+- Suspend/Unsuspend
+- Upgrade package
+- Resource usage stats
+
+### 2.7 Projects Management (`/admin/projects`)
+**Features:**
+- Kanban board view (pending/in_progress/review/completed)
+- Assign staff to project
+- Milestone tracking
+- File attachments
+- Client communication log
+
+### 2.8 Users Management (`/admin/users`)
+**Features:**
+- List all users with roles
+- View user profile and orders
+- Change role (client/staff/admin)
+- Disable/Enable account
+- View login history
+
+### 2.9 Blog CMS (`/admin/blog`)
+**Features:**
+- List posts with publish status
+- Rich text editor (TipTap or similar)
+- Category and tag management
+- Featured image upload
+- SEO fields (meta title, description)
+- Schedule publishing
+
+### 2.10 SEO Settings (`/admin/seo`)
+**Features:**
+- Page-wise SEO settings
+- Schema markup editor
+- Sitemap management
+- Robots.txt editor
+
+---
+
+## Phase 3: File Structure
+
+```text
+src/pages/admin/
+  AdminDashboard.tsx (existing)
+  AdminAnalytics.tsx (existing)
+  AdminPaymentVerification.tsx (existing)
+  AdminServices.tsx (new)
+  AdminPackages.tsx (new)
+  AdminOrders.tsx (new)
+  AdminInvoices.tsx (new)
+  AdminDomains.tsx (new)
+  AdminHosting.tsx (new)
+  AdminProjects.tsx (new)
+  AdminUsers.tsx (new)
+  AdminBlog.tsx (new)
+  AdminSEO.tsx (new)
+
+src/components/admin/
+  common/
+    DataTable.tsx (reusable table with sorting/filtering)
+    StatusBadge.tsx
+    DeleteConfirmDialog.tsx
+    FormModal.tsx
+  services/
+    ServiceForm.tsx
+    PackageForm.tsx
+  orders/
+    OrderDetailModal.tsx
+    StatusUpdateDropdown.tsx
+  blog/
+    BlogEditor.tsx
+    CategoryManager.tsx
 ```
+
+---
+
+## Phase 4: Route Configuration
+
+Add to `App.tsx`:
+```text
+/admin/services     -> AdminServices
+/admin/packages     -> AdminPackages
+/admin/orders       -> AdminOrders
+/admin/invoices     -> AdminInvoices
+/admin/domains      -> AdminDomains
+/admin/hosting      -> AdminHosting
+/admin/projects     -> AdminProjects
+/admin/users        -> AdminUsers
+/admin/blog         -> AdminBlog
+/admin/seo          -> AdminSEO
+```
+
+---
+
+## Technical Details
+
+### Reusable Components
+1. **DataTable** - Generic table with:
+   - Column sorting
+   - Search/filter
+   - Pagination
+   - Row selection
+   - Bulk actions
+
+2. **FormModal** - Generic form dialog with:
+   - Bilingual field support
+   - Validation (zod)
+   - Loading states
+
+3. **StatusBadge** - Consistent status display
+
+### API Pattern
+Each admin page follows:
+```typescript
+// Fetch data
+const { data, loading, refetch } = useQuery(...)
+
+// Create/Update
+const handleSave = async (formData) => {
+  await supabase.from('table').upsert(formData)
+  refetch()
+  toast.success('Saved!')
+}
+
+// Delete
+const handleDelete = async (id) => {
+  await supabase.from('table').delete().eq('id', id)
+  refetch()
+}
+```
+
+### RLS Considerations
+All admin tables already have RLS policies for admin/staff access.
+
+---
+
+## Implementation Order
+
+1. **Day 1**: Seed data + reusable components
+2. **Day 2**: Services + Packages pages
+3. **Day 3**: Orders + Invoices pages
+4. **Day 4**: Domains + Hosting pages
+5. **Day 5**: Users + Projects pages
+6. **Day 6**: Blog CMS + SEO pages
+7. **Day 7**: Testing + Polish
+
+---
+
+## Expected Outcome
+
+After implementation:
+- 10 new admin pages (full CRUD)
+- 5 service categories in database
+- 5 main services with descriptions
+- 15+ pricing packages
+- Complete management workflow
+- Bilingual support (EN/BN)
+
