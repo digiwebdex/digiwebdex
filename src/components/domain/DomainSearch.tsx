@@ -4,12 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
 import { DomainSearchInput } from './DomainSearchInput';
 import { DomainSearchResults } from './DomainSearchResults';
 import { DomainPricingTable } from './DomainPricingTable';
+import { DomainOrderModal } from '@/components/order/DomainOrderModal';
 import { domainService, type DomainSearchResult } from '@/services/domainService';
+import { toast } from 'sonner';
 
 interface DomainSearchProps {
   showPricingTable?: boolean;
@@ -19,7 +19,6 @@ interface DomainSearchProps {
 export function DomainSearch({ showPricingTable = true, onOrderDomain }: DomainSearchProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
-  const navigate = useNavigate();
   
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
@@ -27,6 +26,8 @@ export function DomainSearch({ showPricingTable = true, onOrderDomain }: DomainS
     primary: DomainSearchResult;
     alternatives: DomainSearchResult[];
   } | null>(null);
+  const [selectedDomain, setSelectedDomain] = useState<DomainSearchResult | null>(null);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
 
   const handleSearch = async (query: string) => {
     setIsSearching(true);
@@ -53,23 +54,14 @@ export function DomainSearch({ showPricingTable = true, onOrderDomain }: DomainS
       return;
     }
 
-    // Default behavior: navigate to order page with domain info
-    if (!user) {
-      toast.info(
-        language === 'bn' ? 'অনুগ্রহ করে লগইন করুন' : 'Please login first',
-        { description: language === 'bn' ? 'ডোমেইন অর্ডার করতে লগইন করুন' : 'Login to order this domain' }
-      );
-      navigate(`/${language}/auth/login`);
-      return;
-    }
+    // Open the domain order modal with bundle options
+    setSelectedDomain(result);
+    setIsOrderModalOpen(true);
+  };
 
-    // Store domain in session and redirect to order page
-    sessionStorage.setItem('pendingDomainOrder', JSON.stringify(result));
-    toast.success(
-      language === 'bn' ? 'ডোমেইন নির্বাচিত হয়েছে' : 'Domain selected',
-      { description: result.domain }
-    );
-    navigate(`/${language}/dashboard/orders/new?type=domain`);
+  const handleCloseOrderModal = () => {
+    setIsOrderModalOpen(false);
+    setSelectedDomain(null);
   };
 
   return (
@@ -110,6 +102,13 @@ export function DomainSearch({ showPricingTable = true, onOrderDomain }: DomainS
       {showPricingTable && !searchResults && (
         <DomainPricingTable />
       )}
+
+      {/* Domain Order Modal */}
+      <DomainOrderModal
+        isOpen={isOrderModalOpen}
+        onClose={handleCloseOrderModal}
+        domain={selectedDomain}
+      />
     </div>
   );
 }
