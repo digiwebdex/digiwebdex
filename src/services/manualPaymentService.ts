@@ -72,11 +72,11 @@ class ManualPaymentService {
       ],
     },
     bank_transfer: {
-      bankName: 'Pubali Bank Limited',
+      bankName: 'Pubali Bank Ltd.',
       accountName: 'Md. Iqbal Hossain',
       accountNumber: '2706101077904',
       accountType: 'Saving Account',
-      branch: 'Asad Avenue, Mohammadpur, Dhaka-1207',
+      branch: 'Asad Avenue Branch',
       routingNumber: '175260162',
       instructions: [
         'Transfer the exact amount to the account above',

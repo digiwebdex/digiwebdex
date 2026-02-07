@@ -203,43 +203,40 @@ export function ManualPaymentForm({
             </div>
           ) : method === 'bank_transfer' ? (
             <div className="space-y-4">
-              <div className="rounded-lg bg-blue-500/10 p-4 space-y-2">
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    {language === 'bn' ? 'ব্যাংকের নাম' : 'Bank Name'}
-                  </p>
-                  <p className="font-semibold">{instructions.bank_transfer.bankName}</p>
+              <div className="rounded-lg bg-blue-500/10 p-4 space-y-3">
+                <div className="text-center border-b border-blue-200 pb-3">
+                  <p className="text-xl font-bold text-blue-700">{instructions.bank_transfer.bankName}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    {language === 'bn' ? 'অ্যাকাউন্ট নাম' : 'Account Name'}
-                  </p>
-                  <p className="font-semibold">{instructions.bank_transfer.accountName}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    {language === 'bn' ? 'অ্যাকাউন্ট ধরন' : 'Account Type'}
-                  </p>
-                  <p className="font-medium">{instructions.bank_transfer.accountType}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    {language === 'bn' ? 'অ্যাকাউন্ট নম্বর' : 'Account Number'}
-                  </p>
-                  <p className="text-xl font-bold text-blue-600">{instructions.bank_transfer.accountNumber}</p>
-                </div>
-                <div className="flex gap-6">
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      {language === 'bn' ? 'শাখা' : 'Branch'}
-                    </p>
-                    <p className="font-medium">{instructions.bank_transfer.branch}</p>
+                <div className="grid gap-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">
+                      {language === 'bn' ? 'অ্যাকাউন্ট নাম' : 'Account Name'}:
+                    </span>
+                    <span className="font-semibold">{instructions.bank_transfer.accountName}</span>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      {language === 'bn' ? 'রাউটিং নম্বর' : 'Routing Number'}
-                    </p>
-                    <p className="font-medium">{instructions.bank_transfer.routingNumber}</p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">
+                      {language === 'bn' ? 'অ্যাকাউন্ট নম্বর' : 'A/C No'}:
+                    </span>
+                    <span className="text-lg font-bold text-blue-600">{instructions.bank_transfer.accountNumber}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">
+                      {language === 'bn' ? 'অ্যাকাউন্ট ধরন' : 'Account Type'}:
+                    </span>
+                    <span className="font-medium">{instructions.bank_transfer.accountType}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">
+                      {language === 'bn' ? 'রাউটিং নম্বর' : 'Routing'}:
+                    </span>
+                    <span className="font-medium">{instructions.bank_transfer.routingNumber}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">
+                      {language === 'bn' ? 'শাখা' : 'Branch'}:
+                    </span>
+                    <span className="font-medium text-right">{instructions.bank_transfer.branch}</span>
                   </div>
                 </div>
               </div>
