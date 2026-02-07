@@ -203,6 +203,12 @@ export function ManualPaymentForm({
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">
+                    {language === 'bn' ? 'অ্যাকাউন্ট ধরন' : 'Account Type'}
+                  </p>
+                  <p className="font-medium">{instructions.bank_transfer.accountType}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">
                     {language === 'bn' ? 'অ্যাকাউন্ট নম্বর' : 'Account Number'}
                   </p>
                   <p className="text-xl font-bold text-blue-600">{instructions.bank_transfer.accountNumber}</p>

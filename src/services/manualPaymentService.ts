@@ -33,6 +33,7 @@ export interface PaymentInstructions {
     bankName: string;
     accountName: string;
     accountNumber: string;
+    accountType: string;
     branch: string;
     routingNumber: string;
     instructions: string[];
@@ -66,11 +67,12 @@ class ManualPaymentService {
       ],
     },
     bank_transfer: {
-      bankName: 'Dutch-Bangla Bank Limited',
-      accountName: 'Digiwebdex',
-      accountNumber: '1234567890123',
-      branch: 'Dhaka Main Branch',
-      routingNumber: '090123456',
+      bankName: 'Pubali Bank Limited',
+      accountName: 'Md. Iqbal Hossain',
+      accountNumber: '2706101077904',
+      accountType: 'Saving Account',
+      branch: 'Asad Avenue, Mohammadpur, Dhaka-1207',
+      routingNumber: '175260162',
       instructions: [
         'Transfer the exact amount to the account above',
         'Use your Order ID as reference/narration',
