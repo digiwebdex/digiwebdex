@@ -130,7 +130,10 @@ const defaultPackages: PackageOption[] = [
 export function EasyOrderModal({ isOpen, onClose, packages = defaultPackages, preselectedPackage }: EasyOrderModalProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
-  const [step, setStep] = useState(preselectedPackage ? 2 : 1);
+  
+  // If a package is preselected, skip step 1 entirely
+  const hasPreselection = !!preselectedPackage;
+  const [step, setStep] = useState(hasPreselection ? 2 : 1);
   const [selectedPackage, setSelectedPackage] = useState<PackageOption | null>(preselectedPackage || null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -147,6 +150,17 @@ export function EasyOrderModal({ isOpen, onClose, packages = defaultPackages, pr
       message: '',
     },
   });
+  
+  // Reset state when modal opens with new preselection
+  React.useEffect(() => {
+    if (isOpen && preselectedPackage) {
+      setSelectedPackage(preselectedPackage);
+      setStep(2);
+    } else if (isOpen && !preselectedPackage) {
+      setStep(1);
+      setSelectedPackage(null);
+    }
+  }, [isOpen, preselectedPackage]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat(language === 'bn' ? 'bn-BD' : 'en-US', {
@@ -291,6 +305,11 @@ export function EasyOrderModal({ isOpen, onClose, packages = defaultPackages, pr
   };
 
   const handleBack = () => {
+    // If preselected, don't go back to step 1, just close
+    if (hasPreselection && step === 2) {
+      handleClose();
+      return;
+    }
     setStep((prev) => Math.max(prev - 1, 1));
   };
 
@@ -635,9 +654,9 @@ export function EasyOrderModal({ isOpen, onClose, packages = defaultPackages, pr
 
         {/* Navigation Buttons */}
         <div className="flex justify-between pt-4 border-t">
-          <Button variant="outline" onClick={step === 1 ? handleClose : handleBack} disabled={isSubmitting}>
+          <Button variant="outline" onClick={(step === 1 || (hasPreselection && step === 2)) ? handleClose : handleBack} disabled={isSubmitting}>
             <ChevronLeft className="h-4 w-4 mr-1" />
-            {step === 1 ? (language === 'bn' ? 'বাতিল' : 'Cancel') : (language === 'bn' ? 'পেছনে' : 'Back')}
+            {(step === 1 || (hasPreselection && step === 2)) ? (language === 'bn' ? 'বাতিল' : 'Cancel') : (language === 'bn' ? 'পেছনে' : 'Back')}
           </Button>
 
           {step < 3 ? (
