@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
-import { Upload, CreditCard, Building2, Phone, FileText, Loader2 } from 'lucide-react';
+import { Upload, CreditCard, Building2, Phone, FileText, Loader2, Banknote } from 'lucide-react';
 import { manualPaymentService, type ManualPaymentMethod } from '@/services/manualPaymentService';
 
 interface ManualPaymentFormProps {
@@ -127,7 +127,7 @@ export function ManualPaymentForm({
         </CardHeader>
         <CardContent>
           <RadioGroup value={method} onValueChange={(v) => setMethod(v as ManualPaymentMethod)}>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-3">
               <Label
                 htmlFor="bkash"
                 className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors ${
@@ -137,7 +137,7 @@ export function ManualPaymentForm({
                 <RadioGroupItem value="bkash_personal" id="bkash" />
                 <div className="flex items-center gap-2">
                   <Phone className="h-5 w-5 text-pink-500" />
-                  <span className="font-medium">bKash (Personal)</span>
+                  <span className="font-medium">bKash</span>
                 </div>
               </Label>
               
@@ -151,7 +151,22 @@ export function ManualPaymentForm({
                 <div className="flex items-center gap-2">
                   <Building2 className="h-5 w-5 text-blue-500" />
                   <span className="font-medium">
-                    {language === 'bn' ? 'ব্যাংক ট্রান্সফার' : 'Bank Transfer'}
+                    {language === 'bn' ? 'ব্যাংক' : 'Bank'}
+                  </span>
+                </div>
+              </Label>
+
+              <Label
+                htmlFor="cash"
+                className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors ${
+                  method === 'cash' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
+                }`}
+              >
+                <RadioGroupItem value="cash" id="cash" />
+                <div className="flex items-center gap-2">
+                  <Banknote className="h-5 w-5 text-green-500" />
+                  <span className="font-medium">
+                    {language === 'bn' ? 'ক্যাশ' : 'Cash'}
                   </span>
                 </div>
               </Label>
@@ -186,7 +201,7 @@ export function ManualPaymentForm({
                 ))}
               </ol>
             </div>
-          ) : (
+          ) : method === 'bank_transfer' ? (
             <div className="space-y-4">
               <div className="rounded-lg bg-blue-500/10 p-4 space-y-2">
                 <div>
@@ -230,6 +245,28 @@ export function ManualPaymentForm({
               </div>
               <ol className="list-inside list-decimal space-y-2 text-sm text-muted-foreground">
                 {instructions.bank_transfer.instructions.map((step, i) => (
+                  <li key={i}>{step}</li>
+                ))}
+              </ol>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="rounded-lg bg-green-500/10 p-4 space-y-2">
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    {language === 'bn' ? 'অফিস ঠিকানা' : 'Office Address'}
+                  </p>
+                  <p className="font-semibold">{instructions.cash.address}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    {language === 'bn' ? 'ফোন' : 'Phone'}
+                  </p>
+                  <p className="font-semibold text-green-600">{instructions.cash.phone}</p>
+                </div>
+              </div>
+              <ol className="list-inside list-decimal space-y-2 text-sm text-muted-foreground">
+                {instructions.cash.instructions.map((step, i) => (
                   <li key={i}>{step}</li>
                 ))}
               </ol>

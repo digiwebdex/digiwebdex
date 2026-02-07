@@ -1,7 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { notificationService } from './notificationService';
 
-export type ManualPaymentMethod = 'bkash_personal' | 'bank_transfer';
+export type ManualPaymentMethod = 'bkash_personal' | 'bank_transfer' | 'cash';
 export type ManualPaymentStatus = 'pending' | 'approved' | 'rejected';
 
 export interface ManualPayment {
@@ -36,6 +36,11 @@ export interface PaymentInstructions {
     accountType: string;
     branch: string;
     routingNumber: string;
+    instructions: string[];
+  };
+  cash: {
+    address: string;
+    phone: string;
     instructions: string[];
   };
 }
@@ -79,6 +84,17 @@ class ManualPaymentService {
         'Keep the transaction receipt',
         'Take a screenshot or photo of the receipt',
         'Submit the details below for verification',
+      ],
+    },
+    cash: {
+      address: 'House No. 49, Shekhertek, Mohammadpur, Dhaka-1207, Bangladesh',
+      phone: '+8801674533303',
+      instructions: [
+        'Visit our office during business hours (10 AM - 6 PM)',
+        'Bring the exact amount in cash',
+        'Mention your Order ID to our staff',
+        'Collect your payment receipt',
+        'Submit the receipt details below for confirmation',
       ],
     },
   };
