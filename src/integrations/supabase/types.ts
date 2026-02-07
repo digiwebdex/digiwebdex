@@ -566,6 +566,177 @@ export type Database = {
         }
         Relationships: []
       }
+      case_studies: {
+        Row: {
+          after_pagespeed_score: number | null
+          after_screenshot_url: string | null
+          before_pagespeed_score: number | null
+          before_screenshot_url: string | null
+          business_goal_bn: string | null
+          business_goal_en: string | null
+          canonical_url: string | null
+          client_logo_url: string | null
+          client_website_url: string | null
+          company_background_bn: string | null
+          company_background_en: string | null
+          created_at: string
+          faq_items: Json | null
+          hero_headline_bn: string | null
+          hero_headline_en: string | null
+          hero_image_url: string | null
+          hero_subheadline_bn: string | null
+          hero_subheadline_en: string | null
+          id: string
+          industry_tag_bn: string | null
+          industry_tag_en: string | null
+          industry_type_bn: string | null
+          industry_type_en: string | null
+          is_featured: boolean | null
+          is_published: boolean | null
+          keywords: string[] | null
+          meta_description_bn: string | null
+          meta_description_en: string | null
+          meta_title_bn: string | null
+          meta_title_en: string | null
+          og_image_url: string | null
+          performance_improvements: Json | null
+          problems: Json | null
+          project_name_bn: string
+          project_name_en: string
+          published_at: string | null
+          result_highlight_bn: string | null
+          result_highlight_en: string | null
+          results: Json | null
+          schema_markup: Json | null
+          slug: string
+          solutions: Json | null
+          sort_order: number | null
+          tech_stack: Json | null
+          testimonial_author_avatar_url: string | null
+          testimonial_author_company: string | null
+          testimonial_author_name: string | null
+          testimonial_author_title_bn: string | null
+          testimonial_author_title_en: string | null
+          testimonial_rating: number | null
+          testimonial_text_bn: string | null
+          testimonial_text_en: string | null
+          updated_at: string
+          views_count: number | null
+        }
+        Insert: {
+          after_pagespeed_score?: number | null
+          after_screenshot_url?: string | null
+          before_pagespeed_score?: number | null
+          before_screenshot_url?: string | null
+          business_goal_bn?: string | null
+          business_goal_en?: string | null
+          canonical_url?: string | null
+          client_logo_url?: string | null
+          client_website_url?: string | null
+          company_background_bn?: string | null
+          company_background_en?: string | null
+          created_at?: string
+          faq_items?: Json | null
+          hero_headline_bn?: string | null
+          hero_headline_en?: string | null
+          hero_image_url?: string | null
+          hero_subheadline_bn?: string | null
+          hero_subheadline_en?: string | null
+          id?: string
+          industry_tag_bn?: string | null
+          industry_tag_en?: string | null
+          industry_type_bn?: string | null
+          industry_type_en?: string | null
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          keywords?: string[] | null
+          meta_description_bn?: string | null
+          meta_description_en?: string | null
+          meta_title_bn?: string | null
+          meta_title_en?: string | null
+          og_image_url?: string | null
+          performance_improvements?: Json | null
+          problems?: Json | null
+          project_name_bn: string
+          project_name_en: string
+          published_at?: string | null
+          result_highlight_bn?: string | null
+          result_highlight_en?: string | null
+          results?: Json | null
+          schema_markup?: Json | null
+          slug: string
+          solutions?: Json | null
+          sort_order?: number | null
+          tech_stack?: Json | null
+          testimonial_author_avatar_url?: string | null
+          testimonial_author_company?: string | null
+          testimonial_author_name?: string | null
+          testimonial_author_title_bn?: string | null
+          testimonial_author_title_en?: string | null
+          testimonial_rating?: number | null
+          testimonial_text_bn?: string | null
+          testimonial_text_en?: string | null
+          updated_at?: string
+          views_count?: number | null
+        }
+        Update: {
+          after_pagespeed_score?: number | null
+          after_screenshot_url?: string | null
+          before_pagespeed_score?: number | null
+          before_screenshot_url?: string | null
+          business_goal_bn?: string | null
+          business_goal_en?: string | null
+          canonical_url?: string | null
+          client_logo_url?: string | null
+          client_website_url?: string | null
+          company_background_bn?: string | null
+          company_background_en?: string | null
+          created_at?: string
+          faq_items?: Json | null
+          hero_headline_bn?: string | null
+          hero_headline_en?: string | null
+          hero_image_url?: string | null
+          hero_subheadline_bn?: string | null
+          hero_subheadline_en?: string | null
+          id?: string
+          industry_tag_bn?: string | null
+          industry_tag_en?: string | null
+          industry_type_bn?: string | null
+          industry_type_en?: string | null
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          keywords?: string[] | null
+          meta_description_bn?: string | null
+          meta_description_en?: string | null
+          meta_title_bn?: string | null
+          meta_title_en?: string | null
+          og_image_url?: string | null
+          performance_improvements?: Json | null
+          problems?: Json | null
+          project_name_bn?: string
+          project_name_en?: string
+          published_at?: string | null
+          result_highlight_bn?: string | null
+          result_highlight_en?: string | null
+          results?: Json | null
+          schema_markup?: Json | null
+          slug?: string
+          solutions?: Json | null
+          sort_order?: number | null
+          tech_stack?: Json | null
+          testimonial_author_avatar_url?: string | null
+          testimonial_author_company?: string | null
+          testimonial_author_name?: string | null
+          testimonial_author_title_bn?: string | null
+          testimonial_author_title_en?: string | null
+          testimonial_rating?: number | null
+          testimonial_text_bn?: string | null
+          testimonial_text_en?: string | null
+          updated_at?: string
+          views_count?: number | null
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string

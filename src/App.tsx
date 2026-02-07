@@ -16,6 +16,8 @@ import Blog from "./pages/Blog";
 import BlogPostPage from "./pages/BlogPost";
 import Locations from "./pages/Locations";
 import LandingPage from "./pages/LandingPage";
+import CaseStudies from "./pages/CaseStudies";
+import CaseStudy from "./pages/CaseStudy";
 
 // SEO Landing Pages
 import { BestHostingBangladesh, WebDesignDhaka, ERPSoftwareBangladesh } from "./pages/landing";
@@ -78,6 +80,8 @@ const LanguageRoutes = () => {
           <Route path="/bn/blog/tag/:tagSlug" element={<Blog />} />
           <Route path="/bn/locations" element={<Locations />} />
           <Route path="/bn/locations/:slug" element={<Locations />} />
+          <Route path="/bn/case-studies" element={<CaseStudies />} />
+          <Route path="/bn/case-studies/:slug" element={<CaseStudy />} />
           
           {/* Bangla - SEO Landing Pages */}
           <Route path="/bn/best-hosting-in-bangladesh" element={<BestHostingBangladesh />} />
@@ -131,6 +135,8 @@ const LanguageRoutes = () => {
           <Route path="/en/blog/tag/:tagSlug" element={<Blog />} />
           <Route path="/en/locations" element={<Locations />} />
           <Route path="/en/locations/:slug" element={<Locations />} />
+          <Route path="/en/case-studies" element={<CaseStudies />} />
+          <Route path="/en/case-studies/:slug" element={<CaseStudy />} />
           
           {/* English - SEO Landing Pages */}
           <Route path="/en/best-hosting-in-bangladesh" element={<BestHostingBangladesh />} />
