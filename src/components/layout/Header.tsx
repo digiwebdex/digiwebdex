@@ -41,9 +41,8 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
       <div className="container-custom flex h-16 items-center justify-between">
         {/* Logo */}
-        <Link to={basePath || '/'} className="flex items-center gap-2">
+        <Link to={basePath || '/'} className="flex items-center">
           <img src={logo} alt="DigiWebDex" className="h-10 w-auto" />
-          <span className="font-bold text-xl">DigiWebDex</span>
         </Link>
 
         {/* Desktop Navigation */}

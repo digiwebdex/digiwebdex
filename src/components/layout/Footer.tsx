@@ -38,9 +38,8 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand Section */}
           <div className="space-y-4">
-            <Link to={basePath || '/'} className="flex items-center gap-2">
-              <img src={logo} alt="DigiWebDex" className="h-12 w-auto" />
-              <span className="font-bold text-2xl">DigiWebDex</span>
+            <Link to={basePath || '/'} className="flex items-center">
+              <img src={logo} alt="DigiWebDex" className="h-14 w-auto" />
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
               {t.footer.description}
