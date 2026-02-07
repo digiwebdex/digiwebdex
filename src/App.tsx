@@ -17,6 +17,9 @@ import BlogPostPage from "./pages/BlogPost";
 import Locations from "./pages/Locations";
 import LandingPage from "./pages/LandingPage";
 
+// SEO Landing Pages
+import { BestHostingBangladesh, WebDesignDhaka, ERPSoftwareBangladesh } from "./pages/landing";
+
 // Service Pages
 import DomainHostingPage from "./pages/services/DomainHosting";
 import WebDevelopmentPage from "./pages/services/WebDevelopment";
@@ -76,6 +79,10 @@ const LanguageRoutes = () => {
           <Route path="/bn/locations" element={<Locations />} />
           <Route path="/bn/locations/:slug" element={<Locations />} />
           
+          {/* Bangla - SEO Landing Pages */}
+          <Route path="/bn/best-hosting-in-bangladesh" element={<BestHostingBangladesh />} />
+          <Route path="/bn/web-design-company-in-dhaka" element={<WebDesignDhaka />} />
+          <Route path="/bn/erp-software-bangladesh" element={<ERPSoftwareBangladesh />} />
           {/* Bangla - Service Pages */}
           <Route path="/bn/services/domain-hosting" element={<DomainHostingPage />} />
           <Route path="/bn/services/web-development" element={<WebDevelopmentPage />} />
@@ -124,6 +131,11 @@ const LanguageRoutes = () => {
           <Route path="/en/blog/tag/:tagSlug" element={<Blog />} />
           <Route path="/en/locations" element={<Locations />} />
           <Route path="/en/locations/:slug" element={<Locations />} />
+          
+          {/* English - SEO Landing Pages */}
+          <Route path="/en/best-hosting-in-bangladesh" element={<BestHostingBangladesh />} />
+          <Route path="/en/web-design-company-in-dhaka" element={<WebDesignDhaka />} />
+          <Route path="/en/erp-software-bangladesh" element={<ERPSoftwareBangladesh />} />
           
           {/* English - Service Pages */}
           <Route path="/en/services/domain-hosting" element={<DomainHostingPage />} />
