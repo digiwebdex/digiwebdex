@@ -130,8 +130,8 @@ export default function AdminSEO() {
     }
 
     const { error } = selectedItem
-      ? await supabase.from(table).update(payload).eq('id', selectedItem.id)
-      : await supabase.from(table).insert(payload);
+      ? await supabase.from(table).update(payload as never).eq('id', selectedItem.id)
+      : await supabase.from(table).insert(payload as never);
 
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
