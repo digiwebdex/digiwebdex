@@ -94,6 +94,44 @@ const pricingPlans: PricingPlan[] = [
       bn: ['আনলিমিটেড প্রোডাক্ট', 'পেমেন্ট গেটওয়ে', 'অর্ডার ম্যানেজমেন্ট', 'ইনভেন্টরি সিস্টেম', 'অ্যাডমিন ড্যাশবোর্ড', '৬ মাস সাপোর্ট'],
     },
   },
+  // Software Development Plans
+  {
+    id: 'software-starter',
+    name: { en: 'Starter Software', bn: 'স্টার্টার সফটওয়্যার' },
+    description: { en: 'Small business automation', bn: 'ছোট ব্যবসার অটোমেশন' },
+    price: 30000,
+    billingCycle: { en: '', bn: '' },
+    serviceType: 'software_development',
+    features: {
+      en: ['Basic Features', 'Single User', 'Cloud Hosting', 'Mobile Responsive', '3 Months Support'],
+      bn: ['বেসিক ফিচার', 'সিঙ্গেল ইউজার', 'ক্লাউড হোস্টিং', 'মোবাইল রেসপন্সিভ', '৩ মাস সাপোর্ট'],
+    },
+  },
+  {
+    id: 'software-business',
+    name: { en: 'Business Software', bn: 'বিজনেস সফটওয়্যার' },
+    description: { en: 'Medium business solution', bn: 'মাঝারি ব্যবসার সলিউশন' },
+    price: 60000,
+    billingCycle: { en: '', bn: '' },
+    serviceType: 'software_development',
+    isPopular: true,
+    features: {
+      en: ['Advanced Features', 'Multi-User', 'Role Management', 'Reports & Analytics', 'API Integration', '6 Months Support'],
+      bn: ['অ্যাডভান্সড ফিচার', 'মাল্টি-ইউজার', 'রোল ম্যানেজমেন্ট', 'রিপোর্ট ও অ্যানালিটিক্স', 'API ইন্টিগ্রেশন', '৬ মাস সাপোর্ট'],
+    },
+  },
+  {
+    id: 'software-enterprise',
+    name: { en: 'Enterprise Software', bn: 'এন্টারপ্রাইজ সফটওয়্যার' },
+    description: { en: 'Large scale ERP/POS', bn: 'বড় মাপের ERP/POS' },
+    price: 100000,
+    billingCycle: { en: '', bn: '' },
+    serviceType: 'software_development',
+    features: {
+      en: ['Full ERP/POS', 'Unlimited Users', 'Multi-Branch', 'Mobile App', 'Custom Modules', 'Dedicated Support', '1 Year AMC'],
+      bn: ['সম্পূর্ণ ERP/POS', 'আনলিমিটেড ইউজার', 'মাল্টি-ব্র্যাঞ্চ', 'মোবাইল অ্যাপ', 'কাস্টম মডিউল', 'ডেডিকেটেড সাপোর্ট', '১ বছর AMC'],
+    },
+  },
 ];
 
 export default function Pricing() {
@@ -127,6 +165,7 @@ export default function Pricing() {
 
   const hostingPlans = pricingPlans.filter(p => p.serviceType === 'hosting');
   const webPlans = pricingPlans.filter(p => p.serviceType === 'web_development');
+  const softwarePlans = pricingPlans.filter(p => p.serviceType === 'software_development');
 
   return (
     <Layout>
@@ -165,12 +204,32 @@ export default function Pricing() {
           </div>
 
           {/* Web Development Plans */}
-          <div>
+          <div className="mb-20">
             <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">
               {language === 'bn' ? 'ওয়েব ডেভেলপমেন্ট' : 'Web Development'}
             </h2>
             <div className="grid gap-8 md:grid-cols-3">
               {webPlans.map((plan) => (
+                <PricingCard
+                  key={plan.id}
+                  plan={plan}
+                  language={language}
+                  formatCurrency={formatCurrency}
+                  basePath={basePath}
+                  isLoggedIn={!!user}
+                  onOrder={() => handleOrderClick(plan)}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Software Development Plans */}
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">
+              {language === 'bn' ? 'সফটওয়্যার ডেভেলপমেন্ট' : 'Software Development'}
+            </h2>
+            <div className="grid gap-8 md:grid-cols-3">
+              {softwarePlans.map((plan) => (
                 <PricingCard
                   key={plan.id}
                   plan={plan}
