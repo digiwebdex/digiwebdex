@@ -9,6 +9,7 @@ import { ScrollToTop } from "@/components/common";
 
 // Pages
 import Home from "./pages/Home";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
 import Contact from "./pages/Contact";
@@ -115,6 +116,7 @@ const LanguageRoutes = () => {
           <Route path="/bn/locations/:slug" element={<Locations />} />
           <Route path="/bn/case-studies" element={<CaseStudies />} />
           <Route path="/bn/case-studies/:slug" element={<CaseStudy />} />
+          <Route path="/bn/about-us" element={<About />} />
           
           {/* Bangla - SEO Landing Pages */}
           <Route path="/bn/best-hosting-in-bangladesh" element={<BestHostingBangladesh />} />
@@ -190,6 +192,7 @@ const LanguageRoutes = () => {
           <Route path="/en/locations/:slug" element={<Locations />} />
           <Route path="/en/case-studies" element={<CaseStudies />} />
           <Route path="/en/case-studies/:slug" element={<CaseStudy />} />
+          <Route path="/en/about-us" element={<About />} />
           
           {/* English - SEO Landing Pages */}
           <Route path="/en/best-hosting-in-bangladesh" element={<BestHostingBangladesh />} />

@@ -33,7 +33,7 @@ export function Header() {
     { label: t.nav.pricing, href: `${basePath}/pricing` },
     { label: t.nav.blog, href: `${basePath}/blog` },
     { label: t.nav.locations, href: `${basePath}/locations` },
-    { label: t.nav.about, href: `${basePath}/about` },
+    { label: t.nav.about, href: `${basePath}/about-us` },
     { label: t.nav.contact, href: `${basePath}/contact` },
   ];
 

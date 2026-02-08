@@ -12,7 +12,7 @@ export function Footer() {
 
   const quickLinks = [
     { label: t.nav.home, href: basePath || '/' },
-    { label: t.nav.about, href: `${basePath}/about` },
+    { label: t.nav.about, href: `${basePath}/about-us` },
     { label: t.nav.pricing, href: `${basePath}/pricing` },
     { label: t.nav.blog, href: `${basePath}/blog` },
     { label: t.nav.contact, href: `${basePath}/contact` },
