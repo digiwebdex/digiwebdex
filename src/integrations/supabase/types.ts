@@ -1269,6 +1269,103 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          id: string
+          lead_id: string
+          performed_by: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          lead_id: string
+          performed_by?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          lead_id?: string
+          performed_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_logs_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          assigned_to: string | null
+          converted_order_id: string | null
+          created_at: string
+          email: string | null
+          first_contact_at: string | null
+          follow_up_count: number | null
+          id: string
+          last_follow_up_at: string | null
+          name: string
+          notes: string | null
+          phone: string
+          service_interest: string | null
+          source: string | null
+          status: Database["public"]["Enums"]["lead_status"]
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          converted_order_id?: string | null
+          created_at?: string
+          email?: string | null
+          first_contact_at?: string | null
+          follow_up_count?: number | null
+          id?: string
+          last_follow_up_at?: string | null
+          name: string
+          notes?: string | null
+          phone: string
+          service_interest?: string | null
+          source?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          converted_order_id?: string | null
+          created_at?: string
+          email?: string | null
+          first_contact_at?: string | null
+          follow_up_count?: number | null
+          id?: string
+          last_follow_up_at?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string
+          service_interest?: string | null
+          source?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_converted_order_id_fkey"
+            columns: ["converted_order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       location_pages: {
         Row: {
           address_bn: string | null
@@ -2398,6 +2495,7 @@ export type Database = {
         | "transferred"
       hosting_status: "pending" | "active" | "suspended" | "terminated"
       invoice_status: "unpaid" | "paid" | "overdue" | "cancelled"
+      lead_status: "new" | "contacted" | "converted" | "lost"
       notification_status: "pending" | "sent" | "failed"
       notification_type: "email" | "sms" | "whatsapp" | "in_app"
       order_status:
@@ -2569,6 +2667,7 @@ export const Constants = {
       ],
       hosting_status: ["pending", "active", "suspended", "terminated"],
       invoice_status: ["unpaid", "paid", "overdue", "cancelled"],
+      lead_status: ["new", "contacted", "converted", "lost"],
       notification_status: ["pending", "sent", "failed"],
       notification_type: ["email", "sms", "whatsapp", "in_app"],
       order_status: [
