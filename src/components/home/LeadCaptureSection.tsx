@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Send, CheckCircle, Sparkles, Users, Headphones, Shield } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { leadService } from '@/services/leadService';
 import { toast } from '@/hooks/use-toast';
 import { z } from 'zod';
 
@@ -48,29 +48,16 @@ export function LeadCaptureSection() {
       const validated = leadSchema.parse(formData);
       setIsSubmitting(true);
 
-      // Save lead to contact_messages table
-      const { error } = await supabase.from('contact_messages').insert({
+      // Save lead to leads table using leadService
+      const result = await leadService.createLead({
         name: validated.name,
         phone: validated.phone,
-        email: `${validated.phone}@lead.digiwebdex.com`,
-        subject: `Lead: ${validated.service}`,
-        message: `Service Interest: ${validated.service}`,
+        service_interest: validated.service,
+        source: 'homepage',
       });
 
-      if (error) throw error;
-
-      // Trigger notification (via edge function if configured)
-      try {
-        await supabase.functions.invoke('contact-notification', {
-          body: {
-            type: 'lead',
-            name: validated.name,
-            phone: validated.phone,
-            service: validated.service,
-          },
-        });
-      } catch {
-        // Notification optional - don't fail the submission
+      if (!result.success) {
+        throw new Error(result.error);
       }
 
       setIsSuccess(true);
@@ -88,7 +75,7 @@ export function LeadCaptureSection() {
       } else {
         toast({
           title: language === 'bn' ? 'ত্রুটি!' : 'Error!',
-          description: language === 'bn' ? 'আবার চেষ্টা করুন।' : 'Please try again.',
+          description: err instanceof Error ? err.message : (language === 'bn' ? 'আবার চেষ্টা করুন।' : 'Please try again.'),
           variant: 'destructive',
         });
       }

@@ -57,6 +57,7 @@ import AdminProjects from "./pages/admin/AdminProjects";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminBlog from "./pages/admin/AdminBlog";
 import AdminSEO from "./pages/admin/AdminSEO";
+import AdminLeads from "./pages/admin/AdminLeads";
 
 const queryClient = new QueryClient();
 
@@ -122,6 +123,7 @@ const LanguageRoutes = () => {
           <Route path="/bn/admin/users" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminUsers /></ProtectedRoute>} />
           <Route path="/bn/admin/blog" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminBlog /></ProtectedRoute>} />
           <Route path="/bn/admin/seo" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminSEO /></ProtectedRoute>} />
+          <Route path="/bn/admin/leads" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminLeads /></ProtectedRoute>} />
           <Route path="/bn/admin/*" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminDashboard /></ProtectedRoute>} />
           
           {/* English routes */}
@@ -178,6 +180,7 @@ const LanguageRoutes = () => {
           <Route path="/en/admin/users" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminUsers /></ProtectedRoute>} />
           <Route path="/en/admin/blog" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminBlog /></ProtectedRoute>} />
           <Route path="/en/admin/seo" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminSEO /></ProtectedRoute>} />
+          <Route path="/en/admin/leads" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminLeads /></ProtectedRoute>} />
           <Route path="/en/admin/*" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminDashboard /></ProtectedRoute>} />
           
           {/* Dynamic Landing Pages - must be before catch-all */}

@@ -23,6 +23,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Home,
+  UserPlus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -45,6 +46,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       items: [
         { label: language === 'bn' ? 'ড্যাশবোর্ড' : 'Dashboard', icon: LayoutDashboard, href: `${basePath}/admin` },
         { label: language === 'bn' ? 'অ্যানালিটিক্স' : 'Analytics', icon: BarChart3, href: `${basePath}/admin/analytics` },
+        { label: language === 'bn' ? 'লিডস' : 'Leads', icon: UserPlus, href: `${basePath}/admin/leads` },
       ],
     },
     {
