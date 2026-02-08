@@ -6,9 +6,25 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-// Admin contact info
-const ADMIN_PHONE = '8801674533303';
-const ADMIN_EMAIL = 'digiwebdex@gmail.com';
+// Helper to get admin contact from settings
+async function getAdminContact(supabase: ReturnType<typeof createClient>) {
+  const { data } = await supabase
+    .from('system_settings')
+    .select('key, value')
+    .in('key', ['admin_notification_phone', 'admin_notification_email', 'company_phone']);
+
+  const settings = new Map<string, string>();
+  data?.forEach((s: { key: string; value: string }) => {
+    const val = typeof s.value === 'string' ? s.value.replace(/^"|"$/g, '') : String(s.value);
+    settings.set(s.key, val);
+  });
+
+  return {
+    phone: settings.get('admin_notification_phone')?.replace(/[^0-9]/g, '') || '8801674533303',
+    email: settings.get('admin_notification_email') || 'digiwebdex@gmail.com',
+    hotline: settings.get('company_phone')?.replace(/[^0-9]/g, '') || '01674533303',
+  };
+}
 
 interface LeadNotificationRequest {
   lead_id: string;
@@ -39,6 +55,9 @@ serve(async (req) => {
       );
     }
 
+    // Get admin contact from settings
+    const adminContact = await getAdminContact(supabase);
+
     // Normalize phone number
     let customerPhone = data.phone.replace(/[^0-9]/g, '');
     if (!customerPhone.startsWith('880')) {
@@ -59,7 +78,7 @@ serve(async (req) => {
     const serviceLabel = data.service_interest ? (serviceLabels[data.service_interest] || data.service_interest) : 'সার্ভিস';
 
     // 1. Send SMS to customer (confirmation)
-    const customerMessage = `ধন্যবাদ ${data.name}! Digiwebdex টিম খুব দ্রুত আপনার সাথে যোগাযোগ করবে। ${serviceLabel} সার্ভিসে আমাদের সাথে থাকুন। হটলাইন: 01674533303`;
+    const customerMessage = `ধন্যবাদ ${data.name}! Digiwebdex টিম খুব দ্রুত আপনার সাথে যোগাযোগ করবে। ${serviceLabel} সার্ভিসে আমাদের সাথে থাকুন। হটলাইন: ${adminContact.hotline}`;
     
     try {
       await supabase.functions.invoke('send-sms', {
@@ -81,7 +100,7 @@ serve(async (req) => {
     try {
       await supabase.functions.invoke('send-sms', {
         body: {
-          phone: ADMIN_PHONE,
+          phone: adminContact.phone,
           message: adminMessage,
           type: 'admin',
           metadata: { lead_id: data.lead_id },
@@ -109,7 +128,7 @@ serve(async (req) => {
 
     // 4. Log admin notification
     await supabase.from('notifications').insert({
-      recipient: ADMIN_PHONE,
+      recipient: adminContact.phone,
       notification_type: 'sms',
       subject: 'new_lead_alert',
       body: adminMessage,

@@ -6,9 +6,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-// BulkSMSBD API Configuration
-const SMS_API_URL = 'http://bulksmsbd.net/api/smsapi';
-const ADMIN_PHONE = '8801674533303';
+// BulkSMSBD API Configuration (loaded from settings)
+const DEFAULT_SMS_API_URL = 'http://bulksmsbd.net/api/smsapi';
 
 // Rate limiting: Track SMS sent per phone number
 const rateLimitCache = new Map<string, { count: number; resetTime: number }>();
@@ -115,7 +114,8 @@ async function sendSMS(phone: string, message: string): Promise<{ success: boole
   const encodedMessage = encodeURIComponent(message);
   
   // Build API URL with GET parameters
-  const url = `${SMS_API_URL}?api_key=${encodeURIComponent(apiKey)}&type=text&number=${normalized}&senderid=${encodeURIComponent(senderId)}&message=${encodedMessage}`;
+  const smsApiUrl = DEFAULT_SMS_API_URL;
+  const url = `${smsApiUrl}?api_key=${encodeURIComponent(apiKey)}&type=text&number=${normalized}&senderid=${encodeURIComponent(senderId)}&message=${encodedMessage}`;
   
   try {
     console.log('Sending SMS to:', normalized);
