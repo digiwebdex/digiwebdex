@@ -45,7 +45,7 @@ export function ProcessSection() {
   ];
 
   return (
-    <section className="section-padding relative overflow-hidden">
+    <section className="section-padding relative overflow-visible">
       {/* Enhanced Background */}
       <div className="absolute inset-0 mesh-gradient opacity-40" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,hsl(var(--primary)/0.08)_0%,transparent_60%)]" />
@@ -80,7 +80,7 @@ export function ProcessSection() {
           {/* Connection Line - Desktop with gradient */}
           <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-primary/50 -translate-y-1/2 rounded-full opacity-30" />
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 pt-6">
             {steps.map((step, index) => (
               <div 
                 key={index} 
