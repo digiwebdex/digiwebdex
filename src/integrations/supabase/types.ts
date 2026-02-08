@@ -301,6 +301,39 @@ export type Database = {
         }
         Relationships: []
       }
+      automation_logs: {
+        Row: {
+          automation_type: string
+          created_at: string
+          details: Json | null
+          entity_id: string | null
+          entity_type: string | null
+          error_message: string | null
+          id: string
+          status: string
+        }
+        Insert: {
+          automation_type: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string | null
+          error_message?: string | null
+          id?: string
+          status?: string
+        }
+        Update: {
+          automation_type?: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string | null
+          error_message?: string | null
+          id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       blog_categories: {
         Row: {
           created_at: string
@@ -839,6 +872,95 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_field_values: {
+        Row: {
+          created_at: string
+          entity_id: string
+          entity_type: string
+          field_id: string
+          id: string
+          updated_at: string
+          value: Json | null
+        }
+        Insert: {
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          field_id: string
+          id?: string
+          updated_at?: string
+          value?: Json | null
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          field_id?: string
+          id?: string
+          updated_at?: string
+          value?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_field_values_field_id_fkey"
+            columns: ["field_id"]
+            isOneToOne: false
+            referencedRelation: "custom_fields"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_fields: {
+        Row: {
+          created_at: string
+          default_value: string | null
+          entity_type: string
+          field_key: string
+          field_label_bn: string | null
+          field_label_en: string
+          field_type: Database["public"]["Enums"]["custom_field_type"]
+          id: string
+          is_active: boolean | null
+          is_required: boolean | null
+          options: Json | null
+          sort_order: number | null
+          updated_at: string
+          validation_rules: Json | null
+        }
+        Insert: {
+          created_at?: string
+          default_value?: string | null
+          entity_type: string
+          field_key: string
+          field_label_bn?: string | null
+          field_label_en: string
+          field_type?: Database["public"]["Enums"]["custom_field_type"]
+          id?: string
+          is_active?: boolean | null
+          is_required?: boolean | null
+          options?: Json | null
+          sort_order?: number | null
+          updated_at?: string
+          validation_rules?: Json | null
+        }
+        Update: {
+          created_at?: string
+          default_value?: string | null
+          entity_type?: string
+          field_key?: string
+          field_label_bn?: string | null
+          field_label_en?: string
+          field_type?: Database["public"]["Enums"]["custom_field_type"]
+          id?: string
+          is_active?: boolean | null
+          is_required?: boolean | null
+          options?: Json | null
+          sort_order?: number | null
+          updated_at?: string
+          validation_rules?: Json | null
+        }
+        Relationships: []
+      }
       domain_logs: {
         Row: {
           action: string
@@ -1019,6 +1141,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      homepage_sections: {
+        Row: {
+          content_bn: string | null
+          content_en: string | null
+          created_at: string
+          cta_link: string | null
+          cta_text_bn: string | null
+          cta_text_en: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          metadata: Json | null
+          section_key: string
+          sort_order: number | null
+          subtitle_bn: string | null
+          subtitle_en: string | null
+          title_bn: string | null
+          title_en: string | null
+          updated_at: string
+        }
+        Insert: {
+          content_bn?: string | null
+          content_en?: string | null
+          created_at?: string
+          cta_link?: string | null
+          cta_text_bn?: string | null
+          cta_text_en?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          metadata?: Json | null
+          section_key: string
+          sort_order?: number | null
+          subtitle_bn?: string | null
+          subtitle_en?: string | null
+          title_bn?: string | null
+          title_en?: string | null
+          updated_at?: string
+        }
+        Update: {
+          content_bn?: string | null
+          content_en?: string | null
+          created_at?: string
+          cta_link?: string | null
+          cta_text_bn?: string | null
+          cta_text_en?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          metadata?: Json | null
+          section_key?: string
+          sort_order?: number | null
+          subtitle_bn?: string | null
+          subtitle_en?: string | null
+          title_bn?: string | null
+          title_en?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       hosting_accounts: {
         Row: {
@@ -1590,6 +1772,7 @@ export type Database = {
           body_bn: string | null
           body_en: string | null
           created_at: string
+          event_name: string | null
           id: string
           is_active: boolean | null
           name: string
@@ -1604,6 +1787,7 @@ export type Database = {
           body_bn?: string | null
           body_en?: string | null
           created_at?: string
+          event_name?: string | null
           id?: string
           is_active?: boolean | null
           name: string
@@ -1618,6 +1802,7 @@ export type Database = {
           body_bn?: string | null
           body_en?: string | null
           created_at?: string
+          event_name?: string | null
           id?: string
           is_active?: boolean | null
           name?: string
@@ -2069,6 +2254,78 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      proposal_templates: {
+        Row: {
+          accent_color: string | null
+          created_at: string
+          custom_css: string | null
+          footer_text_bn: string | null
+          footer_text_en: string | null
+          header_text_bn: string | null
+          header_text_en: string | null
+          id: string
+          is_default: boolean | null
+          logo_url: string | null
+          name: string
+          payment_instructions_bn: string | null
+          payment_instructions_en: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          show_bank_details: boolean | null
+          show_company_details: boolean | null
+          show_mobile_payment: boolean | null
+          terms_conditions_bn: string | null
+          terms_conditions_en: string | null
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string | null
+          created_at?: string
+          custom_css?: string | null
+          footer_text_bn?: string | null
+          footer_text_en?: string | null
+          header_text_bn?: string | null
+          header_text_en?: string | null
+          id?: string
+          is_default?: boolean | null
+          logo_url?: string | null
+          name: string
+          payment_instructions_bn?: string | null
+          payment_instructions_en?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          show_bank_details?: boolean | null
+          show_company_details?: boolean | null
+          show_mobile_payment?: boolean | null
+          terms_conditions_bn?: string | null
+          terms_conditions_en?: string | null
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string | null
+          created_at?: string
+          custom_css?: string | null
+          footer_text_bn?: string | null
+          footer_text_en?: string | null
+          header_text_bn?: string | null
+          header_text_en?: string | null
+          id?: string
+          is_default?: boolean | null
+          logo_url?: string | null
+          name?: string
+          payment_instructions_bn?: string | null
+          payment_instructions_en?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          show_bank_details?: boolean | null
+          show_company_details?: boolean | null
+          show_mobile_payment?: boolean | null
+          terms_conditions_bn?: string | null
+          terms_conditions_en?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       proposals: {
         Row: {
@@ -3116,6 +3373,39 @@ export type Database = {
           },
         ]
       }
+      system_settings: {
+        Row: {
+          category: string
+          description: string | null
+          id: string
+          is_sensitive: boolean | null
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          category?: string
+          description?: string | null
+          id?: string
+          is_sensitive?: boolean | null
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          category?: string
+          description?: string | null
+          id?: string
+          is_sensitive?: boolean | null
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       ticket_logs: {
         Row: {
           action: string
@@ -3246,6 +3536,17 @@ export type Database = {
       billing_type: "one_time" | "recurring" | "milestone"
       commission_status: "pending" | "approved" | "paid" | "cancelled"
       commission_type: "fixed" | "percentage"
+      custom_field_type:
+        | "text"
+        | "number"
+        | "date"
+        | "select"
+        | "multiselect"
+        | "checkbox"
+        | "textarea"
+        | "email"
+        | "phone"
+        | "url"
       domain_status:
         | "pending"
         | "registered"
@@ -3442,6 +3743,18 @@ export const Constants = {
       billing_type: ["one_time", "recurring", "milestone"],
       commission_status: ["pending", "approved", "paid", "cancelled"],
       commission_type: ["fixed", "percentage"],
+      custom_field_type: [
+        "text",
+        "number",
+        "date",
+        "select",
+        "multiselect",
+        "checkbox",
+        "textarea",
+        "email",
+        "phone",
+        "url",
+      ],
       domain_status: [
         "pending",
         "registered",

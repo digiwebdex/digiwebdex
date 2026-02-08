@@ -65,6 +65,11 @@ import AdminProposals from "./pages/admin/AdminProposals";
 import AdminSubscriptions from "./pages/admin/AdminSubscriptions";
 import AdminTickets from "./pages/admin/AdminTickets";
 import AdminResellers from "./pages/admin/AdminResellers";
+import AdminSettings from "./pages/admin/AdminSettings";
+import AdminHomepageCMS from "./pages/admin/AdminHomepageCMS";
+import AdminCustomFields from "./pages/admin/AdminCustomFields";
+import AdminNotificationTemplates from "./pages/admin/AdminNotificationTemplates";
+import AdminProposalTemplates from "./pages/admin/AdminProposalTemplates";
 
 // Public Pages
 import ProposalView from "./pages/ProposalView";
@@ -145,6 +150,11 @@ const LanguageRoutes = () => {
           <Route path="/bn/admin/subscriptions" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminSubscriptions /></ProtectedRoute>} />
           <Route path="/bn/admin/tickets" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminTickets /></ProtectedRoute>} />
           <Route path="/bn/admin/resellers" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminResellers /></ProtectedRoute>} />
+          <Route path="/bn/admin/settings" element={<ProtectedRoute requiredRoles={['admin']}><AdminSettings /></ProtectedRoute>} />
+          <Route path="/bn/admin/homepage" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminHomepageCMS /></ProtectedRoute>} />
+          <Route path="/bn/admin/custom-fields" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminCustomFields /></ProtectedRoute>} />
+          <Route path="/bn/admin/notifications" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminNotificationTemplates /></ProtectedRoute>} />
+          <Route path="/bn/admin/proposal-templates" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminProposalTemplates /></ProtectedRoute>} />
           <Route path="/bn/admin/*" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminDashboard /></ProtectedRoute>} />
           
           {/* English routes */}
@@ -210,6 +220,11 @@ const LanguageRoutes = () => {
           <Route path="/en/admin/subscriptions" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminSubscriptions /></ProtectedRoute>} />
           <Route path="/en/admin/tickets" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminTickets /></ProtectedRoute>} />
           <Route path="/en/admin/resellers" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminResellers /></ProtectedRoute>} />
+          <Route path="/en/admin/settings" element={<ProtectedRoute requiredRoles={['admin']}><AdminSettings /></ProtectedRoute>} />
+          <Route path="/en/admin/homepage" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminHomepageCMS /></ProtectedRoute>} />
+          <Route path="/en/admin/custom-fields" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminCustomFields /></ProtectedRoute>} />
+          <Route path="/en/admin/notifications" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminNotificationTemplates /></ProtectedRoute>} />
+          <Route path="/en/admin/proposal-templates" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminProposalTemplates /></ProtectedRoute>} />
           <Route path="/en/admin/*" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminDashboard /></ProtectedRoute>} />
           
           {/* Dynamic Landing Pages - must be before catch-all */}

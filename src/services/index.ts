@@ -16,3 +16,4 @@ export * from './milestone';
 export * from './subscription';
 export * from './support';
 export * from './reseller';
+export * from './settings';

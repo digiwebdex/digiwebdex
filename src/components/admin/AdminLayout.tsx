@@ -28,6 +28,10 @@ import {
   RefreshCcw,
   Headphones,
   Building2,
+  Layout,
+  Palette,
+  FormInput,
+  Mail,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -83,6 +87,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       items: [
         { label: language === 'bn' ? 'ব্লগ' : 'Blog', icon: FileEdit, href: `${basePath}/admin/blog` },
         { label: language === 'bn' ? 'SEO সেটিংস' : 'SEO', icon: Search, href: `${basePath}/admin/seo` },
+        { label: language === 'bn' ? 'হোমপেজ' : 'Homepage CMS', icon: Layout, href: `${basePath}/admin/homepage` },
+        { label: language === 'bn' ? 'প্রপোজাল টেমপ্লেট' : 'Proposal Templates', icon: Palette, href: `${basePath}/admin/proposal-templates` },
       ],
     },
     {
@@ -96,7 +102,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       items: [
         { label: language === 'bn' ? 'ব্যবহারকারী' : 'Users', icon: Users, href: `${basePath}/admin/users` },
         { label: language === 'bn' ? 'রিসেলার' : 'Resellers', icon: Building2, href: `${basePath}/admin/resellers` },
-        { label: language === 'bn' ? 'নোটিফিকেশন' : 'Notifications', icon: Bell, href: `${basePath}/admin/notifications` },
+        { label: language === 'bn' ? 'কাস্টম ফিল্ড' : 'Custom Fields', icon: FormInput, href: `${basePath}/admin/custom-fields` },
+        { label: language === 'bn' ? 'নোটিফিকেশন টেমপ্লেট' : 'Notifications', icon: Mail, href: `${basePath}/admin/notifications` },
         { label: language === 'bn' ? 'সেটিংস' : 'Settings', icon: Settings, href: `${basePath}/admin/settings` },
       ],
     },
