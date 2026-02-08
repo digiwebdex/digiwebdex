@@ -16,7 +16,7 @@ interface LandingTrustProps {
 
 export function LandingTrust({ title, items, variant = 'stats' }: LandingTrustProps) {
   return (
-    <section className="py-16 relative">
+    <section id="trust" className="py-16 relative">
       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-purple-500/5" />
       
       <div className="container-custom relative">

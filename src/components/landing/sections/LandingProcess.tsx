@@ -17,7 +17,7 @@ interface LandingProcessProps {
 
 export function LandingProcess({ title, subtitle, steps }: LandingProcessProps) {
   return (
-    <section className="py-20 relative bg-muted/30">
+    <section id="process" className="py-20 relative bg-muted/30">
       <div className="container-custom">
         {/* Section Header */}
         <div className="text-center mb-16">

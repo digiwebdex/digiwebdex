@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSmoothScroll } from '@/hooks/useSmoothScroll';
 
 interface CTAButton {
   label: string;
@@ -23,6 +24,15 @@ export function LandingHero({
   ctaButtons,
   backgroundVariant = 'mesh'
 }: LandingHeroProps) {
+  const { scrollToElement } = useSmoothScroll();
+
+  const handleCtaClick = (e: React.MouseEvent, href: string) => {
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      scrollToElement(href);
+    }
+  };
+
   return (
     <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
       {/* Background Effects */}
@@ -60,8 +70,9 @@ export function LandingHero({
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in">
           {ctaButtons.map((cta, index) => (
-            <Link key={index} to={cta.href}>
+            cta.href.startsWith('#') ? (
               <Button
+                key={index}
                 size="lg"
                 className={cn(
                   "text-lg px-8 py-6 rounded-xl transition-all duration-300",
@@ -69,11 +80,27 @@ export function LandingHero({
                     ? "bg-background border-2 border-primary/20 text-foreground hover:bg-primary/5 hover:border-primary/40"
                     : "bg-gradient-to-r from-primary to-purple-600 text-white hover:opacity-90 shadow-lg shadow-primary/25"
                 )}
+                onClick={(e) => handleCtaClick(e, cta.href)}
               >
                 {cta.label}
                 {cta.variant !== 'secondary' && <ArrowRight className="ml-2 w-5 h-5" />}
               </Button>
-            </Link>
+            ) : (
+              <Link key={index} to={cta.href}>
+                <Button
+                  size="lg"
+                  className={cn(
+                    "text-lg px-8 py-6 rounded-xl transition-all duration-300",
+                    cta.variant === 'secondary' 
+                      ? "bg-background border-2 border-primary/20 text-foreground hover:bg-primary/5 hover:border-primary/40"
+                      : "bg-gradient-to-r from-primary to-purple-600 text-white hover:opacity-90 shadow-lg shadow-primary/25"
+                  )}
+                >
+                  {cta.label}
+                  {cta.variant !== 'secondary' && <ArrowRight className="ml-2 w-5 h-5" />}
+                </Button>
+              </Link>
+            )
           ))}
         </div>
 

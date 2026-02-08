@@ -163,6 +163,29 @@
   .font-bangla {
     font-family: 'Noto Sans Bengali', 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
   }
+
+  /* Scroll margin for anchor navigation - compensates for sticky header */
+  section[id],
+  div[id] {
+    scroll-margin-top: 100px;
+  }
+
+  /* Highlight effect for scroll target */
+  .scroll-target-highlight {
+    animation: targetHighlight 1.5s ease-out;
+  }
+
+  @keyframes targetHighlight {
+    0% {
+      box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 8px hsl(var(--primary) / 0.1);
+    }
+    100% {
+      box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+    }
+  }
 }
 
 @layer components {

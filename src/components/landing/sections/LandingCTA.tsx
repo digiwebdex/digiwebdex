@@ -26,7 +26,7 @@ export function LandingCTA({
   variant = 'gradient'
 }: LandingCTAProps) {
   return (
-    <section className="py-20 relative overflow-hidden">
+    <section id="contact-cta" className="py-20 relative overflow-hidden">
       {/* Background */}
       <div className={cn(
         "absolute inset-0",
