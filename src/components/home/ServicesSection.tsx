@@ -72,88 +72,79 @@ export function ServicesSection() {
   ];
 
   return (
-    <section className="section-padding relative overflow-hidden">
-      {/* Enhanced Background */}
-      <div className="absolute inset-0 mesh-gradient opacity-60" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.05)_0%,transparent_50%)]" />
-      
-      {/* Floating decorative elements */}
-      <div className="absolute top-20 left-10 w-32 h-32 rounded-full bg-primary/5 blur-2xl animate-float" />
-      <div className="absolute bottom-20 right-10 w-40 h-40 rounded-full bg-accent/5 blur-2xl animate-float" style={{ animationDelay: '2s' }} />
+    <section className="section-padding relative overflow-hidden bg-gradient-to-b from-background via-muted/30 to-background">
+      {/* Subtle Background Pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--primary)/0.02)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--primary)/0.02)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
       
       <div className="container-custom relative z-10">
         {/* Section Header */}
         <div className="text-center mb-16 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-premium text-primary text-sm font-semibold mb-6 animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/5 border border-primary/10 text-primary text-sm font-semibold mb-6">
             <Sparkles className="w-4 h-4" />
             {language === 'bn' ? 'আমাদের সেবাসমূহ' : 'Our Services'}
           </div>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 animate-slide-up">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
             {language === 'bn' ? (
               <>আপনার ব্যবসার জন্য <span className="gradient-text">সম্পূর্ণ ডিজিটাল সলিউশন</span></>
             ) : (
               <>Complete Digital Solutions <span className="gradient-text">for Your Business</span></>
             )}
           </h2>
-          <p className="text-lg text-muted-foreground animate-slide-up delay-100">
+          <p className="text-lg text-muted-foreground">
             {language === 'bn'
               ? 'আমরা আপনার ব্যবসার অনলাইন উপস্থিতি থেকে শুরু করে সম্পূর্ণ ডিজিটাল ট্রান্সফর্মেশনে সাহায্য করি'
               : 'We help you from establishing online presence to complete digital transformation'}
           </p>
         </div>
 
-        {/* Services Grid with enhanced cards */}
+        {/* Services Grid with professional cards */}
         <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
           {services.map((service, index) => (
             <Link 
               key={index} 
               to={service.link}
-              className="group animate-slide-up"
-              style={{ animationDelay: `${index * 100 + 200}ms` }}
+              className="group block"
             >
-              <div className="relative h-full glass-premium p-8 hover:border-primary/40 transition-all duration-500 card-shine overflow-hidden gradient-border">
-                {/* Background Gradient on hover */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${service.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-                
-                {/* Glow effect */}
-                <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-gradient-to-br from-primary/20 to-accent/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative h-full bg-card border border-border/50 rounded-2xl p-8 transition-all duration-300 ease-out hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1">
+                {/* Subtle gradient overlay on hover */}
+                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${service.bgGradient} opacity-0 group-hover:opacity-50 transition-opacity duration-300`} />
                 
                 <div className="relative z-10">
-                  {/* Icon & Price */}
+                  {/* Icon & Price Row */}
                   <div className="flex items-start justify-between mb-6">
-                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${service.gradient} p-4 shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 group-hover:shadow-2xl`}>
-                      <service.icon className="w-full h-full text-white drop-shadow-lg" />
+                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${service.gradient} p-3.5 shadow-lg transition-transform duration-300 ease-out group-hover:scale-105`}>
+                      <service.icon className="w-full h-full text-white" />
                     </div>
                     <div className="text-right">
                       <span className="text-2xl font-bold text-foreground">{service.price}</span>
-                      <span className="text-sm text-muted-foreground">{service.period}</span>
+                      <span className="text-sm text-muted-foreground block">{service.period}</span>
                     </div>
                   </div>
 
                   {/* Content */}
-                  <h3 className="text-xl md:text-2xl font-bold mb-3 group-hover:text-primary transition-colors">
+                  <h3 className="text-xl md:text-2xl font-bold mb-3 text-foreground transition-colors duration-200 group-hover:text-primary">
                     {service.title}
                   </h3>
-                  <p className="text-muted-foreground mb-6">
+                  <p className="text-muted-foreground mb-6 leading-relaxed">
                     {service.description}
                   </p>
 
-                  {/* Features with enhanced styling */}
+                  {/* Feature Tags */}
                   <div className="flex flex-wrap gap-2 mb-6">
                     {service.features.map((feature, fIndex) => (
                       <span 
                         key={fIndex}
-                        className="px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-foreground border border-primary/20 group-hover:border-primary/40 transition-colors"
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium bg-muted text-muted-foreground border border-border/50 transition-colors duration-200 group-hover:bg-primary/10 group-hover:text-foreground group-hover:border-primary/20"
                       >
                         {feature}
                       </span>
                     ))}
                   </div>
 
-                  {/* CTA with arrow animation */}
-                  <div className="flex items-center text-primary font-semibold group-hover:gap-3 gap-2 transition-all">
+                  {/* CTA Link */}
+                  <div className="flex items-center gap-2 text-primary font-semibold text-sm">
                     {language === 'bn' ? 'বিস্তারিত দেখুন' : 'Learn More'}
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+                    <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
                   </div>
                 </div>
               </div>
@@ -161,8 +152,8 @@ export function ServicesSection() {
           ))}
         </div>
 
-        {/* Bottom CTA with enhanced styling */}
-        <div className="mt-16 text-center animate-slide-up delay-500">
+        {/* Bottom CTA */}
+        <div className="mt-16 text-center">
           <p className="text-muted-foreground mb-6">
             {language === 'bn' 
               ? 'কোন সার্ভিস আপনার জন্য সেরা তা জানতে চান?'
@@ -171,7 +162,7 @@ export function ServicesSection() {
           <Button size="lg" className="gradient-button h-14 px-10 group" asChild>
             <Link to={`${basePath}/contact`}>
               {language === 'bn' ? 'ফ্রি কনসাল্টেশন নিন' : 'Get Free Consultation'}
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
             </Link>
           </Button>
         </div>
