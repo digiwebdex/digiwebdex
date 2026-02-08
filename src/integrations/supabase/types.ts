@@ -2818,7 +2818,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["ticket_status"]
           subject: string
           tags?: string[] | null
-          ticket_number: string
+          ticket_number?: string
           updated_at?: string
           user_id: string
         }

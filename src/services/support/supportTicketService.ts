@@ -85,18 +85,31 @@ export const supportTicketService = {
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) throw new Error('User not authenticated');
 
+    // Type assertion needed because trigger auto-generates ticket_number
+    const insertData = {
+      user_id: user.user.id,
+      subject: data.subject,
+      description: data.description || null,
+      category: data.category,
+      priority: data.priority || 'medium',
+      related_order_id: data.related_order_id || null,
+      related_invoice_id: data.related_invoice_id || null,
+      tags: data.tags || null,
+    } as { 
+      user_id: string; 
+      subject: string; 
+      ticket_number: string;
+      description?: string | null;
+      category: TicketCategory;
+      priority: TicketPriority;
+      related_order_id?: string | null;
+      related_invoice_id?: string | null;
+      tags?: string[] | null;
+    };
+
     const { data: ticket, error } = await supabase
       .from('support_tickets')
-      .insert({
-        user_id: user.user.id,
-        subject: data.subject,
-        description: data.description,
-        category: data.category,
-        priority: data.priority || 'medium',
-        related_order_id: data.related_order_id,
-        related_invoice_id: data.related_invoice_id,
-        tags: data.tags,
-      })
+      .insert(insertData)
       .select()
       .single();
 
