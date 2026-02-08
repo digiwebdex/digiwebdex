@@ -97,10 +97,10 @@ export function HeroSection() {
           <h1 className="animate-slide-up delay-100 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1]">
             {language === 'bn' ? (
               <>
-                আপনার ব্যবসাকে
+                আপনার ব্যবসার
                 <br />
                 <span className="relative inline-block mt-2">
-                  <span className="gradient-text animate-gradient text-glow">ডিজিটালে রূপান্তর</span>
+                  <span className="gradient-text animate-gradient text-glow">সফলতা শুরু হোক</span>
                   <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 300 12" preserveAspectRatio="none">
                     <path d="M0,8 Q75,0 150,8 T300,8" fill="none" stroke="url(#underlineGradient)" strokeWidth="4" strokeLinecap="round" className="animate-pulse-soft" />
                     <defs>
@@ -112,14 +112,14 @@ export function HeroSection() {
                     </defs>
                   </svg>
                 </span>
-                <span className="block mt-2">করুন</span>
+                <span className="block mt-2">এখান থেকেই</span>
               </>
             ) : (
               <>
-                Transform Your
+                Your Business
                 <br />
                 <span className="relative inline-block mt-2">
-                  <span className="gradient-text animate-gradient text-glow">Business Digitally</span>
+                  <span className="gradient-text animate-gradient text-glow">Success Starts Here</span>
                   <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 300 12" preserveAspectRatio="none">
                     <path d="M0,8 Q75,0 150,8 T300,8" fill="none" stroke="url(#underlineGradient)" strokeWidth="4" strokeLinecap="round" className="animate-pulse-soft" />
                   </svg>
@@ -128,11 +128,11 @@ export function HeroSection() {
             )}
           </h1>
 
-          {/* Subheadline */}
+          {/* Subheadline - Benefit focused */}
           <p className="animate-slide-up delay-200 mt-8 text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl leading-relaxed">
             {language === 'bn' 
-              ? 'ডোমেইন, হোস্টিং, ওয়েব ডেভেলপমেন্ট, সফটওয়্যার এবং ডিজিটাল মার্কেটিং — সবকিছু এক জায়গায়। প্রিমিয়াম সার্ভিস, সাশ্রয়ী মূল্যে।' 
-              : 'Domain, Hosting, Web Development, Software & Digital Marketing — all in one place. Premium services at affordable prices.'}
+              ? 'ডোমেইন, হোস্টিং, ওয়েবসাইট ও সফটওয়্যার — সব এক জায়গায়। আজই শুরু করুন এবং আপনার ব্যবসা বাড়ান।' 
+              : 'Domain, Hosting, Website & Software — all in one place. Start today and grow your business.'}
           </p>
 
           {/* Highlights with hover effect */}
@@ -152,14 +152,14 @@ export function HeroSection() {
           <div className="animate-slide-up delay-400 mt-12 flex flex-col sm:flex-row gap-4">
             <Button size="lg" className="gradient-button h-14 px-10 text-lg group" asChild>
               <Link to={`${basePath}/pricing`}>
-                {language === 'bn' ? 'প্যাকেজ দেখুন' : 'View Packages'}
+                {language === 'bn' ? 'এখনই অর্ডার করুন' : 'Order Now'}
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
             <Button size="lg" variant="outline" className="h-14 px-10 text-lg glass-premium border-primary/30 hover:border-primary/50 hover:bg-primary/10 group" asChild>
               <Link to={`${basePath}/contact`}>
                 <Play className="mr-2 h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-                {language === 'bn' ? 'ফ্রি কনসাল্টেশন' : 'Free Consultation'}
+                {language === 'bn' ? 'ফ্রি কনসাল্টেশন নিন' : 'Get Free Consultation'}
               </Link>
             </Button>
           </div>

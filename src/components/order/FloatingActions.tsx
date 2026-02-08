@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { MessageCircle, ChevronUp } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { MessageCircle, ChevronUp, ShoppingCart, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n';
@@ -7,6 +8,7 @@ import { DIGIWEBDEX_CONTACT } from '@/services/contactService';
 
 export function FloatingActions() {
   const { language } = useLanguage();
+  const basePath = language === 'en' ? '/en' : '/bn';
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
@@ -33,8 +35,8 @@ export function FloatingActions() {
 
   return (
     <>
-      {/* Floating Action Buttons */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+      {/* Desktop Floating Action Buttons */}
+      <div className="fixed bottom-6 right-6 z-50 hidden md:flex flex-col items-end gap-3">
         {/* Scroll to Top */}
         <Button
           size="icon"
@@ -49,9 +51,21 @@ export function FloatingActions() {
           <ChevronUp className="h-5 w-5" />
         </Button>
 
+        {/* Quick Order Button */}
+        <Button
+          className="h-12 px-5 rounded-full shadow-xl bg-gradient-to-r from-primary to-accent text-white hover:shadow-2xl hover:shadow-primary/25 group"
+          asChild
+        >
+          <Link to={`${basePath}/pricing`}>
+            <ShoppingCart className="h-5 w-5 mr-2" />
+            {language === 'bn' ? 'অর্ডার করুন' : 'Order Now'}
+            <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </Button>
+
         {/* WhatsApp Button */}
         <Button
-          className="h-14 w-14 rounded-full shadow-xl bg-green-500 hover:bg-green-600 text-white"
+          className="h-14 w-14 rounded-full shadow-xl bg-emerald-500 hover:bg-emerald-600 text-white hover:shadow-2xl hover:shadow-emerald-500/30 transition-all"
           onClick={openWhatsApp}
           aria-label="WhatsApp"
         >
@@ -59,15 +73,30 @@ export function FloatingActions() {
         </Button>
       </div>
 
-      {/* Mobile Bottom Bar - WhatsApp Only */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-background/95 backdrop-blur-sm border-t p-3 safe-area-inset-bottom">
-        <Button
-          className="w-full gap-2 bg-green-500 hover:bg-green-600 text-white"
-          onClick={openWhatsApp}
-        >
-          <MessageCircle className="h-5 w-5" />
-          {language === 'bn' ? 'WhatsApp এ মেসেজ করুন' : 'Message on WhatsApp'}
-        </Button>
+      {/* Mobile Bottom Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-background/95 backdrop-blur-md border-t shadow-2xl safe-area-inset-bottom">
+        <div className="flex items-center gap-2 p-3">
+          {/* Quick Order CTA */}
+          <Button
+            className="flex-1 gap-2 h-12 gradient-button text-sm font-semibold group"
+            asChild
+          >
+            <Link to={`${basePath}/pricing`}>
+              <ShoppingCart className="h-4 w-4" />
+              {language === 'bn' ? 'অর্ডার করুন' : 'Order Now'}
+              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </Button>
+          
+          {/* WhatsApp Button */}
+          <Button
+            className="h-12 w-12 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white flex-shrink-0"
+            onClick={openWhatsApp}
+            aria-label="WhatsApp"
+          >
+            <MessageCircle className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
     </>
   );

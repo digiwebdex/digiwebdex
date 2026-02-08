@@ -9,3 +9,8 @@ export { TestimonialsSection } from './TestimonialsSection';
 export { FeaturesSection } from './FeaturesSection';
 export { CTASection } from './CTASection';
 export { DomainSearchBox } from './DomainSearchBox';
+export { StickyTopBar } from './StickyTopBar';
+export { ClientLogosSection } from './ClientLogosSection';
+export { SocialProofSection } from './SocialProofSection';
+export { UrgencyBanner } from './UrgencyBanner';
+export { LeadCaptureSection } from './LeadCaptureSection';

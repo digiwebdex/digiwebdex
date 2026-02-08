@@ -2,14 +2,18 @@ import React from 'react';
 import { Layout } from '@/components/layout';
 import { 
   HeroSection, 
-  TrustSection, 
   ServicesSection, 
   PortfolioCategorySection,
   WhyChooseUsSection, 
   FeaturesSection,
   ProcessSection, 
   TestimonialsSection, 
-  CTASection 
+  CTASection,
+  StickyTopBar,
+  ClientLogosSection,
+  SocialProofSection,
+  UrgencyBanner,
+  LeadCaptureSection
 } from '@/components/home';
 import { AffiliateTracker } from '@/components/affiliate';
 import { SEOHead } from '@/components/seo/SEOHead';
@@ -39,14 +43,23 @@ const Home = () => {
       <SchemaMarkup schema={localBusinessSchema} id="local-business-schema" />
       <AffiliateTracker />
       
-      {/* Hero with stats and domain search */}
+      {/* Sticky Top CTA Bar (desktop only, shows on scroll) */}
+      <StickyTopBar />
+      
+      {/* Hero with benefit-driven headline and CTAs */}
       <HeroSection />
       
-      {/* Trust indicators */}
-      <TrustSection />
+      {/* Client Logos Strip */}
+      <ClientLogosSection />
+      
+      {/* Social Proof - Animated Stats + Rating */}
+      <SocialProofSection />
       
       {/* 4 Main Services Grid */}
       <ServicesSection />
+      
+      {/* Urgency Banner with Countdown */}
+      <UrgencyBanner />
       
       {/* Why Choose Us - 8 benefits */}
       <WhyChooseUsSection />
@@ -59,6 +72,9 @@ const Home = () => {
       
       {/* Work Process Steps */}
       <ProcessSection />
+      
+      {/* Lead Capture Form */}
+      <LeadCaptureSection />
       
       {/* Testimonials Slider */}
       <TestimonialsSection />
