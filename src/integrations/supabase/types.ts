@@ -3485,6 +3485,45 @@ export type Database = {
           },
         ]
       }
+      tracking_event_logs: {
+        Row: {
+          created_at: string
+          custom_data: Json | null
+          error_message: string | null
+          event_id: string
+          event_name: string
+          id: string
+          response_data: Json | null
+          source: string
+          status: string | null
+          user_data: Json | null
+        }
+        Insert: {
+          created_at?: string
+          custom_data?: Json | null
+          error_message?: string | null
+          event_id: string
+          event_name: string
+          id?: string
+          response_data?: Json | null
+          source: string
+          status?: string | null
+          user_data?: Json | null
+        }
+        Update: {
+          created_at?: string
+          custom_data?: Json | null
+          error_message?: string | null
+          event_id?: string
+          event_name?: string
+          id?: string
+          response_data?: Json | null
+          source?: string
+          status?: string | null
+          user_data?: Json | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

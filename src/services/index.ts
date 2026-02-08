@@ -8,6 +8,7 @@ export { leadService } from './leadService';
 export * from './hosting';
 export * from './renewal';
 export * from './analytics';
+export * from './tracking';
 export * from './affiliate';
 export * from './seo';
 export * from './security';

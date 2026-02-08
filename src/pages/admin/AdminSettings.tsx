@@ -22,10 +22,14 @@ import {
   MessageSquare,
   Phone,
   Loader2,
-  Save
+  Save,
+  Facebook,
+  Cookie,
+  TestTube2,
+  Activity
 } from 'lucide-react';
 
-type SettingsCategory = 'general' | 'notifications' | 'payment' | 'business' | 'automation' | 'security' | 'pricing';
+type SettingsCategory = 'general' | 'notifications' | 'payment' | 'business' | 'automation' | 'security' | 'pricing' | 'tracking';
 
 interface SettingsGroup {
   [key: string]: SystemSetting;
@@ -130,7 +134,7 @@ export default function AdminSettings() {
         </div>
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as SettingsCategory)}>
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
             <TabsTrigger value="general" className="gap-2">
               <Building2 className="h-4 w-4" />
               <span className="hidden sm:inline">{language === 'bn' ? 'সাধারণ' : 'General'}</span>
@@ -158,6 +162,10 @@ export default function AdminSettings() {
             <TabsTrigger value="pricing" className="gap-2">
               <CreditCard className="h-4 w-4" />
               <span className="hidden sm:inline">{language === 'bn' ? 'মূল্য' : 'Pricing'}</span>
+            </TabsTrigger>
+            <TabsTrigger value="tracking" className="gap-2">
+              <Facebook className="h-4 w-4" />
+              <span className="hidden sm:inline">{language === 'bn' ? 'ট্র্যাকিং' : 'Tracking'}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -654,6 +662,158 @@ export default function AdminSettings() {
                     onChange={(e) => updateSetting('max_discount_percentage', Number(e.target.value))}
                   />
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Facebook Tracking Settings */}
+          <TabsContent value="tracking" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Facebook className="h-5 w-5 text-blue-600" />
+                  {language === 'bn' ? 'Facebook Pixel কনফিগারেশন' : 'Facebook Pixel Configuration'}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  {language === 'bn' 
+                    ? 'Facebook Ads এর জন্য ট্র্যাকিং সেটআপ করুন'
+                    : 'Configure tracking for Facebook Ads optimization'}
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Pixel ID</Label>
+                    <Input
+                      value={getValue('fb_pixel_id')}
+                      onChange={(e) => updateSetting('fb_pixel_id', e.target.value)}
+                      placeholder="e.g., 1234567890123456"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {language === 'bn' 
+                        ? 'Facebook Events Manager থেকে Pixel ID খুঁজুন'
+                        : 'Find in Facebook Events Manager → Data Sources'}
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Access Token (CAPI)</Label>
+                    <Input
+                      type="password"
+                      value={getValue('fb_access_token')}
+                      onChange={(e) => updateSetting('fb_access_token', e.target.value)}
+                      placeholder="EAA..."
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {language === 'bn' 
+                        ? 'Conversions API এর জন্য অ্যাক্সেস টোকেন'
+                        : 'Required for Server-Side Conversion API'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <div>
+                    <Label>{language === 'bn' ? 'Server-Side CAPI' : 'Server-Side CAPI'}</Label>
+                    <p className="text-sm text-muted-foreground">
+                      {language === 'bn' 
+                        ? 'Conversion API চালু করুন (ভালো ট্র্যাকিং)'
+                        : 'Enable Conversions API for better tracking accuracy'}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={getBoolValue('fb_capi_enabled')}
+                    onCheckedChange={(checked) => updateSetting('fb_capi_enabled', checked)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <TestTube2 className="h-4 w-4" />
+                    {language === 'bn' ? 'টেস্ট ইভেন্ট কোড' : 'Test Event Code'}
+                  </Label>
+                  <Input
+                    value={getValue('fb_test_event_code')}
+                    onChange={(e) => updateSetting('fb_test_event_code', e.target.value)}
+                    placeholder="TEST12345"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {language === 'bn' 
+                      ? 'Events Manager → Test Events থেকে কোড পান। প্রোডাকশনে খালি রাখুন।'
+                      : 'Get from Events Manager → Test Events. Leave empty in production.'}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Cookie className="h-5 w-5" />
+                  {language === 'bn' ? 'Cookie Consent' : 'Cookie Consent'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>{language === 'bn' ? 'Cookie Consent Banner' : 'Cookie Consent Banner'}</Label>
+                    <p className="text-sm text-muted-foreground">
+                      {language === 'bn' 
+                        ? 'GDPR কমপ্লায়েন্সের জন্য consent banner দেখান'
+                        : 'Show consent banner for GDPR/Privacy compliance'}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={getBoolValue('cookie_consent_enabled')}
+                    onCheckedChange={(checked) => updateSetting('cookie_consent_enabled', checked)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>{language === 'bn' ? 'Consent Text (English)' : 'Consent Text (English)'}</Label>
+                  <Input
+                    value={getValue('cookie_consent_text_en')}
+                    onChange={(e) => updateSetting('cookie_consent_text_en', e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>{language === 'bn' ? 'Consent Text (বাংলা)' : 'Consent Text (Bangla)'}</Label>
+                  <Input
+                    value={getValue('cookie_consent_text_bn')}
+                    onChange={(e) => updateSetting('cookie_consent_text_bn', e.target.value)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  {language === 'bn' ? 'ট্র্যাক করা ইভেন্ট' : 'Tracked Events'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {[
+                    { event: 'PageView', desc: language === 'bn' ? 'পেজ ভিজিট' : 'Page visits' },
+                    { event: 'ViewContent', desc: language === 'bn' ? 'সার্ভিস পেজ দেখা' : 'Service page views' },
+                    { event: 'Lead', desc: language === 'bn' ? 'লিড ফর্ম সাবমিট' : 'Lead form submissions' },
+                    { event: 'AddToCart', desc: language === 'bn' ? 'প্যাকেজ সিলেক্ট' : 'Package selection' },
+                    { event: 'InitiateCheckout', desc: language === 'bn' ? 'অর্ডার শুরু' : 'Order initiation' },
+                    { event: 'Purchase', desc: language === 'bn' ? 'পেমেন্ট সম্পন্ন' : 'Payment completed' },
+                  ].map(({ event, desc }) => (
+                    <div key={event} className="p-3 rounded-lg bg-muted/50 border">
+                      <p className="font-medium text-sm">{event}</p>
+                      <p className="text-xs text-muted-foreground">{desc}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-4">
+                  {language === 'bn' 
+                    ? '* এই ইভেন্টগুলো স্বয়ংক্রিয়ভাবে ট্র্যাক হয় এবং Facebook-এ পাঠানো হয়।'
+                    : '* These events are automatically tracked and sent to Facebook.'}
+                </p>
               </CardContent>
             </Card>
           </TabsContent>

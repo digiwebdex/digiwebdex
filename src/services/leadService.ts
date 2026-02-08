@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { facebookPixelService } from '@/services/tracking';
 
 export type LeadStatus = 'new' | 'contacted' | 'converted' | 'lost';
 
@@ -106,6 +107,20 @@ class LeadService {
         .single();
 
       if (error) throw error;
+
+      // Track Lead event with Facebook Pixel
+      try {
+        await facebookPixelService.trackLead(
+          {
+            phone: normalized,
+            email: data.email,
+            firstName: data.name.split(' ')[0],
+          },
+          data.service_interest
+        );
+      } catch (trackError) {
+        console.error('Facebook tracking error:', trackError);
+      }
 
       // Log the action
       await this.logAction(lead.id, 'lead_created', {

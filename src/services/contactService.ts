@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { facebookPixelService } from '@/services/tracking';
 
 export interface ContactFormData {
   name: string;
@@ -42,6 +43,17 @@ export const contactService = {
       } catch (notifyError) {
         console.error('Notification error:', notifyError);
         // Don't fail the submission if notification fails
+      }
+
+      // Track Contact event with Facebook Pixel
+      try {
+        await facebookPixelService.trackContact({
+          email: data.email,
+          phone: data.phone,
+          firstName: data.name.split(' ')[0],
+        });
+      } catch (trackError) {
+        console.error('Facebook tracking error:', trackError);
       }
 
       return { success: true };

@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Database, Json } from '@/integrations/supabase/types';
 import { notificationService } from './notificationService';
+import { facebookPixelService } from './tracking';
 
 type Order = Database['public']['Tables']['orders']['Row'];
 type OrderInsert = Database['public']['Tables']['orders']['Insert'];
@@ -76,6 +77,17 @@ class OrderService {
 
       // Create invoice for the order
       await this.createInvoiceForOrder(order);
+
+      // Track InitiateCheckout event
+      try {
+        await facebookPixelService.trackInitiateCheckout(
+          [order.id],
+          order.total,
+          'BDT'
+        );
+      } catch (trackError) {
+        console.error('Facebook tracking error:', trackError);
+      }
 
       // Trigger notification for order created
       if (userEmail) {
@@ -166,6 +178,21 @@ class OrderService {
           .from('invoices')
           .update({ status: 'paid', paid_at: new Date().toISOString() })
           .eq('order_id', orderId);
+
+        // Track Purchase event
+        try {
+          const order = await this.getOrderById(orderId);
+          if (order) {
+            await facebookPixelService.trackPurchase(
+              order.service?.name_en || 'Service',
+              orderId,
+              order.total,
+              'BDT'
+            );
+          }
+        } catch (trackError) {
+          console.error('Facebook tracking error:', trackError);
+        }
       }
 
       return { error: null };

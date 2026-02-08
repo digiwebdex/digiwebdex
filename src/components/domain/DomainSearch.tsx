@@ -9,6 +9,7 @@ import { DomainSearchResults } from './DomainSearchResults';
 import { DomainPricingTable } from './DomainPricingTable';
 import { DomainOrderModal } from '@/components/order/DomainOrderModal';
 import { domainService, type DomainSearchResult } from '@/services/domainService';
+import { facebookPixelService } from '@/services/tracking';
 import { toast } from 'sonner';
 
 interface DomainSearchProps {
@@ -37,6 +38,9 @@ export function DomainSearch({ showPricingTable = true, onOrderDomain }: DomainS
     try {
       const results = await domainService.searchDomain(query, user?.id);
       setSearchResults(results);
+      
+      // Track search event
+      facebookPixelService.trackSearch(query);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Search failed';
       setSearchError(message);
@@ -49,6 +53,14 @@ export function DomainSearch({ showPricingTable = true, onOrderDomain }: DomainS
   };
 
   const handleAddToCart = (result: DomainSearchResult) => {
+    // Track AddToCart event
+    facebookPixelService.trackAddToCart(
+      result.domain,
+      result.domain,
+      result.price,
+      'BDT'
+    );
+
     if (onOrderDomain) {
       onOrderDomain(result);
       return;
