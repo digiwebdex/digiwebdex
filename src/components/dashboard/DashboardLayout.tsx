@@ -16,6 +16,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Users,
+  ListChecks,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -66,6 +67,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       label: language === 'bn' ? 'প্রজেক্ট' : 'Projects', 
       icon: FolderKanban, 
       href: `${basePath}/dashboard/projects` 
+    },
+    { 
+      label: language === 'bn' ? 'মাইলস্টোন' : 'Milestones', 
+      icon: ListChecks, 
+      href: `${basePath}/dashboard/milestones` 
     },
     { 
       label: language === 'bn' ? 'প্রোফাইল' : 'Profile', 

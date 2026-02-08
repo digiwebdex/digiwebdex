@@ -7,16 +7,17 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
-import { Eye, ListChecks } from 'lucide-react';
+import { Eye, ListChecks, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { Database } from '@/integrations/supabase/types';
+import { MilestoneFormModal, MilestoneList } from '@/components/admin/milestones';
+import { milestoneService, MilestoneStats } from '@/services/milestone';
 
 type Project = Database['public']['Tables']['projects']['Row'];
-
+type Milestone = Database['public']['Tables']['milestones']['Row'];
 const PROJECT_STATUSES = [
   { value: 'pending', label_en: 'Pending', label_bn: 'বিবেচনাধীন' },
   { value: 'in_progress', label_en: 'In Progress', label_bn: 'চলমান' },
@@ -34,9 +35,16 @@ export default function AdminProjects() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [newStatus, setNewStatus] = useState('');
   const [saving, setSaving] = useState(false);
+  
+  // Milestone states
+  const [milestoneFormOpen, setMilestoneFormOpen] = useState(false);
+  const [milestonesOpen, setMilestonesOpen] = useState(false);
+  const [projectMilestones, setProjectMilestones] = useState<Milestone[]>([]);
+  const [milestoneStats, setMilestoneStats] = useState<MilestoneStats | null>(null);
 
   useEffect(() => {
     fetchProjects();
+    fetchMilestoneStats();
   }, []);
 
   const fetchProjects = async () => {
@@ -49,6 +57,30 @@ export default function AdminProjects() {
       setProjects(data || []);
     }
     setLoading(false);
+  };
+
+  const fetchMilestoneStats = async () => {
+    try {
+      const stats = await milestoneService.getMilestoneStats();
+      setMilestoneStats(stats);
+    } catch (error) {
+      console.error('Error fetching milestone stats:', error);
+    }
+  };
+
+  const fetchProjectMilestones = async (projectId: string) => {
+    try {
+      const milestones = await milestoneService.getProjectMilestones(projectId);
+      setProjectMilestones(milestones);
+    } catch (error) {
+      console.error('Error fetching milestones:', error);
+    }
+  };
+
+  const handleViewMilestones = (project: Project) => {
+    setSelectedProject(project);
+    fetchProjectMilestones(project.id);
+    setMilestonesOpen(true);
   };
 
   const handleViewProject = (project: Project) => {
@@ -138,9 +170,14 @@ export default function AdminProjects() {
       key: 'actions',
       header: language === 'bn' ? 'অ্যাকশন' : 'Actions',
       render: (row) => (
-        <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); handleViewProject(row); }}>
-          <Eye className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); handleViewMilestones(row); }} title={language === 'bn' ? 'মাইলস্টোন' : 'Milestones'}>
+            <ListChecks className="h-4 w-4" />
+          </Button>
+          <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); handleViewProject(row); }}>
+            <Eye className="h-4 w-4" />
+          </Button>
+        </div>
       ),
     },
   ];
@@ -163,11 +200,11 @@ export default function AdminProjects() {
           </p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-4 gap-4">
+        {/* Project Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">{language === 'bn' ? 'মোট' : 'Total'}</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">{language === 'bn' ? 'মোট প্রজেক্ট' : 'Total Projects'}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold">{stats.total}</p>
@@ -178,7 +215,7 @@ export default function AdminProjects() {
               <CardTitle className="text-sm text-muted-foreground">{language === 'bn' ? 'চলমান' : 'In Progress'}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-blue-600">{stats.inProgress}</p>
+              <p className="text-2xl font-bold text-primary">{stats.inProgress}</p>
             </CardContent>
           </Card>
           <Card>
@@ -186,7 +223,7 @@ export default function AdminProjects() {
               <CardTitle className="text-sm text-muted-foreground">{language === 'bn' ? 'রিভিউতে' : 'In Review'}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-purple-600">{stats.inReview}</p>
+              <p className="text-2xl font-bold text-primary">{stats.inReview}</p>
             </CardContent>
           </Card>
           <Card>
@@ -194,10 +231,51 @@ export default function AdminProjects() {
               <CardTitle className="text-sm text-muted-foreground">{language === 'bn' ? 'সম্পন্ন' : 'Completed'}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-green-600">{stats.completed}</p>
+              <p className="text-2xl font-bold text-primary">{stats.completed}</p>
             </CardContent>
           </Card>
         </div>
+
+        {/* Milestone Stats */}
+        {milestoneStats && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card className="border-primary/20 bg-primary/5">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm text-muted-foreground">{language === 'bn' ? 'মাইলস্টোন রেভিনিউ' : 'Milestone Revenue'}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">৳{milestoneStats.totalMilestoneRevenue.toLocaleString()}</p>
+              </CardContent>
+            </Card>
+            <Card className="border-yellow-500/20 bg-yellow-500/5">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm text-muted-foreground">{language === 'bn' ? 'বাকি পেমেন্ট' : 'Pending Payments'}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">৳{milestoneStats.pendingPayments.toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground">{milestoneStats.pendingCount} {language === 'bn' ? 'টি মাইলস্টোন' : 'milestones'}</p>
+              </CardContent>
+            </Card>
+            <Card className="border-destructive/20 bg-destructive/5">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm text-muted-foreground">{language === 'bn' ? 'বকেয়া পেমেন্ট' : 'Overdue Payments'}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold text-destructive">৳{milestoneStats.overduePayments.toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground">{milestoneStats.overdueCount} {language === 'bn' ? 'টি মাইলস্টোন' : 'milestones'}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm text-muted-foreground">{language === 'bn' ? 'সম্পন্ন হার' : 'Completion Rate'}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{milestoneStats.completionRate}%</p>
+                <Progress value={milestoneStats.completionRate} className="h-2 mt-2" />
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         <Card>
           <CardContent className="pt-6">
@@ -275,6 +353,48 @@ export default function AdminProjects() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Milestones Dialog */}
+      <Dialog open={milestonesOpen} onOpenChange={setMilestonesOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>{language === 'bn' ? 'মাইলস্টোন' : 'Milestones'}</span>
+              <Button size="sm" onClick={() => { setMilestonesOpen(false); setMilestoneFormOpen(true); }}>
+                <Plus className="h-4 w-4 mr-1" />
+                {language === 'bn' ? 'যোগ করুন' : 'Add'}
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedProject && (
+            <MilestoneList
+              milestones={projectMilestones}
+              projectTitle={selectedProject.title}
+              onRefresh={() => {
+                fetchProjectMilestones(selectedProject.id);
+                fetchMilestoneStats();
+                fetchProjects();
+              }}
+              onClose={() => setMilestonesOpen(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Milestone Form Modal */}
+      <MilestoneFormModal
+        open={milestoneFormOpen}
+        onOpenChange={setMilestoneFormOpen}
+        projectId={selectedProject?.id}
+        onSuccess={() => {
+          if (selectedProject) {
+            fetchProjectMilestones(selectedProject.id);
+          }
+          fetchMilestoneStats();
+          fetchProjects();
+        }}
+      />
     </AdminLayout>
   );
 }

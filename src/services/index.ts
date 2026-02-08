@@ -12,3 +12,4 @@ export * from './affiliate';
 export * from './seo';
 export * from './security';
 export * from './proposal';
+export * from './milestone';
