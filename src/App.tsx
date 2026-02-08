@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/lib/i18n";
 import { AuthProvider, ProtectedRoute } from "@/lib/auth";
+import { ScrollToTop } from "@/components/common";
 
 // Pages
 import Home from "./pages/Home";
@@ -93,6 +94,7 @@ const LanguageRoutes = () => {
   return (
     <LanguageProvider>
       <AuthProvider>
+        <ScrollToTop />
         <Routes>
           {/* Public proposal view */}
           <Route path="/proposal/:token" element={<ProposalView />} />
