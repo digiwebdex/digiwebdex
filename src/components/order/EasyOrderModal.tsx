@@ -21,7 +21,8 @@ import {
   CheckCircle2,
   Smartphone,
   Building2,
-  Copy
+  Copy,
+  Globe
 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
@@ -29,6 +30,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { DIGIWEBDEX_CONTACT } from '@/services/contactService';
+import { HostingDomainSelector, SelectedDomain } from './HostingDomainSelector';
 
 // Form validation schema
 const customerFormSchema = z.object({
@@ -140,6 +142,12 @@ export function EasyOrderModal({ isOpen, onClose, packages = defaultPackages, pr
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderNumber, setOrderNumber] = useState<string>('');
   const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
+  
+  // Domain selection state for hosting orders
+  const [selectedDomain, setSelectedDomain] = useState<SelectedDomain | null>(null);
+  
+  // Check if current package is hosting
+  const isHostingPackage = selectedPackage?.serviceType === 'hosting';
 
   const form = useForm<CustomerFormData>({
     resolver: zodResolver(customerFormSchema),
@@ -177,6 +185,12 @@ export function EasyOrderModal({ isOpen, onClose, packages = defaultPackages, pr
 
   const handleSubmitOrder = async (data: CustomerFormData) => {
     if (!selectedPackage || !paymentMethod) return;
+    
+    // Validate domain for hosting orders
+    if (isHostingPackage && !selectedDomain?.isValid) {
+      toast.error(language === 'bn' ? 'হোস্টিং অর্ডারের জন্য ডোমেইন আবশ্যক।' : 'Domain is required for hosting order.');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -184,16 +198,20 @@ export function EasyOrderModal({ isOpen, onClose, packages = defaultPackages, pr
       const { data: orderNum } = await supabase.rpc('generate_order_number');
       const generatedOrderNumber = orderNum || `ORD-${Date.now()}`;
 
+      // Calculate total with domain price if new domain selected
+      const domainPrice = selectedDomain?.type === 'new' && selectedDomain.price ? selectedDomain.price : 0;
+      const totalAmount = selectedPackage.price + domainPrice;
+
       // Create order
       const orderInsert = {
         order_number: generatedOrderNumber,
         user_id: user?.id || null,
         service_type: selectedPackage.serviceType as 'hosting' | 'domain' | 'web_development' | 'software_development' | 'digital_marketing',
         billing_type: (selectedPackage.serviceType === 'hosting' ? 'yearly' : 'one_time') as 'one_time' | 'recurring' | 'milestone',
-        subtotal: selectedPackage.price,
-        total: selectedPackage.price,
+        subtotal: totalAmount,
+        total: totalAmount,
         status: 'pending' as const,
-        notes: `Package: ${selectedPackage.name.en}\nCustomer: ${data.name}\nPhone: ${data.phone}\nEmail: ${data.email}\nMessage: ${data.message || 'N/A'}`,
+        notes: `Package: ${selectedPackage.name.en}\nDomain: ${selectedDomain?.domainName || 'N/A'} (${selectedDomain?.type || 'N/A'})\nCustomer: ${data.name}\nPhone: ${data.phone}\nEmail: ${data.email}\nMessage: ${data.message || 'N/A'}`,
       };
 
       const { data: order, error: orderError } = await supabase
@@ -229,20 +247,35 @@ export function EasyOrderModal({ isOpen, onClose, packages = defaultPackages, pr
           user_id: user?.id || '00000000-0000-0000-0000-000000000000',
           method: paymentMethod,
           transaction_id: `PENDING-${generatedOrderNumber}`,
-          amount: selectedPackage.price,
+          amount: totalAmount,
           screenshot_url: screenshotUrl,
           notes: `Customer: ${data.name}, Phone: ${data.phone}, Email: ${data.email}`,
           status: 'pending',
         });
 
       // Store order meta
-      await supabase.from('order_meta').insert([
+      const metaEntries = [
         { order_id: order.id, meta_key: 'customer_name', meta_value: data.name },
         { order_id: order.id, meta_key: 'customer_phone', meta_value: data.phone },
         { order_id: order.id, meta_key: 'customer_email', meta_value: data.email },
         { order_id: order.id, meta_key: 'package_name', meta_value: selectedPackage.name.en },
         { order_id: order.id, meta_key: 'payment_method', meta_value: paymentMethod },
-      ]);
+      ];
+      
+      // Add domain meta for hosting orders
+      if (isHostingPackage && selectedDomain) {
+        metaEntries.push(
+          { order_id: order.id, meta_key: 'domain_name', meta_value: selectedDomain.domainName },
+          { order_id: order.id, meta_key: 'domain_type', meta_value: selectedDomain.type }
+        );
+        if (selectedDomain.type === 'new' && selectedDomain.price) {
+          metaEntries.push(
+            { order_id: order.id, meta_key: 'domain_price', meta_value: String(selectedDomain.price) }
+          );
+        }
+      }
+      
+      await supabase.from('order_meta').insert(metaEntries);
 
       // Send multi-channel notifications via edge function
       try {
@@ -296,6 +329,11 @@ export function EasyOrderModal({ isOpen, onClose, packages = defaultPackages, pr
       return;
     }
     if (step === 2) {
+      // Validate domain for hosting orders before proceeding
+      if (isHostingPackage && !selectedDomain?.isValid) {
+        toast.error(language === 'bn' ? 'হোস্টিং অর্ডারের জন্য ডোমেইন আবশ্যক।' : 'Domain is required for hosting order.');
+        return;
+      }
       form.handleSubmit((data) => {
         setStep(3);
       })();
@@ -320,6 +358,7 @@ export function EasyOrderModal({ isOpen, onClose, packages = defaultPackages, pr
     setOrderComplete(false);
     setOrderNumber('');
     setScreenshotFile(null);
+    setSelectedDomain(null);
     form.reset();
     onClose();
   };
@@ -458,13 +497,46 @@ export function EasyOrderModal({ isOpen, onClose, packages = defaultPackages, pr
         {/* Step 2: Customer Form */}
         {step === 2 && (
           <div className="space-y-4">
+            {/* Package Summary with Domain */}
             {selectedPackage && (
-              <div className="bg-muted/50 rounded-lg p-3 mb-4">
+              <div className="bg-muted/50 rounded-lg p-3 mb-4 space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="font-medium">{selectedPackage.name[language]}</span>
                   <span className="font-bold text-primary">{formatCurrency(selectedPackage.price)}</span>
                 </div>
+                {selectedDomain?.isValid && selectedDomain.type === 'new' && selectedDomain.price && (
+                  <div className="flex justify-between items-center text-sm border-t pt-2">
+                    <span className="flex items-center gap-1">
+                      <Globe className="h-3 w-3" />
+                      {selectedDomain.domainName}
+                    </span>
+                    <span className="text-primary">+{formatCurrency(selectedDomain.price)}</span>
+                  </div>
+                )}
+                {selectedDomain?.isValid && selectedDomain.type === 'existing' && (
+                  <div className="flex justify-between items-center text-sm border-t pt-2">
+                    <span className="flex items-center gap-1">
+                      <Globe className="h-3 w-3" />
+                      {selectedDomain.domainName}
+                    </span>
+                    <span className="text-xs text-muted-foreground">{language === 'bn' ? 'পূর্বের ডোমেইন' : 'Existing'}</span>
+                  </div>
+                )}
+                {selectedDomain?.isValid && selectedDomain.type === 'new' && selectedDomain.price && (
+                  <div className="flex justify-between items-center font-bold border-t pt-2">
+                    <span>{language === 'bn' ? 'মোট' : 'Total'}</span>
+                    <span className="text-primary">{formatCurrency(selectedPackage.price + selectedDomain.price)}</span>
+                  </div>
+                )}
               </div>
+            )}
+            
+            {/* Domain Selector for Hosting */}
+            {isHostingPackage && (
+              <HostingDomainSelector
+                selectedDomain={selectedDomain}
+                onDomainChange={setSelectedDomain}
+              />
             )}
             <div className="space-y-4">
               <div>
