@@ -20,7 +20,19 @@ import CaseStudies from "./pages/CaseStudies";
 import CaseStudy from "./pages/CaseStudy";
 
 // SEO Landing Pages
-import { BestHostingBangladesh, WebDesignDhaka, ERPSoftwareBangladesh } from "./pages/landing";
+import { 
+  BestHostingBangladesh, 
+  WebDesignDhaka, 
+  ERPSoftwareBangladesh,
+  TravelAgencyWebsite,
+  RealEstateWebsite,
+  HospitalWebsite,
+  RestaurantWebsite,
+  FashionEcommerce
+} from "./pages/landing";
+
+// Authority Page
+import WhyDigiwebdex from "./pages/WhyDigiwebdex";
 
 // Service Pages
 import DomainHostingPage from "./pages/services/DomainHosting";
@@ -106,6 +118,12 @@ const LanguageRoutes = () => {
           <Route path="/bn/best-hosting-in-bangladesh" element={<BestHostingBangladesh />} />
           <Route path="/bn/web-design-company-in-dhaka" element={<WebDesignDhaka />} />
           <Route path="/bn/erp-software-bangladesh" element={<ERPSoftwareBangladesh />} />
+          <Route path="/bn/travel-agency-website-development-bangladesh" element={<TravelAgencyWebsite />} />
+          <Route path="/bn/real-estate-website-development-bd" element={<RealEstateWebsite />} />
+          <Route path="/bn/hospital-clinic-website-development" element={<HospitalWebsite />} />
+          <Route path="/bn/restaurant-website-design-bangladesh" element={<RestaurantWebsite />} />
+          <Route path="/bn/ecommerce-website-for-fashion-brand" element={<FashionEcommerce />} />
+          <Route path="/bn/why-digiwebdex" element={<WhyDigiwebdex />} />
           {/* Bangla - Service Pages */}
           <Route path="/bn/services/domain-hosting" element={<DomainHostingPage />} />
           <Route path="/bn/services/web-development" element={<WebDevelopmentPage />} />
@@ -175,6 +193,12 @@ const LanguageRoutes = () => {
           <Route path="/en/best-hosting-in-bangladesh" element={<BestHostingBangladesh />} />
           <Route path="/en/web-design-company-in-dhaka" element={<WebDesignDhaka />} />
           <Route path="/en/erp-software-bangladesh" element={<ERPSoftwareBangladesh />} />
+          <Route path="/en/travel-agency-website-development-bangladesh" element={<TravelAgencyWebsite />} />
+          <Route path="/en/real-estate-website-development-bd" element={<RealEstateWebsite />} />
+          <Route path="/en/hospital-clinic-website-development" element={<HospitalWebsite />} />
+          <Route path="/en/restaurant-website-design-bangladesh" element={<RestaurantWebsite />} />
+          <Route path="/en/ecommerce-website-for-fashion-brand" element={<FashionEcommerce />} />
+          <Route path="/en/why-digiwebdex" element={<WhyDigiwebdex />} />
           
           {/* English - Service Pages */}
           <Route path="/en/services/domain-hosting" element={<DomainHostingPage />} />
