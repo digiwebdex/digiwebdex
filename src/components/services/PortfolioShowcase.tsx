@@ -35,7 +35,7 @@ export function PortfolioShowcase({
   const basePath = language === 'en' ? '/en' : '/bn';
 
   return (
-    <section className="section-padding bg-background">
+    <section id="portfolio" className="section-padding bg-background">
       <div className="container-custom">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-12">

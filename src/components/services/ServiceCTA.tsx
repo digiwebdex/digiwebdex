@@ -18,11 +18,12 @@ interface ServiceCTAProps {
   };
 }
 
-export function ServiceCTA({ title, subtitle, primaryCta, secondaryCta }: ServiceCTAProps) {
+export const ServiceCTA = React.forwardRef<HTMLElement, ServiceCTAProps>(
+  function ServiceCTA({ title, subtitle, primaryCta, secondaryCta }, ref) {
   const { language } = useLanguage();
 
   return (
-    <section className="section-padding bg-background">
+    <section ref={ref} id="cta" className="section-padding bg-background">
       <div className="container-custom">
         <div className="relative overflow-hidden rounded-3xl p-10 sm:p-14 lg:p-20" style={{ background: 'var(--gradient-primary)' }}>
           {/* Decorative elements */}
@@ -81,4 +82,6 @@ export function ServiceCTA({ title, subtitle, primaryCta, secondaryCta }: Servic
       </div>
     </section>
   );
-}
+});
+
+ServiceCTA.displayName = 'ServiceCTA';

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Play } from 'lucide-react';
+import { useSmoothScroll } from '@/hooks/useSmoothScroll';
 
 interface ServiceHeroProps {
   badge: string;
@@ -32,6 +33,16 @@ export function ServiceHero({
   stats,
   children,
 }: ServiceHeroProps) {
+  const { scrollToElement } = useSmoothScroll();
+
+  // Handle secondary CTA click - check if it's an anchor link
+  const handleSecondaryCTAClick = (e: React.MouseEvent, href: string) => {
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      scrollToElement(href);
+    }
+  };
+
   return (
     <section className="relative overflow-hidden py-20 md:py-28" style={{ background: 'var(--gradient-hero)' }}>
       {/* Background Elements */}
@@ -68,12 +79,24 @@ export function ServiceHero({
               </Link>
             </Button>
             {secondaryCta && (
-              <Button size="lg" variant="outline" className="h-14 px-10 text-lg bg-background/80 backdrop-blur-sm" asChild>
-                <Link to={secondaryCta.href}>
+              secondaryCta.href.startsWith('#') ? (
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="h-14 px-10 text-lg bg-background/80 backdrop-blur-sm"
+                  onClick={(e) => handleSecondaryCTAClick(e, secondaryCta.href)}
+                >
                   <Play className="mr-2 h-5 w-5" />
                   {secondaryCta.text}
-                </Link>
-              </Button>
+                </Button>
+              ) : (
+                <Button size="lg" variant="outline" className="h-14 px-10 text-lg bg-background/80 backdrop-blur-sm" asChild>
+                  <Link to={secondaryCta.href}>
+                    <Play className="mr-2 h-5 w-5" />
+                    {secondaryCta.text}
+                  </Link>
+                </Button>
+              )
             )}
           </div>
 

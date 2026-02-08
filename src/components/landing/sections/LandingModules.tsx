@@ -17,7 +17,7 @@ interface LandingModulesProps {
 
 export function LandingModules({ title, subtitle, modules }: LandingModulesProps) {
   return (
-    <section className="py-20 relative">
+    <section id="modules" className="py-20 relative">
       <div className="container-custom">
         {/* Section Header */}
         <div className="text-center mb-16">

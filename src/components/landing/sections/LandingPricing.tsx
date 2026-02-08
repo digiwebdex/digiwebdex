@@ -23,7 +23,7 @@ interface LandingPricingProps {
 
 export function LandingPricing({ title, subtitle, plans }: LandingPricingProps) {
   return (
-    <section className="py-20 relative bg-muted/30">
+    <section id="pricing" className="py-20 relative bg-muted/30">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent" />
       

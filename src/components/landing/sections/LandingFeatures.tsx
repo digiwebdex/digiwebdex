@@ -24,7 +24,7 @@ export function LandingFeatures({
   variant = 'glass'
 }: LandingFeaturesProps) {
   return (
-    <section className="py-20 relative">
+    <section id="features" className="py-20 relative">
       <div className="container-custom">
         {/* Section Header */}
         <div className="text-center mb-16">
