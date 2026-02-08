@@ -26,6 +26,7 @@ import {
   UserPlus,
   FileCheck,
   RefreshCcw,
+  Headphones,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -81,6 +82,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       items: [
         { label: language === 'bn' ? 'ব্লগ' : 'Blog', icon: FileEdit, href: `${basePath}/admin/blog` },
         { label: language === 'bn' ? 'SEO সেটিংস' : 'SEO', icon: Search, href: `${basePath}/admin/seo` },
+      ],
+    },
+    {
+      title: language === 'bn' ? 'সাপোর্ট' : 'Support',
+      items: [
+        { label: language === 'bn' ? 'টিকেট' : 'Tickets', icon: Headphones, href: `${basePath}/admin/tickets` },
       ],
     },
     {
