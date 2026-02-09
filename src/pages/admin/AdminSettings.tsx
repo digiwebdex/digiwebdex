@@ -242,6 +242,34 @@ export default function AdminSettings() {
                     onCheckedChange={(checked) => updateSetting('callback_button_enabled', checked)}
                   />
                 </div>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>{language === 'bn' ? 'হেডার অর্ডার বাটন' : 'Header Order Button'}</Label>
+                    <p className="text-sm text-muted-foreground">
+                      {language === 'bn' 
+                        ? 'হেডারে "অর্ডার করুন" বাটন দেখান' 
+                        : 'Show "Order Now" button in header'}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={getBoolValue('header_order_button_enabled')}
+                    onCheckedChange={(checked) => updateSetting('header_order_button_enabled', checked)}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>{language === 'bn' ? 'ফ্লোটিং অর্ডার বাটন' : 'Floating Order Button'}</Label>
+                    <p className="text-sm text-muted-foreground">
+                      {language === 'bn' 
+                        ? 'ফ্লোটিং "অর্ডার করুন" বাটন ও মোবাইল বার দেখান' 
+                        : 'Show floating "Order Now" button & mobile bar'}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={getBoolValue('floating_order_button_enabled')}
+                    onCheckedChange={(checked) => updateSetting('floating_order_button_enabled', checked)}
+                  />
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

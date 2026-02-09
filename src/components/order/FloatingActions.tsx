@@ -5,10 +5,12 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n';
 import { DIGIWEBDEX_CONTACT } from '@/services/contactService';
+import { systemSettingsService } from '@/services/settings';
 
 export function FloatingActions() {
   const { language } = useLanguage();
   const basePath = language === 'en' ? '/en' : '/bn';
+  const [floatingOrderEnabled, setFloatingOrderEnabled] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
@@ -18,6 +20,18 @@ export function FloatingActions() {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const checkEnabled = async () => {
+      try {
+        const enabled = await systemSettingsService.getSetting<boolean | string>('floating_order_button_enabled');
+        setFloatingOrderEnabled(enabled === true || enabled === 'true');
+      } catch {
+        setFloatingOrderEnabled(true);
+      }
+    };
+    checkEnabled();
   }, []);
 
   const scrollToTop = () => {
@@ -52,16 +66,18 @@ export function FloatingActions() {
         </Button>
 
         {/* Quick Order Button */}
-        <Button
-          className="h-12 px-5 rounded-full shadow-xl bg-gradient-to-r from-primary to-accent text-white hover:shadow-2xl hover:shadow-primary/25 group"
-          asChild
-        >
-          <Link to={`${basePath}/pricing`}>
-            <ShoppingCart className="h-5 w-5 mr-2" />
-            {language === 'bn' ? 'অর্ডার করুন' : 'Order Now'}
-            <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </Button>
+        {floatingOrderEnabled && (
+          <Button
+            className="h-12 px-5 rounded-full shadow-xl bg-gradient-to-r from-primary to-accent text-white hover:shadow-2xl hover:shadow-primary/25 group"
+            asChild
+          >
+            <Link to={`${basePath}/pricing`}>
+              <ShoppingCart className="h-5 w-5 mr-2" />
+              {language === 'bn' ? 'অর্ডার করুন' : 'Order Now'}
+              <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </Button>
+        )}
 
         {/* WhatsApp Button */}
         <Button
@@ -77,16 +93,18 @@ export function FloatingActions() {
       <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-background/95 backdrop-blur-md border-t shadow-2xl safe-area-inset-bottom">
         <div className="flex items-center gap-2 p-3">
           {/* Quick Order CTA */}
-          <Button
-            className="flex-1 gap-2 h-12 gradient-button text-sm font-semibold group"
-            asChild
-          >
-            <Link to={`${basePath}/pricing`}>
-              <ShoppingCart className="h-4 w-4" />
-              {language === 'bn' ? 'অর্ডার করুন' : 'Order Now'}
-              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </Button>
+          {floatingOrderEnabled && (
+            <Button
+              className="flex-1 gap-2 h-12 gradient-button text-sm font-semibold group"
+              asChild
+            >
+              <Link to={`${basePath}/pricing`}>
+                <ShoppingCart className="h-4 w-4" />
+                {language === 'bn' ? 'অর্ডার করুন' : 'Order Now'}
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Button>
+          )}
           
           {/* WhatsApp Button */}
           <Button

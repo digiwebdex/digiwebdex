@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/lib/i18n';
 import { useTheme } from '@/hooks/useTheme';
@@ -13,11 +13,25 @@ import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/s
 import { Menu, Moon, Sun, Globe, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import logo from '@/assets/logo.png';
+import { systemSettingsService } from '@/services/settings';
 
 export function Header() {
   const { language, setLanguage, t } = useLanguage();
   const { toggleTheme, isDark } = useTheme();
   const basePath = language === 'en' ? '/en' : '/bn';
+  const [headerOrderButtonEnabled, setHeaderOrderButtonEnabled] = useState(true);
+
+  useEffect(() => {
+    const checkEnabled = async () => {
+      try {
+        const enabled = await systemSettingsService.getSetting<boolean | string>('header_order_button_enabled');
+        setHeaderOrderButtonEnabled(enabled === true || enabled === 'true');
+      } catch {
+        setHeaderOrderButtonEnabled(true);
+      }
+    };
+    checkEnabled();
+  }, []);
 
   const navLinks = [
     { label: t.nav.home, href: basePath || '/' },
@@ -107,9 +121,11 @@ export function Header() {
           </Button>
 
           {/* CTA Button - Desktop */}
-          <Button className="hidden md:flex gradient-button">
-            {t.nav.orderNow}
-          </Button>
+          {headerOrderButtonEnabled && (
+            <Button className="hidden md:flex gradient-button">
+              {t.nav.orderNow}
+            </Button>
+          )}
 
           {/* Mobile Menu */}
           <Sheet>
@@ -175,9 +191,11 @@ export function Header() {
                 ))}
 
                 {/* Mobile CTA */}
-                <Button className="mt-4 gradient-button w-full">
-                  {t.nav.orderNow}
-                </Button>
+                {headerOrderButtonEnabled && (
+                  <Button className="mt-4 gradient-button w-full">
+                    {t.nav.orderNow}
+                  </Button>
+                )}
               </div>
             </SheetContent>
           </Sheet>
