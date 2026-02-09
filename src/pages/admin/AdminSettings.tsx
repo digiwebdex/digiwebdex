@@ -219,6 +219,31 @@ export default function AdminSettings() {
                 </div>
               </CardContent>
             </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>{language === 'bn' ? 'ওয়েবসাইট ফিচার' : 'Website Features'}</CardTitle>
+                <CardDescription>
+                  {language === 'bn' ? 'ওয়েবসাইটের বিভিন্ন ফিচার চালু/বন্ধ করুন' : 'Enable/disable various website features'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>{language === 'bn' ? 'কল ব্যাক রিকোয়েস্ট বাটন' : 'Callback Request Button'}</Label>
+                    <p className="text-sm text-muted-foreground">
+                      {language === 'bn' 
+                        ? 'ভিজিটরদের জন্য ফ্লোটিং কল ব্যাক বাটন দেখান' 
+                        : 'Show floating callback button for visitors'}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={getBoolValue('callback_button_enabled')}
+                    onCheckedChange={(checked) => updateSetting('callback_button_enabled', checked)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Notifications Settings */}
