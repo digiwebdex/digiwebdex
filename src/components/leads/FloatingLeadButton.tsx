@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/lib/i18n';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { PhoneCall, Send, CheckCircle, X } from 'lucide-react';
 import { leadService } from '@/services/leadService';
 import { toast } from '@/hooks/use-toast';
 import { z } from 'zod';
+import { systemSettingsService } from '@/services/settings';
 
 const leadSchema = z.object({
   name: z.string().trim().min(2, 'নাম অন্তত ২ অক্ষর হতে হবে').max(100),
@@ -23,7 +24,19 @@ export function FloatingLeadButton() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [formData, setFormData] = useState({ name: '', phone: '', service: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isEnabled, setIsEnabled] = useState(true);
 
+  useEffect(() => {
+    const checkEnabled = async () => {
+      try {
+        const enabled = await systemSettingsService.getSetting<boolean | string>('callback_button_enabled');
+        setIsEnabled(enabled === true || enabled === 'true');
+      } catch {
+        setIsEnabled(true); // Default to enabled on error
+      }
+    };
+    checkEnabled();
+  }, []);
   const services = [
     { value: 'domain-hosting', label: language === 'bn' ? 'ডোমেইন ও হোস্টিং' : 'Domain & Hosting' },
     { value: 'web-development', label: language === 'bn' ? 'ওয়েব ডেভেলপমেন্ট' : 'Web Development' },
@@ -86,6 +99,11 @@ export function FloatingLeadButton() {
     setFormData({ name: '', phone: '', service: '' });
     setErrors({});
   };
+
+  // Don't render if disabled from admin panel
+  if (!isEnabled) {
+    return null;
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
