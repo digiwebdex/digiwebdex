@@ -101,6 +101,8 @@ export function ExitIntentPopup() {
         setIsOpen(true);
         setHasShown(true);
         sessionStorage.setItem('exitPopupShown', 'true');
+        // Remove immediately to prevent shaking from repeated triggers
+        document.removeEventListener('mouseleave', handleMouseLeave);
       }
     };
 
