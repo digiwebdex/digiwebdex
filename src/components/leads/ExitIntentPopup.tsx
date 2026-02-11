@@ -1,4 +1,4 @@
-import React, { forwardRef, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/lib/i18n';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -9,12 +9,24 @@ import { X, Gift, Send, CheckCircle } from 'lucide-react';
 import { leadService } from '@/services/leadService';
 import { toast } from '@/hooks/use-toast';
 import { z } from 'zod';
+import { systemSettingsService } from '@/services/settings';
 
 const leadSchema = z.object({
   name: z.string().trim().min(2, 'নাম অন্তত ২ অক্ষর হতে হবে').max(100),
   phone: z.string().trim().regex(/^01[3-9]\d{8}$/, 'সঠিক ফোন নম্বর দিন'),
   service: z.string().min(1, 'সার্ভিস নির্বাচন করুন'),
 });
+
+interface ExitPopupSettings {
+  enabled: boolean;
+  titleBn: string;
+  titleEn: string;
+  subtitleBn: string;
+  subtitleEn: string;
+  buttonTextBn: string;
+  buttonTextEn: string;
+  delaySeconds: number;
+}
 
 export function ExitIntentPopup() {
   const { language } = useLanguage();
@@ -24,6 +36,7 @@ export function ExitIntentPopup() {
   const [hasShown, setHasShown] = useState(false);
   const [formData, setFormData] = useState({ name: '', phone: '', service: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [popupSettings, setPopupSettings] = useState<ExitPopupSettings | null>(null);
 
   const services = [
     { value: 'domain-hosting', label: language === 'bn' ? 'ডোমেইন ও হোস্টিং' : 'Domain & Hosting' },
@@ -32,8 +45,51 @@ export function ExitIntentPopup() {
     { value: 'digital-marketing', label: language === 'bn' ? 'ডিজিটাল মার্কেটিং' : 'Digital Marketing' },
   ];
 
+  // Load settings from DB
   useEffect(() => {
-    // Check if popup was already shown in this session
+    const loadSettings = async () => {
+      try {
+        const [enabled, titleBn, titleEn, subtitleBn, subtitleEn, buttonBn, buttonEn, delay] = await Promise.all([
+          systemSettingsService.getSetting<boolean>('exit_popup_enabled'),
+          systemSettingsService.getSetting<string>('exit_popup_title_bn'),
+          systemSettingsService.getSetting<string>('exit_popup_title_en'),
+          systemSettingsService.getSetting<string>('exit_popup_subtitle_bn'),
+          systemSettingsService.getSetting<string>('exit_popup_subtitle_en'),
+          systemSettingsService.getSetting<string>('exit_popup_button_text_bn'),
+          systemSettingsService.getSetting<string>('exit_popup_button_text_en'),
+          systemSettingsService.getSetting<number>('exit_popup_delay_seconds'),
+        ]);
+
+        setPopupSettings({
+          enabled: enabled !== false,
+          titleBn: titleBn || 'যাবেন না!',
+          titleEn: titleEn || 'Wait!',
+          subtitleBn: subtitleBn || 'ফ্রি কনসাল্টেশন নিন এবং ১০% ডিসকাউন্ট পান!',
+          subtitleEn: subtitleEn || 'Get free consultation + 10% discount!',
+          buttonTextBn: buttonBn || 'ডিসকাউন্ট নিন',
+          buttonTextEn: buttonEn || 'Get Discount',
+          delaySeconds: delay || 10,
+        });
+      } catch {
+        // Fallback defaults
+        setPopupSettings({
+          enabled: true,
+          titleBn: 'যাবেন না!',
+          titleEn: 'Wait!',
+          subtitleBn: 'ফ্রি কনসাল্টেশন নিন এবং ১০% ডিসকাউন্ট পান!',
+          subtitleEn: 'Get free consultation + 10% discount!',
+          buttonTextBn: 'ডিসকাউন্ট নিন',
+          buttonTextEn: 'Get Discount',
+          delaySeconds: 10,
+        });
+      }
+    };
+    loadSettings();
+  }, []);
+
+  useEffect(() => {
+    if (!popupSettings || !popupSettings.enabled) return;
+
     const wasShown = sessionStorage.getItem('exitPopupShown');
     if (wasShown) {
       setHasShown(true);
@@ -48,16 +104,15 @@ export function ExitIntentPopup() {
       }
     };
 
-    // Only add listener after 10 seconds on page
     const timeout = setTimeout(() => {
       document.addEventListener('mouseleave', handleMouseLeave);
-    }, 10000);
+    }, (popupSettings.delaySeconds || 10) * 1000);
 
     return () => {
       clearTimeout(timeout);
       document.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [hasShown]);
+  }, [hasShown, popupSettings]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,6 +159,13 @@ export function ExitIntentPopup() {
     }
   };
 
+  // Don't render if disabled or not loaded yet
+  if (!popupSettings || !popupSettings.enabled) return null;
+
+  const title = language === 'bn' ? popupSettings.titleBn : popupSettings.titleEn;
+  const subtitle = language === 'bn' ? popupSettings.subtitleBn : popupSettings.subtitleEn;
+  const buttonText = language === 'bn' ? popupSettings.buttonTextBn : popupSettings.buttonTextEn;
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-md border-0 glass-premium">
@@ -135,14 +197,8 @@ export function ExitIntentPopup() {
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-accent/80 flex items-center justify-center mx-auto mb-3">
                 <Gift className="w-7 h-7 text-white" />
               </div>
-              <DialogTitle className="text-xl">
-                {language === 'bn' ? 'যাবেন না!' : "Wait!"}
-              </DialogTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                {language === 'bn' 
-                  ? 'ফ্রি কনসাল্টেশন নিন এবং ১০% ডিসকাউন্ট পান!'
-                  : 'Get free consultation + 10% discount!'}
-              </p>
+              <DialogTitle className="text-xl">{title}</DialogTitle>
+              <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
             </DialogHeader>
 
             <form onSubmit={handleSubmit} className="space-y-4 pt-2">
@@ -202,7 +258,7 @@ export function ExitIntentPopup() {
                   </span>
                 ) : (
                   <>
-                    {language === 'bn' ? 'ডিসকাউন্ট নিন' : 'Get Discount'}
+                    {buttonText}
                     <Send className="ml-2 w-4 h-4" />
                   </>
                 )}
