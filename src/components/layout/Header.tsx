@@ -92,28 +92,16 @@ export function Header() {
 
         {/* Right Side Actions */}
         <div className="flex items-center gap-2">
-          {/* Language Switcher */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="hidden sm:flex">
-                <Globe className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => setLanguage('bn')}
-                className={cn(language === 'bn' && 'bg-accent')}
-              >
-                বাংলা
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setLanguage('en')}
-                className={cn(language === 'en' && 'bg-accent')}
-              >
-                English
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Language Switcher - Single Toggle Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setLanguage(language === 'bn' ? 'en' : 'bn')}
+            className="hidden sm:flex items-center gap-1.5"
+          >
+            <Globe className="h-4 w-4" />
+            {language === 'bn' ? 'English' : 'বাংলা'}
+          </Button>
 
           {/* Theme Toggle */}
           <Button variant="ghost" size="icon" onClick={toggleTheme}>
