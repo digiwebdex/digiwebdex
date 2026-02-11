@@ -272,6 +272,84 @@ export default function AdminSettings() {
                 </div>
               </CardContent>
             </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>{language === 'bn' ? 'এক্সিট পপআপ সেটিংস' : 'Exit Popup Settings'}</CardTitle>
+                <CardDescription>
+                  {language === 'bn' ? 'ভিজিটর চলে যাওয়ার সময় পপআপ কনফিগার করুন' : 'Configure the exit intent popup for visitors'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>{language === 'bn' ? 'এক্সিট পপআপ চালু' : 'Exit Popup Enabled'}</Label>
+                    <p className="text-sm text-muted-foreground">
+                      {language === 'bn' 
+                        ? 'ভিজিটর পেজ ছেড়ে যাওয়ার সময় লিড ক্যাপচার পপআপ দেখান' 
+                        : 'Show lead capture popup when visitors try to leave'}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={getBoolValue('exit_popup_enabled')}
+                    onCheckedChange={(checked) => updateSetting('exit_popup_enabled', checked)}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>{language === 'bn' ? 'টাইটেল (বাংলা)' : 'Title (Bengali)'}</Label>
+                    <Input
+                      value={getValue('exit_popup_title_bn')}
+                      onChange={(e) => updateSetting('exit_popup_title_bn', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{language === 'bn' ? 'টাইটেল (ইংরেজি)' : 'Title (English)'}</Label>
+                    <Input
+                      value={getValue('exit_popup_title_en')}
+                      onChange={(e) => updateSetting('exit_popup_title_en', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{language === 'bn' ? 'সাবটাইটেল (বাংলা)' : 'Subtitle (Bengali)'}</Label>
+                    <Input
+                      value={getValue('exit_popup_subtitle_bn')}
+                      onChange={(e) => updateSetting('exit_popup_subtitle_bn', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{language === 'bn' ? 'সাবটাইটেল (ইংরেজি)' : 'Subtitle (English)'}</Label>
+                    <Input
+                      value={getValue('exit_popup_subtitle_en')}
+                      onChange={(e) => updateSetting('exit_popup_subtitle_en', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{language === 'bn' ? 'বাটন টেক্সট (বাংলা)' : 'Button Text (Bengali)'}</Label>
+                    <Input
+                      value={getValue('exit_popup_button_text_bn')}
+                      onChange={(e) => updateSetting('exit_popup_button_text_bn', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{language === 'bn' ? 'বাটন টেক্সট (ইংরেজি)' : 'Button Text (English)'}</Label>
+                    <Input
+                      value={getValue('exit_popup_button_text_en')}
+                      onChange={(e) => updateSetting('exit_popup_button_text_en', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{language === 'bn' ? 'ডিলে (সেকেন্ড)' : 'Delay (Seconds)'}</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={getNumberValue('exit_popup_delay_seconds')}
+                      onChange={(e) => updateSetting('exit_popup_delay_seconds', Number(e.target.value))}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Notifications Settings */}
