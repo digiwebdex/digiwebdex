@@ -20,6 +20,7 @@ import {
   Tag,
   Search,
   LogOut,
+  Radar,
   ChevronLeft,
   ChevronRight,
   Home,
@@ -87,6 +88,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       items: [
         { label: language === 'bn' ? 'ব্লগ' : 'Blog', icon: FileEdit, href: `${basePath}/admin/blog` },
         { label: language === 'bn' ? 'SEO সেটিংস' : 'SEO', icon: Search, href: `${basePath}/admin/seo` },
+        { label: language === 'bn' ? 'ট্র্যাকিং' : 'Tracking', icon: Radar, href: `${basePath}/admin/tracking` },
         { label: language === 'bn' ? 'হোমপেজ' : 'Homepage CMS', icon: Layout, href: `${basePath}/admin/homepage` },
         { label: language === 'bn' ? 'প্রপোজাল টেমপ্লেট' : 'Proposal Templates', icon: Palette, href: `${basePath}/admin/proposal-templates` },
       ],
