@@ -95,7 +95,7 @@ const BestHostingBangladesh: React.FC = () => {
       period: 'মাস',
       description: 'ব্যবসায়িক ওয়েবসাইটের জন্য আদর্শ',
       features: [
-        '20 GB SSD NVMe Storage',
+        '10 GB SSD NVMe Storage',
         'Unlimited Bandwidth',
         '5 ওয়েবসাইট হোস্ট',
         'Unlimited Email',
@@ -113,7 +113,7 @@ const BestHostingBangladesh: React.FC = () => {
       period: 'মাস',
       description: 'বড় ই-কমার্স বা কর্পোরেট সাইটের জন্য',
       features: [
-        '50 GB SSD NVMe Storage',
+        '20 GB SSD NVMe Storage',
         'Unlimited Bandwidth',
         'Unlimited ওয়েবসাইট',
         'Unlimited Email',

@@ -100,7 +100,7 @@ const defaultPackages: PackageOption[] = [
     price: 3500,
     serviceType: 'hosting',
     isPopular: true,
-    features: { en: ['25 GB SSD', 'Unlimited Bandwidth', 'Priority Support'], bn: ['২৫ জিবি SSD', 'আনলিমিটেড ব্যান্ডউইথ', 'অগ্রাধিকার সাপোর্ট'] },
+    features: { en: ['10 GB SSD', 'Unlimited Bandwidth', 'Priority Support'], bn: ['১০ জিবি SSD', 'আনলিমিটেড ব্যান্ডউইথ', 'অগ্রাধিকার সাপোর্ট'] },
   },
   {
     id: 'web-starter',

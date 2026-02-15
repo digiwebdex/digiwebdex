@@ -91,10 +91,10 @@ const bundlePackages: BundlePackage[] = [
   {
     id: 'hosting-starter',
     name: { en: 'Starter Hosting', bn: 'স্টার্টার হোস্টিং' },
-    description: { en: '1GB SSD, 10GB Bandwidth', bn: '১ জিবি SSD, ১০ জিবি ব্যান্ডউইথ' },
+    description: { en: '5GB SSD, 50GB Bandwidth', bn: '৫ জিবি SSD, ৫০ জিবি ব্যান্ডউইথ' },
     price: 4800,
     category: 'hosting',
-    features: { en: ['1 GB SSD', '10 GB Bandwidth', 'Free SSL', '5 Email Accounts'], bn: ['১ জিবি SSD', '১০ জিবি ব্যান্ডউইথ', 'ফ্রি SSL', '৫টি ইমেইল'] },
+    features: { en: ['5 GB SSD', '50 GB Bandwidth', 'Free SSL', '5 Email Accounts'], bn: ['৫ জিবি SSD', '৫০ জিবি ব্যান্ডউইথ', 'ফ্রি SSL', '৫টি ইমেইল'] },
   },
   {
     id: 'hosting-business',
@@ -108,10 +108,10 @@ const bundlePackages: BundlePackage[] = [
   {
     id: 'hosting-premium',
     name: { en: 'Premium Hosting', bn: 'প্রিমিয়াম হোস্টিং' },
-    description: { en: 'Unlimited SSD & BW', bn: 'আনলিমিটেড SSD ও BW' },
+    description: { en: '20GB SSD, Unlimited BW', bn: '২০ জিবি SSD, আনলিমিটেড BW' },
     price: 14500,
     category: 'hosting',
-    features: { en: ['Unlimited SSD', 'Unlimited Bandwidth', 'Free Domain', 'Priority Support'], bn: ['আনলিমিটেড SSD', 'আনলিমিটেড ব্যান্ডউইথ', 'ফ্রি ডোমেইন', 'প্রায়োরিটি সাপোর্ট'] },
+    features: { en: ['20 GB SSD', 'Unlimited Bandwidth', 'Free Domain', 'Priority Support'], bn: ['২০ জিবি SSD', 'আনলিমিটেড ব্যান্ডউইথ', 'ফ্রি ডোমেইন', 'প্রায়োরিটি সাপোর্ট'] },
   },
   // Website Packages
   {

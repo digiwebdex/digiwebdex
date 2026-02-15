@@ -142,9 +142,9 @@ const DomainHostingPage = () => {
       period: language === 'bn' ? '/বছর' : '/year',
       description: language === 'bn' ? 'ব্যক্তিগত ওয়েবসাইটের জন্য পারফেক্ট' : 'Perfect for personal websites',
       features: [
-        language === 'bn' ? '1GB SSD স্টোরেজ' : '1GB SSD Storage',
-        language === 'bn' ? '10GB ব্যান্ডউইথ' : '10GB Bandwidth',
-        language === 'bn' ? '1টি ইমেইল অ্যাকাউন্ট' : '1 Email Account',
+        language === 'bn' ? '5GB SSD স্টোরেজ' : '5GB SSD Storage',
+        language === 'bn' ? '50GB ব্যান্ডউইথ' : '50GB Bandwidth',
+        language === 'bn' ? '5টি ইমেইল অ্যাকাউন্ট' : '5 Email Accounts',
         language === 'bn' ? 'ফ্রি SSL' : 'Free SSL',
         language === 'bn' ? 'cPanel অ্যাক্সেস' : 'cPanel Access',
       ],
@@ -174,7 +174,7 @@ const DomainHostingPage = () => {
       period: language === 'bn' ? '/বছর' : '/year',
       description: language === 'bn' ? 'বড় ব্যবসা ও উচ্চ ট্রাফিকের জন্য' : 'For large businesses & high traffic',
       features: [
-        language === 'bn' ? 'আনলিমিটেড SSD স্টোরেজ' : 'Unlimited SSD Storage',
+        language === 'bn' ? '20GB SSD স্টোরেজ' : '20GB SSD Storage',
         language === 'bn' ? 'আনলিমিটেড ব্যান্ডউইথ' : 'Unlimited Bandwidth',
         language === 'bn' ? 'আনলিমিটেড ইমেইল' : 'Unlimited Emails',
         language === 'bn' ? 'ফ্রি ডোমেইন' : 'Free Domain',
