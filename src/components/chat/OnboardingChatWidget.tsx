@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { MessageCircle, X, Send, Bot, User, Loader2 } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { MessageCircle, X, Send, Bot, User, Loader2, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n';
@@ -70,6 +71,8 @@ async function streamChat({
 
 export function OnboardingChatWidget() {
   const { language } = useLanguage();
+  const location = useLocation();
+  const isDashboard = location.pathname.includes('/dashboard');
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
@@ -79,9 +82,13 @@ export function OnboardingChatWidget() {
 
   const greeting: Msg = {
     role: 'assistant',
-    content: language === 'bn'
-      ? 'আসসালামু আলাইকুম! 👋 আমি DigiWebDex এর AI সহকারী। ডোমেইন, হোস্টিং, ওয়েবসাইট তৈরি, বা পেমেন্ট — যেকোনো বিষয়ে সাহায্য করতে পারি। কীভাবে সাহায্য করতে পারি?'
-      : "Hello! 👋 I'm DigiWebDex's AI assistant. I can help with domains, hosting, website development, or payments. How can I help you today?",
+    content: isDashboard
+      ? (language === 'bn'
+        ? 'আসসালামু আলাইকুম! 👋 আমি আপনার পেমেন্ট সহকারী। বিকাশ, ব্যাংক ট্রান্সফার বা ক্যাশ — যেকোনো পেমেন্ট পদ্ধতিতে সাহায্য করতে পারি। কোন পদ্ধতিতে পেমেন্ট করতে চান?'
+        : "Hello! 👋 I'm your payment assistant. I can guide you through bKash, Bank Transfer, or Cash payment. Which method would you like to use?")
+      : (language === 'bn'
+        ? 'আসসালামু আলাইকুম! 👋 আমি DigiWebDex এর AI সহকারী। ডোমেইন, হোস্টিং, ওয়েবসাইট তৈরি, বা পেমেন্ট — যেকোনো বিষয়ে সাহায্য করতে পারি। কীভাবে সাহায্য করতে পারি?'
+        : "Hello! 👋 I'm DigiWebDex's AI assistant. I can help with domains, hosting, website development, or payments. How can I help you today?"),
   };
 
   useEffect(() => {
@@ -138,9 +145,13 @@ export function OnboardingChatWidget() {
     }
   }, [input, loading, messages]);
 
-  const quickPrompts = language === 'bn'
-    ? ['ডোমেইন কিনতে চাই', 'হোস্টিং প্ল্যান দেখান', 'পেমেন্ট কিভাবে করব?', 'অর্ডার স্ট্যাটাস']
-    : ['Buy a domain', 'Show hosting plans', 'How to pay?', 'Order status'];
+  const quickPrompts = isDashboard
+    ? (language === 'bn'
+      ? ['বিকাশে পেমেন্ট করব', 'ব্যাংক ট্রান্সফার করব', 'ক্যাশে পেমেন্ট করব', 'পেমেন্ট প্রুফ জমা দিতে চাই', 'পেমেন্ট ভেরিফাই হয়নি']
+      : ['Pay via bKash', 'Pay via Bank Transfer', 'Pay with Cash', 'Submit payment proof', 'Payment not verified'])
+    : (language === 'bn'
+      ? ['ডোমেইন কিনতে চাই', 'হোস্টিং প্ল্যান দেখান', 'পেমেন্ট কিভাবে করব?', 'অর্ডার স্ট্যাটাস']
+      : ['Buy a domain', 'Show hosting plans', 'How to pay?', 'Order status']);
 
   return (
     <>
@@ -156,7 +167,7 @@ export function OnboardingChatWidget() {
         )}
         aria-label="AI Assistant"
       >
-        {open ? <X className="h-6 w-6 mx-auto" /> : <Bot className="h-6 w-6 mx-auto" />}
+        {open ? <X className="h-6 w-6 mx-auto" /> : (isDashboard ? <CreditCard className="h-6 w-6 mx-auto" /> : <Bot className="h-6 w-6 mx-auto" />)}
       </button>
 
       {/* Chat Panel */}
@@ -172,9 +183,9 @@ export function OnboardingChatWidget() {
               <Bot className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-semibold text-sm">DigiWebDex AI</p>
+              <p className="font-semibold text-sm">{isDashboard ? (language === 'bn' ? 'পেমেন্ট সহকারী' : 'Payment Assistant') : 'DigiWebDex AI'}</p>
               <p className="text-xs opacity-80">
-                {language === 'bn' ? 'অনবোর্ডিং সহকারী' : 'Onboarding Assistant'}
+                {isDashboard ? (language === 'bn' ? 'পেমেন্ট গাইড' : 'Payment Guide') : (language === 'bn' ? 'অনবোর্ডিং সহকারী' : 'Onboarding Assistant')}
               </p>
             </div>
           </div>
