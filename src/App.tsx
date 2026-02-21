@@ -20,6 +20,7 @@ import Locations from "./pages/Locations";
 import LandingPage from "./pages/LandingPage";
 import CaseStudies from "./pages/CaseStudies";
 import CaseStudy from "./pages/CaseStudy";
+import GetStarted from "./pages/GetStarted";
 
 // SEO Landing Pages
 import { 
@@ -120,6 +121,7 @@ const LanguageRoutes = () => {
           <Route path="/bn/case-studies" element={<CaseStudies />} />
           <Route path="/bn/case-studies/:slug" element={<CaseStudy />} />
           <Route path="/bn/about-us" element={<About />} />
+          <Route path="/bn/get-started" element={<GetStarted />} />
           
           {/* Bangla - SEO Landing Pages */}
           <Route path="/bn/best-hosting-in-bangladesh" element={<BestHostingBangladesh />} />
@@ -199,6 +201,7 @@ const LanguageRoutes = () => {
           <Route path="/en/case-studies" element={<CaseStudies />} />
           <Route path="/en/case-studies/:slug" element={<CaseStudy />} />
           <Route path="/en/about-us" element={<About />} />
+          <Route path="/en/get-started" element={<GetStarted />} />
           
           {/* English - SEO Landing Pages */}
           <Route path="/en/best-hosting-in-bangladesh" element={<BestHostingBangladesh />} />
