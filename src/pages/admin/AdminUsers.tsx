@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/lib/i18n';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { DataTable, Column, StatusBadge, FormModal } from '@/components/admin/common';
+import { DataTable, Column, FormModal } from '@/components/admin/common';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
-import { Pencil, Shield, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { Pencil, Shield, ShieldCheck, ShieldAlert, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { Database } from '@/integrations/supabase/types';
 
@@ -28,10 +29,16 @@ export default function AdminUsers() {
   const { language } = useLanguage();
   const [users, setUsers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [roleModalOpen, setRoleModalOpen] = useState(false);
+  const [addModalOpen, setAddModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [newRole, setNewRole] = useState('client');
   const [saving, setSaving] = useState(false);
+
+  // Add user form state
+  const [addForm, setAddForm] = useState({
+    email: '', password: '', full_name: '', phone: '', company_name: '', role: 'client',
+  });
 
   useEffect(() => {
     fetchUsers();
@@ -39,8 +46,6 @@ export default function AdminUsers() {
 
   const fetchUsers = async () => {
     setLoading(true);
-    
-    // Fetch profiles
     const { data: profiles, error } = await supabase
       .from('profiles')
       .select('*')
@@ -52,7 +57,6 @@ export default function AdminUsers() {
       return;
     }
 
-    // Fetch roles for each user
     const usersWithRoles = await Promise.all(
       (profiles || []).map(async (profile) => {
         const { data: roleData } = await supabase
@@ -60,11 +64,7 @@ export default function AdminUsers() {
           .select('role')
           .eq('user_id', profile.user_id)
           .single();
-        
-        return {
-          ...profile,
-          role: roleData?.role || 'client',
-        };
+        return { ...profile, role: roleData?.role || 'client' };
       })
     );
 
@@ -75,14 +75,12 @@ export default function AdminUsers() {
   const handleEditUser = (user: Profile) => {
     setSelectedUser(user);
     setNewRole(user.role || 'client');
-    setModalOpen(true);
+    setRoleModalOpen(true);
   };
 
-  const handleSave = async () => {
+  const handleSaveRole = async () => {
     if (!selectedUser) return;
     setSaving(true);
-
-    // Upsert role
     const { error } = await supabase
       .from('user_roles')
       .upsert({
@@ -94,7 +92,29 @@ export default function AdminUsers() {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: language === 'bn' ? 'সফল' : 'Success', description: language === 'bn' ? 'রোল আপডেট হয়েছে' : 'Role updated' });
-      setModalOpen(false);
+      setRoleModalOpen(false);
+      fetchUsers();
+    }
+    setSaving(false);
+  };
+
+  const handleAddUser = async () => {
+    if (!addForm.email || !addForm.password) {
+      toast({ title: 'Error', description: language === 'bn' ? 'ইমেইল ও পাসওয়ার্ড আবশ্যক' : 'Email and password required', variant: 'destructive' });
+      return;
+    }
+    setSaving(true);
+
+    const { data, error } = await supabase.functions.invoke('admin-create-user', {
+      body: addForm,
+    });
+
+    if (error || data?.error) {
+      toast({ title: 'Error', description: data?.error || error?.message, variant: 'destructive' });
+    } else {
+      toast({ title: language === 'bn' ? 'সফল' : 'Success', description: language === 'bn' ? 'নতুন কাস্টমার যোগ হয়েছে' : 'New customer added' });
+      setAddModalOpen(false);
+      setAddForm({ email: '', password: '', full_name: '', phone: '', company_name: '', role: 'client' });
       fetchUsers();
     }
     setSaving(false);
@@ -167,11 +187,17 @@ export default function AdminUsers() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">{language === 'bn' ? 'ব্যবহারকারী ম্যানেজমেন্ট' : 'Users Management'}</h1>
-          <p className="text-muted-foreground">
-            {language === 'bn' ? 'ব্যবহারকারী এবং রোল পরিচালনা করুন' : 'Manage users and roles'}
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">{language === 'bn' ? 'কাস্টমার ম্যানেজমেন্ট' : 'Customer Management'}</h1>
+            <p className="text-muted-foreground">
+              {language === 'bn' ? 'কাস্টমার এবং রোল পরিচালনা করুন' : 'Manage customers and roles'}
+            </p>
+          </div>
+          <Button onClick={() => setAddModalOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            {language === 'bn' ? 'নতুন কাস্টমার' : 'Add Customer'}
+          </Button>
         </div>
 
         <Card>
@@ -188,11 +214,12 @@ export default function AdminUsers() {
         </Card>
       </div>
 
+      {/* Role Change Modal */}
       <FormModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
+        open={roleModalOpen}
+        onOpenChange={setRoleModalOpen}
         title={language === 'bn' ? 'রোল পরিবর্তন' : 'Change Role'}
-        onSubmit={handleSave}
+        onSubmit={handleSaveRole}
         loading={saving}
         size="sm"
       >
@@ -207,13 +234,10 @@ export default function AdminUsers() {
               <p className="text-sm text-muted-foreground">{selectedUser?.phone || '-'}</p>
             </div>
           </div>
-
           <div className="space-y-2">
             <Label>{language === 'bn' ? 'রোল' : 'Role'}</Label>
             <Select value={newRole} onValueChange={setNewRole}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
+              <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {ROLES.map((r) => (
                   <SelectItem key={r.value} value={r.value}>
@@ -225,6 +249,76 @@ export default function AdminUsers() {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+        </div>
+      </FormModal>
+
+      {/* Add Customer Modal */}
+      <FormModal
+        open={addModalOpen}
+        onOpenChange={setAddModalOpen}
+        title={language === 'bn' ? 'নতুন কাস্টমার যোগ করুন' : 'Add New Customer'}
+        onSubmit={handleAddUser}
+        loading={saving}
+        size="md"
+      >
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>{language === 'bn' ? 'পুরো নাম' : 'Full Name'} *</Label>
+              <Input
+                value={addForm.full_name}
+                onChange={(e) => setAddForm({ ...addForm, full_name: e.target.value })}
+                placeholder={language === 'bn' ? 'নাম লিখুন' : 'Enter name'}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{language === 'bn' ? 'ইমেইল' : 'Email'} *</Label>
+              <Input
+                type="email"
+                value={addForm.email}
+                onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
+                placeholder={language === 'bn' ? 'ইমেইল লিখুন' : 'Enter email'}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{language === 'bn' ? 'পাসওয়ার্ড' : 'Password'} *</Label>
+              <Input
+                type="password"
+                value={addForm.password}
+                onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
+                placeholder={language === 'bn' ? 'পাসওয়ার্ড লিখুন' : 'Enter password'}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{language === 'bn' ? 'ফোন' : 'Phone'}</Label>
+              <Input
+                value={addForm.phone}
+                onChange={(e) => setAddForm({ ...addForm, phone: e.target.value })}
+                placeholder={language === 'bn' ? 'ফোন নম্বর' : 'Phone number'}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{language === 'bn' ? 'কোম্পানি' : 'Company'}</Label>
+              <Input
+                value={addForm.company_name}
+                onChange={(e) => setAddForm({ ...addForm, company_name: e.target.value })}
+                placeholder={language === 'bn' ? 'কোম্পানির নাম' : 'Company name'}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{language === 'bn' ? 'রোল' : 'Role'}</Label>
+              <Select value={addForm.role} onValueChange={(v) => setAddForm({ ...addForm, role: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {ROLES.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>
+                      {language === 'bn' ? r.label_bn : r.label_en}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
       </FormModal>
