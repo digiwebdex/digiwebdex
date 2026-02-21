@@ -37,7 +37,7 @@ const pricingPlans: PricingPlan[] = [
   {
     id: 'hosting-basic',
     name: { en: 'Starter Hosting', bn: 'স্টার্টার হোস্টিং' },
-    description: { en: 'Perfect for personal websites', bn: 'ব্যক্তিগত ওয়েবসাইটের জন্য উপযুক্ত' },
+    description: { en: 'Perfect for personal or small websites', bn: 'ব্যক্তিগত বা ছোট ওয়েবসাইটের জন্য উপযুক্ত' },
     price: 3500,
     billingCycle: { en: '/year', bn: '/বছর' },
     serviceType: 'hosting',
