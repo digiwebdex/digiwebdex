@@ -38,7 +38,7 @@ const pricingPlans: PricingPlan[] = [
     id: 'hosting-basic',
     name: { en: 'Starter Hosting', bn: 'স্টার্টার হোস্টিং' },
     description: { en: 'Perfect for personal websites', bn: 'ব্যক্তিগত ওয়েবসাইটের জন্য উপযুক্ত' },
-    price: 4800,
+    price: 3500,
     billingCycle: { en: '/year', bn: '/বছর' },
     serviceType: 'hosting',
     features: {
@@ -50,7 +50,7 @@ const pricingPlans: PricingPlan[] = [
     id: 'hosting-business',
     name: { en: 'Business Hosting', bn: 'বিজনেস হোস্টিং' },
     description: { en: 'For growing businesses', bn: 'বর্ধনশীল ব্যবসার জন্য' },
-    price: 9900,
+    price: 5900,
     billingCycle: { en: '/year', bn: '/বছর' },
     serviceType: 'hosting',
     isPopular: true,

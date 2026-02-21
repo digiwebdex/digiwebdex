@@ -51,7 +51,7 @@ const DomainHostingPage = () => {
             "@type": "Service",
             "name": "Starter Hosting"
           },
-          "price": "99",
+          "price": "3500",
           "priceCurrency": "BDT"
         }
       ]
@@ -138,7 +138,7 @@ const DomainHostingPage = () => {
   const hostingPlans = [
     {
       name: language === 'bn' ? 'স্টার্টার' : 'Starter',
-      price: '৳4,800',
+      price: '৳3,500',
       period: language === 'bn' ? '/বছর' : '/year',
       description: language === 'bn' ? 'ব্যক্তিগত ওয়েবসাইটের জন্য পারফেক্ট' : 'Perfect for personal websites',
       features: [
@@ -153,7 +153,7 @@ const DomainHostingPage = () => {
     },
     {
       name: language === 'bn' ? 'বিজনেস' : 'Business',
-      price: '৳9,900',
+      price: '৳5,900',
       period: language === 'bn' ? '/বছর' : '/year',
       description: language === 'bn' ? 'ছোট ব্যবসার জন্য আদর্শ' : 'Ideal for small businesses',
       features: [

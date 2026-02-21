@@ -75,8 +75,8 @@ const BestHostingBangladesh: React.FC = () => {
   const plans: PricingPlan[] = [
     {
       name: 'Starter',
-      price: '৳২৯৯',
-      period: 'মাস',
+      price: '৳৩,৫০০',
+      period: 'বছর',
       description: 'ছোট ওয়েবসাইট বা ব্লগের জন্য উপযুক্ত',
       features: [
         '5 GB SSD NVMe Storage',
@@ -91,8 +91,8 @@ const BestHostingBangladesh: React.FC = () => {
     },
     {
       name: 'Business',
-      price: '৳৫৯৯',
-      period: 'মাস',
+      price: '৳৫,৯০০',
+      period: 'বছর',
       description: 'ব্যবসায়িক ওয়েবসাইটের জন্য আদর্শ',
       features: [
         '10 GB SSD NVMe Storage',
