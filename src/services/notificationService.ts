@@ -15,7 +15,6 @@ export interface SendNotificationParams {
 }
 
 class NotificationService {
-  // Trigger events mapping
   private triggerEvents = {
     ORDER_CREATED: 'order_created',
     INVOICE_GENERATED: 'invoice_generated',
@@ -30,7 +29,6 @@ class NotificationService {
       let finalBody = params.body;
       let finalSubject = params.subject;
 
-      // If template is provided, fetch and use it
       if (params.templateSlug) {
         const { data: template } = await supabase
           .from('notification_templates')
@@ -61,7 +59,6 @@ class NotificationService {
 
       if (error) throw error;
 
-      // Process notification based on type
       await this.processNotification(data);
 
       return { data, error: null };
@@ -91,7 +88,6 @@ class NotificationService {
           await this.sendWhatsApp(notification);
           break;
         case 'in_app':
-          // In-app notifications are already stored, just mark as sent
           await this.markAsSent(notification.id);
           break;
       }
@@ -100,60 +96,52 @@ class NotificationService {
     }
   }
 
-  // Email integration structure (requires edge function)
   private async sendEmail(notification: Notification): Promise<void> {
-    console.log('Email notification structure:', {
-      to: notification.recipient,
-      subject: notification.subject,
-      body: notification.body,
-    });
-    // This would call an edge function for email sending
-    // For now, mark as sent for demo purposes
+    console.log('Email notification:', { to: notification.recipient, subject: notification.subject });
     await this.markAsSent(notification.id);
   }
 
-  // SMS integration structure
   private async sendSMS(notification: Notification): Promise<void> {
-    console.log('SMS notification structure:', {
-      to: notification.recipient,
-      message: notification.body,
-    });
-    // This would integrate with SMS gateway (e.g., Twilio, SSL Wireless)
-    await this.markAsSent(notification.id);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-sms', {
+        body: {
+          phone: notification.recipient,
+          message: notification.body,
+          type: 'customer',
+          metadata: notification.metadata,
+        },
+      });
+
+      if (error || !data?.success) {
+        await this.markAsFailed(notification.id, data?.message || error?.message || 'SMS failed');
+      } else {
+        await this.markAsSent(notification.id);
+      }
+    } catch (err) {
+      await this.markAsFailed(notification.id, (err as Error).message);
+    }
   }
 
-  // WhatsApp Cloud API structure
   private async sendWhatsApp(notification: Notification): Promise<void> {
-    console.log('WhatsApp notification structure:', {
-      to: notification.recipient,
-      template: notification.metadata,
-      message: notification.body,
-    });
-    // This would integrate with WhatsApp Business API
+    console.log('WhatsApp notification:', { to: notification.recipient, message: notification.body });
+    // WhatsApp Business API integration - pending setup
     await this.markAsSent(notification.id);
   }
 
   private async markAsSent(notificationId: string): Promise<void> {
     await supabase
       .from('notifications')
-      .update({
-        status: 'sent',
-        sent_at: new Date().toISOString(),
-      })
+      .update({ status: 'sent', sent_at: new Date().toISOString() })
       .eq('id', notificationId);
   }
 
   private async markAsFailed(notificationId: string, errorMessage: string): Promise<void> {
     await supabase
       .from('notifications')
-      .update({
-        status: 'failed',
-        error_message: errorMessage,
-      })
+      .update({ status: 'failed', error_message: errorMessage })
       .eq('id', notificationId);
   }
 
-  // Get user's in-app notifications
   async getUserNotifications(userId: string): Promise<Notification[]> {
     const { data, error } = await supabase
       .from('notifications')
@@ -167,7 +155,6 @@ class NotificationService {
     return data;
   }
 
-  // Trigger notification for events
   async triggerEvent(
     eventType: keyof typeof this.triggerEvents,
     userId: string,
@@ -176,7 +163,7 @@ class NotificationService {
   ): Promise<void> {
     const templateSlug = this.triggerEvents[eventType];
 
-    // Send email notification
+    // Send email
     await this.sendNotification({
       userId,
       templateSlug,
@@ -186,7 +173,7 @@ class NotificationService {
       metadata: data,
     });
 
-    // Also create in-app notification
+    // In-app
     await this.sendNotification({
       userId,
       templateSlug,
@@ -195,6 +182,59 @@ class NotificationService {
       body: `Notification for ${eventType}`,
       metadata: data,
     });
+  }
+
+  /**
+   * Send multi-channel renewal alert (SMS + Email + WhatsApp)
+   */
+  async sendRenewalAlert(params: {
+    userId: string;
+    phone?: string;
+    email?: string;
+    customerName: string;
+    serviceType: 'hosting' | 'domain';
+    serviceName: string;
+    expiryDate: string;
+    daysRemaining: number;
+    amount?: number;
+  }): Promise<void> {
+    const typeLabel = params.serviceType === 'hosting' ? 'হোস্টিং' : 'ডোমেইন';
+
+    // SMS
+    if (params.phone) {
+      await this.sendNotification({
+        userId: params.userId,
+        type: 'sms',
+        recipient: params.phone,
+        subject: `${params.serviceType} Renewal`,
+        body: `DigiWebDex: আপনার ${typeLabel} "${params.serviceName}" ${params.daysRemaining} দিন পর expire হবে। রিনিউ করুন: 01674533303`,
+        metadata: { entity_type: params.serviceType, days: params.daysRemaining },
+      });
+    }
+
+    // Email
+    if (params.email) {
+      await this.sendNotification({
+        userId: params.userId,
+        type: 'email',
+        recipient: params.email,
+        subject: `${params.serviceType} Renewal Reminder - ${params.serviceName}`,
+        body: `প্রিয় ${params.customerName}, আপনার ${typeLabel} "${params.serviceName}" ${params.daysRemaining} দিন পর (${params.expiryDate}) expire হবে।`,
+        metadata: { entity_type: params.serviceType, days: params.daysRemaining },
+      });
+    }
+
+    // WhatsApp
+    if (params.phone) {
+      await this.sendNotification({
+        userId: params.userId,
+        type: 'whatsapp',
+        recipient: params.phone,
+        subject: `${params.serviceType} Renewal`,
+        body: `🔔 *রিনিউয়াল রিমাইন্ডার*\n\n${params.serviceName} - ${params.daysRemaining} দিন বাকি`,
+        metadata: { entity_type: params.serviceType, days: params.daysRemaining },
+      });
+    }
   }
 }
 

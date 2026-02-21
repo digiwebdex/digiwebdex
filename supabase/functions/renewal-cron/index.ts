@@ -1,11 +1,21 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+// Admin contact info
+const ADMIN_EMAIL = "digiwebdex@gmail.com";
+const ADMIN_PHONE = "8801674533303";
+const WHATSAPP_NUMBER = "8801674533303";
+
+const SMS_API_URL = "http://bulksmsbd.net/api/smsapi";
+
+const REMINDER_DAYS = [30, 15, 7, 1];
+const INVOICE_GENERATION_DAYS = 30;
+const GRACE_PERIOD_DAYS = 7;
 
 interface ExpiringEntity {
   id: string;
@@ -17,21 +27,53 @@ interface ExpiringEntity {
   renewalAmount: number;
 }
 
-interface RenewalProcessResult {
-  processed: number;
-  reminders: number;
-  invoicesGenerated: number;
-  suspensions: number;
-  errors: string[];
-  timestamp: string;
+interface CustomerInfo {
+  full_name: string;
+  phone: string | null;
+  email: string | null;
 }
 
-const REMINDER_DAYS = [30, 15, 7, 1];
-const INVOICE_GENERATION_DAYS = 30;
-const GRACE_PERIOD_DAYS = 7;
+// ─── SMS Helper ───
+function normalizePhone(phone: string): string {
+  let n = phone.replace(/[^0-9]/g, "");
+  if (n.startsWith("0")) n = "88" + n;
+  else if (!n.startsWith("880")) n = "880" + n;
+  return n;
+}
 
+function isValidBDPhone(phone: string): boolean {
+  return /^8801[3-9]\d{8}$/.test(normalizePhone(phone));
+}
+
+async function sendSMS(
+  phone: string,
+  message: string
+): Promise<{ success: boolean; error?: string; response?: unknown }> {
+  const apiKey = Deno.env.get("SMS_API_KEY");
+  const senderId = Deno.env.get("SMS_SENDER_ID");
+  if (!apiKey || !senderId)
+    return { success: false, error: "SMS not configured" };
+
+  const normalized = normalizePhone(phone);
+  if (!isValidBDPhone(phone))
+    return { success: false, error: "Invalid phone" };
+
+  const url = `${SMS_API_URL}?api_key=${encodeURIComponent(apiKey)}&type=text&number=${normalized}&senderid=${encodeURIComponent(senderId)}&message=${encodeURIComponent(message)}`;
+
+  try {
+    const res = await fetch(url, { method: "GET" });
+    const text = await res.text();
+    let data: unknown;
+    try { data = JSON.parse(text); } catch { data = { raw: text }; }
+    const ok = res.ok || (typeof data === "object" && data !== null && "response_code" in data && (data as any).response_code === 202);
+    return { success: ok, response: data };
+  } catch (e) {
+    return { success: false, error: (e as Error).message };
+  }
+}
+
+// ─── Main Handler ───
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -39,28 +81,30 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const result: RenewalProcessResult = {
+    const result = {
       processed: 0,
       reminders: 0,
+      smsSent: 0,
+      whatsappSent: 0,
+      emailSent: 0,
       invoicesGenerated: 0,
       suspensions: 0,
-      errors: [],
+      errors: [] as string[],
       timestamp: new Date().toISOString(),
     };
 
-    console.log("[Renewal Cron] Starting renewal processing...");
+    console.log("[Renewal Cron] Starting...");
 
-    // 1. Process expiring hosting accounts
-    const expiringHosting = await getExpiringHostingAccounts(supabase);
+    // 1. Process expiring hosting
+    const expiringHosting = await getExpiringHosting(supabase);
     for (const entity of expiringHosting) {
       try {
-        await processExpiringEntity(supabase, entity, result);
+        await processEntity(supabase, entity, result);
         result.processed++;
-      } catch (error) {
-        result.errors.push(`Hosting ${entity.id}: ${(error as Error).message}`);
+      } catch (e) {
+        result.errors.push(`Hosting ${entity.id}: ${(e as Error).message}`);
       }
     }
 
@@ -68,169 +112,308 @@ Deno.serve(async (req) => {
     const expiringDomains = await getExpiringDomains(supabase);
     for (const entity of expiringDomains) {
       try {
-        await processExpiringEntity(supabase, entity, result);
+        await processEntity(supabase, entity, result);
         result.processed++;
-      } catch (error) {
-        result.errors.push(`Domain ${entity.id}: ${(error as Error).message}`);
+      } catch (e) {
+        result.errors.push(`Domain ${entity.id}: ${(e as Error).message}`);
       }
     }
 
     // 3. Process suspensions
     await processSuspensions(supabase, result);
 
-    // 4. Log the run
+    // 4. Log run
     await supabase.from("audit_logs").insert({
       action: "renewal_cron_run",
       entity_type: "system",
       new_values: result,
     });
 
-    console.log("[Renewal Cron] Completed:", result);
+    console.log("[Renewal Cron] Done:", result);
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
     });
   } catch (error) {
     console.error("[Renewal Cron] Error:", error);
-    return new Response(
-      JSON.stringify({ error: (error as Error).message }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500,
-      }
-    );
+    return new Response(JSON.stringify({ error: (error as Error).message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
 
-async function getExpiringHostingAccounts(
-  supabase: any
-): Promise<ExpiringEntity[]> {
+// ─── Get customer info ───
+async function getCustomerInfo(supabase: any, userId: string): Promise<CustomerInfo> {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name, phone")
+    .eq("user_id", userId)
+    .single();
+
+  // Get email from auth
+  const { data: { user } } = await supabase.auth.admin.getUserById(userId);
+
+  return {
+    full_name: profile?.full_name || "Customer",
+    phone: profile?.phone || null,
+    email: user?.email || null,
+  };
+}
+
+// ─── Send multi-channel renewal alert ───
+async function sendRenewalAlerts(
+  supabase: any,
+  entity: ExpiringEntity,
+  customer: CustomerInfo,
+  daysRemaining: number,
+  result: any
+) {
+  const typeLabel = entity.type === "hosting" ? "হোস্টিং" : "ডোমেইন";
+  const typeEn = entity.type === "hosting" ? "Hosting" : "Domain";
+  const urgency = daysRemaining <= 3 ? "🚨" : daysRemaining <= 7 ? "⚠️" : "🔔";
+
+  const notifications: any[] = [];
+
+  // --- CUSTOMER SMS ---
+  if (customer.phone && isValidBDPhone(customer.phone)) {
+    const smsMsg = `DigiWebDex: আপনার ${typeLabel} "${entity.entityName}" এর মেয়াদ ${daysRemaining} দিন পর (${entity.expiryDate}) শেষ হবে। রিনিউ করতে যোগাযোগ করুন: 01674533303`;
+    const smsResult = await sendSMS(customer.phone, smsMsg);
+    notifications.push({
+      user_id: entity.userId,
+      recipient: normalizePhone(customer.phone),
+      notification_type: "sms",
+      subject: `${typeEn} Renewal Reminder`,
+      body: smsMsg,
+      status: smsResult.success ? "sent" : "failed",
+      sent_at: smsResult.success ? new Date().toISOString() : null,
+      error_message: smsResult.error || null,
+      metadata: { type: "renewal_customer_sms", entity_type: entity.type, entity_id: entity.id, days: daysRemaining, api_response: smsResult.response },
+    });
+    if (smsResult.success) result.smsSent++;
+  }
+
+  // --- CUSTOMER EMAIL ---
+  if (customer.email) {
+    const emailBody = `প্রিয় ${customer.full_name},\n\n${urgency} আপনার ${typeLabel} "${entity.entityName}" এর মেয়াদ ${daysRemaining} দিন পর (${entity.expiryDate}) শেষ হচ্ছে।\n\n${entity.renewalAmount > 0 ? `রিনিউয়াল মূল্য: ৳${entity.renewalAmount}\n\n` : ""}সেবা চালু রাখতে অনুগ্রহ করে সময়মতো রিনিউ করুন। রিনিউ না করলে সেবা বন্ধ হয়ে যেতে পারে।\n\nরিনিউ করতে আপনার ড্যাশবোর্ডে লগইন করুন অথবা আমাদের সাথে যোগাযোগ করুন।\n\nধন্যবাদ,\nDigiWebDex Team\n📞 +880 1674 533303\n📧 digiwebdex@gmail.com`;
+
+    notifications.push({
+      user_id: entity.userId,
+      recipient: customer.email,
+      notification_type: "email",
+      subject: `${urgency} ${typeEn} Renewal: "${entity.entityName}" expires in ${daysRemaining} days`,
+      body: emailBody,
+      status: "pending",
+      metadata: { type: "renewal_customer_email", entity_type: entity.type, entity_id: entity.id, days: daysRemaining },
+    });
+    result.emailSent++;
+  }
+
+  // --- CUSTOMER WHATSAPP ---
+  if (customer.phone) {
+    const waMsg = `${urgency} *${typeLabel} রিনিউয়াল রিমাইন্ডার*\n\n👤 *${customer.full_name}*\n🌐 *${entity.entityName}*\n📅 *মেয়াদ শেষ:* ${entity.expiryDate} (${daysRemaining} দিন বাকি)\n${entity.renewalAmount > 0 ? `💰 *মূল্য:* ৳${entity.renewalAmount}\n` : ""}\n⚡ সেবা চালু রাখতে এখনই রিনিউ করুন!\n\n🏢 *DigiWebDex*\n📞 +880 1674 533303`;
+
+    notifications.push({
+      user_id: entity.userId,
+      recipient: normalizePhone(customer.phone),
+      notification_type: "whatsapp",
+      subject: `${typeEn} Renewal Reminder`,
+      body: waMsg,
+      status: "pending",
+      metadata: { type: "renewal_customer_whatsapp", entity_type: entity.type, entity_id: entity.id, days: daysRemaining },
+    });
+    result.whatsappSent++;
+  }
+
+  // --- ADMIN SMS (only on 7-day and 1-day reminders) ---
+  if (daysRemaining <= 7) {
+    const adminSms = `রিনিউয়াল অ্যালার্ট: ${customer.full_name} - ${entity.entityName} (${typeLabel}) ${daysRemaining} দিন পর expire। Phone: ${customer.phone || "N/A"}`;
+    const adminSmsResult = await sendSMS(ADMIN_PHONE, adminSms);
+    notifications.push({
+      recipient: ADMIN_PHONE,
+      notification_type: "sms",
+      subject: `Admin: ${typeEn} Renewal Alert`,
+      body: adminSms,
+      status: adminSmsResult.success ? "sent" : "failed",
+      sent_at: adminSmsResult.success ? new Date().toISOString() : null,
+      error_message: adminSmsResult.error || null,
+      metadata: { type: "renewal_admin_sms", entity_type: entity.type, entity_id: entity.id, days: daysRemaining },
+    });
+  }
+
+  // --- ADMIN WHATSAPP (all reminders) ---
+  notifications.push({
+    recipient: WHATSAPP_NUMBER,
+    notification_type: "whatsapp",
+    subject: `Admin: ${typeEn} Renewal`,
+    body: `${urgency} *রিনিউয়াল অ্যালার্ট*\n\n👤 *Customer:* ${customer.full_name}\n📱 *Phone:* ${customer.phone || "N/A"}\n📧 *Email:* ${customer.email || "N/A"}\n🌐 *${typeEn}:* ${entity.entityName}\n📅 *Expires:* ${entity.expiryDate} (${daysRemaining} days)\n💰 *Amount:* ৳${entity.renewalAmount}`,
+    status: "pending",
+    metadata: { type: "renewal_admin_whatsapp", entity_type: entity.type, entity_id: entity.id, days: daysRemaining },
+  });
+
+  // Save all notifications
+  if (notifications.length > 0) {
+    await supabase.from("notifications").insert(notifications);
+  }
+}
+
+// ─── Send suspension alerts ───
+async function sendSuspensionAlerts(
+  supabase: any,
+  entity: { id: string; type: string; name: string; userId: string },
+  customer: CustomerInfo,
+  result: any
+) {
+  const typeLabel = entity.type === "hosting" ? "হোস্টিং" : "ডোমেইন";
+  const notifications: any[] = [];
+
+  // Customer SMS
+  if (customer.phone && isValidBDPhone(customer.phone)) {
+    const sms = `DigiWebDex: আপনার ${typeLabel} "${entity.name}" পেমেন্ট না পাওয়ায় সাসপেন্ড হয়েছে। পুনরায় চালু করতে যোগাযোগ করুন: 01674533303`;
+    const r = await sendSMS(customer.phone, sms);
+    notifications.push({
+      user_id: entity.userId,
+      recipient: normalizePhone(customer.phone),
+      notification_type: "sms",
+      subject: "Service Suspended",
+      body: sms,
+      status: r.success ? "sent" : "failed",
+      sent_at: r.success ? new Date().toISOString() : null,
+      error_message: r.error || null,
+      metadata: { type: "suspension_customer_sms", entity_type: entity.type, entity_id: entity.id },
+    });
+  }
+
+  // Customer Email
+  if (customer.email) {
+    notifications.push({
+      user_id: entity.userId,
+      recipient: customer.email,
+      notification_type: "email",
+      subject: `🚨 ${entity.type === "hosting" ? "Hosting" : "Domain"} Suspended - ${entity.name}`,
+      body: `প্রিয় ${customer.full_name},\n\nআপনার ${typeLabel} "${entity.name}" পেমেন্ট না পাওয়ায় সাসপেন্ড করা হয়েছে।\n\nপুনরায় চালু করতে অনুগ্রহ করে বকেয়া পেমেন্ট করুন অথবা আমাদের সাথে যোগাযোগ করুন।\n\nDigiWebDex Team\n📞 +880 1674 533303`,
+      status: "pending",
+      metadata: { type: "suspension_customer_email", entity_type: entity.type, entity_id: entity.id },
+    });
+  }
+
+  // Customer WhatsApp
+  if (customer.phone) {
+    notifications.push({
+      user_id: entity.userId,
+      recipient: normalizePhone(customer.phone),
+      notification_type: "whatsapp",
+      subject: "Service Suspended",
+      body: `🚨 *সেবা সাসপেন্ড হয়েছে*\n\n🌐 *${entity.name}*\n📋 *ধরণ:* ${typeLabel}\n\nপেমেন্ট না পাওয়ায় আপনার সেবা সাসপেন্ড হয়েছে। পুনরায় চালু করতে এখনই পেমেন্ট করুন।\n\n🏢 *DigiWebDex*\n📞 +880 1674 533303`,
+      status: "pending",
+      metadata: { type: "suspension_customer_whatsapp", entity_type: entity.type, entity_id: entity.id },
+    });
+  }
+
+  // Admin notifications
+  const adminSms = `সাসপেন্ড: ${customer.full_name} - ${entity.name} (${typeLabel})। Phone: ${customer.phone || "N/A"}`;
+  const r = await sendSMS(ADMIN_PHONE, adminSms);
+  notifications.push({
+    recipient: ADMIN_PHONE,
+    notification_type: "sms",
+    subject: "Admin: Service Suspended",
+    body: adminSms,
+    status: r.success ? "sent" : "failed",
+    sent_at: r.success ? new Date().toISOString() : null,
+    metadata: { type: "suspension_admin_sms" },
+  });
+
+  if (notifications.length > 0) {
+    await supabase.from("notifications").insert(notifications);
+  }
+}
+
+// ─── Data Fetchers ───
+async function getExpiringHosting(supabase: any): Promise<ExpiringEntity[]> {
   const maxDays = Math.max(...REMINDER_DAYS);
-  const futureDate = new Date();
-  futureDate.setDate(futureDate.getDate() + maxDays);
+  const future = new Date();
+  future.setDate(future.getDate() + maxDays);
   const today = new Date();
 
-  const { data: accounts, error } = await supabase
+  const { data, error } = await supabase
     .from("hosting_accounts")
-    .select(
-      `
-      *,
-      order:orders(total, user_id)
-    `
-    )
+    .select("*, order:orders(total, user_id)")
     .eq("status", "active")
-    .lte("expiry_date", futureDate.toISOString().split("T")[0])
+    .lte("expiry_date", future.toISOString().split("T")[0])
     .gte("expiry_date", today.toISOString().split("T")[0]);
 
   if (error) throw error;
 
-  return (accounts || []).map((account: any) => {
-    const expiryDate = new Date(account.expiry_date || "");
-    const diffTime = expiryDate.getTime() - today.getTime();
-    const daysUntilExpiry = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    return {
-      id: account.id,
-      type: "hosting" as const,
-      userId: account.user_id || "",
-      entityName: account.package_name || "Hosting Account",
-      expiryDate: account.expiry_date || "",
-      daysUntilExpiry,
-      renewalAmount: account.order?.total || 0,
-    };
+  return (data || []).map((a: any) => {
+    const exp = new Date(a.expiry_date || "");
+    const diff = Math.ceil((exp.getTime() - today.getTime()) / 86400000);
+    return { id: a.id, type: "hosting" as const, userId: a.user_id || "", entityName: a.package_name || "Hosting", expiryDate: a.expiry_date || "", daysUntilExpiry: diff, renewalAmount: a.order?.total || 0 };
   });
 }
 
 async function getExpiringDomains(supabase: any): Promise<ExpiringEntity[]> {
   const maxDays = Math.max(...REMINDER_DAYS);
-  const futureDate = new Date();
-  futureDate.setDate(futureDate.getDate() + maxDays);
+  const future = new Date();
+  future.setDate(future.getDate() + maxDays);
   const today = new Date();
 
-  const { data: domains, error } = await supabase
+  const { data, error } = await supabase
     .from("domains")
-    .select(
-      `
-      *,
-      order:orders(total, user_id)
-    `
-    )
+    .select("*, order:orders(total, user_id)")
     .in("status", ["active", "registered"])
-    .lte("expiry_date", futureDate.toISOString().split("T")[0])
+    .lte("expiry_date", future.toISOString().split("T")[0])
     .gte("expiry_date", today.toISOString().split("T")[0]);
 
   if (error) throw error;
 
-  return (domains || []).map((domain: any) => {
-    const expiryDate = new Date(domain.expiry_date || "");
-    const diffTime = expiryDate.getTime() - today.getTime();
-    const daysUntilExpiry = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    return {
-      id: domain.id,
-      type: "domain" as const,
-      userId: domain.user_id || "",
-      entityName: domain.domain_name || "",
-      expiryDate: domain.expiry_date || "",
-      daysUntilExpiry,
-      renewalAmount: 0, // Will be fetched from domain_pricing
-    };
+  return (data || []).map((d: any) => {
+    const exp = new Date(d.expiry_date || "");
+    const diff = Math.ceil((exp.getTime() - today.getTime()) / 86400000);
+    return { id: d.id, type: "domain" as const, userId: d.user_id || "", entityName: d.domain_name || "", expiryDate: d.expiry_date || "", daysUntilExpiry: diff, renewalAmount: 0 };
   });
 }
 
-async function processExpiringEntity(
-  supabase: any,
-  entity: ExpiringEntity,
-  result: RenewalProcessResult
-): Promise<void> {
-  const { daysUntilExpiry } = entity;
+// ─── Process Entity ───
+async function processEntity(supabase: any, entity: ExpiringEntity, result: any) {
+  if (!REMINDER_DAYS.includes(entity.daysUntilExpiry)) return;
 
-  // Check if this is a reminder day
-  if (!REMINDER_DAYS.includes(daysUntilExpiry)) {
-    return;
-  }
-
-  // Idempotency check: see if already processed today
+  // Idempotency check
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-
-  const { data: existingLog } = await supabase
+  const { data: existing } = await supabase
     .from("renewal_logs")
     .select("id")
     .eq("entity_id", entity.id)
     .gte("created_at", today.toISOString())
     .limit(1);
 
-  if (existingLog && existingLog.length > 0) {
-    console.log(`[Renewal Cron] Already processed ${entity.id} today, skipping`);
+  if (existing && existing.length > 0) {
+    console.log(`[Renewal] Already processed ${entity.id} today`);
     return;
   }
 
-  // Create notification record
-  const reminderType = getReminderType(daysUntilExpiry);
+  // Get customer info
+  const customer = await getCustomerInfo(supabase, entity.userId);
 
-  await supabase.from("notifications").insert({
-    user_id: entity.userId,
-    notification_type: "email",
-    recipient: entity.userId,
-    subject: `Renewal Reminder: Your ${entity.type} expires in ${daysUntilExpiry} days`,
-    body: `Your ${entity.type} (${entity.entityName}) is expiring on ${entity.expiryDate}. Please renew to avoid service interruption.`,
-    status: "pending",
-    metadata: {
-      entity_type: entity.type,
-      entity_id: entity.id,
-      days_until_expiry: daysUntilExpiry,
-      reminder_type: reminderType,
-    },
-  });
+  // Get domain renewal price if needed
+  if (entity.type === "domain" && entity.renewalAmount === 0) {
+    const parts = entity.entityName.split(".");
+    const tld = parts.slice(1).join(".");
+    const { data: pricing } = await supabase
+      .from("domain_pricing")
+      .select("renewal_price")
+      .eq("tld", `.${tld}`)
+      .single();
+    entity.renewalAmount = pricing?.renewal_price || 0;
+  }
 
+  // Send multi-channel alerts
+  await sendRenewalAlerts(supabase, entity, customer, entity.daysUntilExpiry, result);
   result.reminders++;
 
-  // Generate invoice on first reminder (30 days)
-  if (daysUntilExpiry === INVOICE_GENERATION_DAYS) {
-    // Check if invoice already exists
-    const { data: existingInvoice } = await supabase
+  // Generate invoice at 30 days
+  if (entity.daysUntilExpiry === INVOICE_GENERATION_DAYS) {
+    const { data: existingInv } = await supabase
       .from("renewal_logs")
       .select("invoice_id")
       .eq("entity_id", entity.id)
@@ -238,54 +421,32 @@ async function processExpiringEntity(
       .not("invoice_id", "is", null)
       .limit(1);
 
-    if (!existingInvoice || existingInvoice.length === 0) {
-      // Generate invoice number
-      const { data: invoiceNumber } = await supabase.rpc(
-        "generate_invoice_number"
-      );
-
-      // Get renewal amount for domains
-      let renewalAmount = entity.renewalAmount;
-      if (entity.type === "domain") {
-        const domainParts = entity.entityName.split(".");
-        const tld = domainParts.slice(1).join(".");
-        const { data: pricing } = await supabase
-          .from("domain_pricing")
-          .select("renewal_price")
-          .eq("tld", `.${tld}`)
-          .single();
-        renewalAmount = pricing?.renewal_price || 0;
-      }
-
-      const dueDate = new Date(entity.expiryDate);
-
+    if (!existingInv || existingInv.length === 0) {
+      const { data: invNum } = await supabase.rpc("generate_invoice_number");
       const { data: invoice } = await supabase
         .from("invoices")
         .insert({
-          invoice_number: invoiceNumber || `INV-${Date.now()}`,
+          invoice_number: invNum || `INV-${Date.now()}`,
           user_id: entity.userId,
-          subtotal: renewalAmount,
-          total: renewalAmount,
+          subtotal: entity.renewalAmount,
+          total: entity.renewalAmount,
           discount: 0,
           tax: 0,
           status: "unpaid",
-          due_date: dueDate.toISOString().split("T")[0],
-          notes: `Renewal invoice for ${entity.type}: ${entity.entityName}`,
+          due_date: entity.expiryDate,
+          notes: `Renewal for ${entity.type}: ${entity.entityName}`,
         })
         .select()
         .single();
 
       if (invoice) {
         result.invoicesGenerated++;
-
-        // Log with invoice ID
         await supabase.from("renewal_logs").insert({
           entity_type: entity.type,
           entity_id: entity.id,
           old_expiry_date: entity.expiryDate,
           invoice_id: invoice.id,
         });
-
         return;
       }
     }
@@ -299,144 +460,72 @@ async function processExpiringEntity(
   });
 }
 
-function getReminderType(days: number): string {
-  if (days === 30) return "first";
-  if (days === 15) return "second";
-  if (days === 7) return "third";
-  if (days === 1) return "final";
-  return "reminder";
-}
+// ─── Suspensions ───
+async function processSuspensions(supabase: any, result: any) {
+  const graceEnd = new Date();
+  graceEnd.setDate(graceEnd.getDate() - GRACE_PERIOD_DAYS);
+  const graceStr = graceEnd.toISOString().split("T")[0];
 
-async function processSuspensions(
-  supabase: any,
-  result: RenewalProcessResult
-): Promise<void> {
-  const gracePeriodEnd = new Date();
-  gracePeriodEnd.setDate(gracePeriodEnd.getDate() - GRACE_PERIOD_DAYS);
-  const gracePeriodEndStr = gracePeriodEnd.toISOString().split("T")[0];
-
-  // Suspend hosting accounts past grace period
-  const { data: expiredHosting } = await supabase
+  // Hosting suspensions
+  const { data: expHosting } = await supabase
     .from("hosting_accounts")
     .select("*")
     .eq("status", "active")
-    .lt("expiry_date", gracePeriodEndStr);
+    .lt("expiry_date", graceStr);
 
-  for (const account of expiredHosting || []) {
-    // Check if invoice is paid
-    const { data: renewalLog } = await supabase
-      .from("renewal_logs")
-      .select("invoice_id")
-      .eq("entity_id", account.id)
-      .eq("entity_type", "hosting")
-      .not("invoice_id", "is", null)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .single();
-
-    let isPaid = false;
-    if (renewalLog?.invoice_id) {
-      const { data: invoice } = await supabase
-        .from("invoices")
-        .select("status")
-        .eq("id", renewalLog.invoice_id)
-        .single();
-      isPaid = invoice?.status === "paid";
-    }
-
+  for (const acct of expHosting || []) {
+    const isPaid = await isInvoicePaid(supabase, acct.id, "hosting");
     if (!isPaid) {
       await supabase
         .from("hosting_accounts")
-        .update({
-          status: "suspended",
-          suspended_reason: "Non-payment after grace period",
-        })
-        .eq("id", account.id);
-
+        .update({ status: "suspended", suspended_reason: "Non-payment after grace period" })
+        .eq("id", acct.id);
       result.suspensions++;
 
-      // Send suspension notification
-      await supabase.from("notifications").insert({
-        user_id: account.user_id,
-        notification_type: "email",
-        recipient: account.user_id,
-        subject: "Service Suspended: Hosting Account",
-        body: `Your hosting account (${account.package_name}) has been suspended due to non-payment. Please pay the outstanding invoice to reactivate.`,
-        status: "pending",
-        metadata: {
-          entity_type: "hosting",
-          entity_id: account.id,
-          reason: "non_payment",
-        },
-      });
+      if (acct.user_id) {
+        const customer = await getCustomerInfo(supabase, acct.user_id);
+        await sendSuspensionAlerts(supabase, { id: acct.id, type: "hosting", name: acct.package_name || "Hosting", userId: acct.user_id }, customer, result);
+      }
 
-      // Log suspension
-      await supabase.from("renewal_logs").insert({
-        entity_type: "hosting",
-        entity_id: account.id,
-        old_expiry_date: account.expiry_date,
-      });
+      await supabase.from("renewal_logs").insert({ entity_type: "hosting", entity_id: acct.id, old_expiry_date: acct.expiry_date });
     }
   }
 
-  // Mark domains as expired past grace period
-  const { data: expiredDomains } = await supabase
+  // Domain expirations
+  const { data: expDomains } = await supabase
     .from("domains")
     .select("*")
     .in("status", ["active", "registered"])
-    .lt("expiry_date", gracePeriodEndStr);
+    .lt("expiry_date", graceStr);
 
-  for (const domain of expiredDomains || []) {
-    // Check if invoice is paid
-    const { data: renewalLog } = await supabase
-      .from("renewal_logs")
-      .select("invoice_id")
-      .eq("entity_id", domain.id)
-      .eq("entity_type", "domain")
-      .not("invoice_id", "is", null)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .single();
-
-    let isPaid = false;
-    if (renewalLog?.invoice_id) {
-      const { data: invoice } = await supabase
-        .from("invoices")
-        .select("status")
-        .eq("id", renewalLog.invoice_id)
-        .single();
-      isPaid = invoice?.status === "paid";
-    }
-
+  for (const domain of expDomains || []) {
+    const isPaid = await isInvoicePaid(supabase, domain.id, "domain");
     if (!isPaid) {
-      await supabase
-        .from("domains")
-        .update({ status: "expired" })
-        .eq("id", domain.id);
-
+      await supabase.from("domains").update({ status: "expired" }).eq("id", domain.id);
       result.suspensions++;
 
-      // Send expiration notification
-      await supabase.from("notifications").insert({
-        user_id: domain.user_id,
-        notification_type: "email",
-        recipient: domain.user_id,
-        subject: "Domain Expired",
-        body: `Your domain ${domain.domain_name} has expired due to non-renewal. Please renew immediately to avoid losing your domain.`,
-        status: "pending",
-        metadata: {
-          entity_type: "domain",
-          entity_id: domain.id,
-          reason: "non_payment",
-        },
-      });
+      if (domain.user_id) {
+        const customer = await getCustomerInfo(supabase, domain.user_id);
+        await sendSuspensionAlerts(supabase, { id: domain.id, type: "domain", name: domain.domain_name, userId: domain.user_id }, customer, result);
+      }
 
-      // Log expiration
-      await supabase.from("renewal_logs").insert({
-        entity_type: "domain",
-        entity_id: domain.id,
-        old_expiry_date: domain.expiry_date,
-      });
+      await supabase.from("renewal_logs").insert({ entity_type: "domain", entity_id: domain.id, old_expiry_date: domain.expiry_date });
     }
   }
+}
+
+async function isInvoicePaid(supabase: any, entityId: string, entityType: string): Promise<boolean> {
+  const { data: log } = await supabase
+    .from("renewal_logs")
+    .select("invoice_id")
+    .eq("entity_id", entityId)
+    .eq("entity_type", entityType)
+    .not("invoice_id", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (!log?.invoice_id) return false;
+  const { data: inv } = await supabase.from("invoices").select("status").eq("id", log.invoice_id).single();
+  return inv?.status === "paid";
 }
