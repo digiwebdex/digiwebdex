@@ -22,7 +22,8 @@ import {
   Smartphone,
   Building2,
   Copy,
-  Globe
+  Globe,
+  HandCoins
 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
@@ -59,7 +60,7 @@ interface EasyOrderModalProps {
   preselectedPackage?: PackageOption;
 }
 
-type PaymentMethod = 'bkash_personal' | 'bank_transfer';
+type PaymentMethod = 'bkash_personal' | 'bank_transfer' | 'cod';
 
 const paymentInfo = {
   bkash_personal: {
@@ -80,6 +81,12 @@ const paymentInfo = {
     instructions: {
       en: ['Transfer to account above', 'Use Order ID as reference', 'Keep receipt/screenshot'],
       bn: ['উপরের একাউন্টে টাকা পাঠান', 'রেফারেন্সে Order ID দিন', 'রসিদ/স্ক্রিনশট রাখুন'],
+    },
+  },
+  cod: {
+    instructions: {
+      en: ['Place your order now', 'Our team will contact you to confirm', 'Pay cash when service is delivered', 'Get receipt upon payment'],
+      bn: ['এখনই অর্ডার করুন', 'আমাদের টিম নিশ্চিত করতে যোগাযোগ করবে', 'সেবা প্রদানের সময় ক্যাশ পরিশোধ করুন', 'পেমেন্টের রসিদ নিন'],
     },
   },
 };
@@ -607,7 +614,7 @@ export function EasyOrderModal({ isOpen, onClose, packages = defaultPackages, pr
               {language === 'bn' ? 'পেমেন্ট মেথড বেছে নিন' : 'Select payment method'}
             </p>
 
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-3">
               {/* bKash */}
               <Card
                 className={cn(
@@ -637,6 +644,21 @@ export function EasyOrderModal({ isOpen, onClose, packages = defaultPackages, pr
                   <p className="text-xs text-muted-foreground">{language === 'bn' ? 'DBBL' : 'DBBL'}</p>
                 </CardContent>
               </Card>
+
+              {/* COD */}
+              <Card
+                className={cn(
+                  'cursor-pointer transition-all hover:border-primary/50',
+                  paymentMethod === 'cod' && 'border-primary ring-2 ring-primary/20'
+                )}
+                onClick={() => setPaymentMethod('cod')}
+              >
+                <CardContent className="p-4 text-center">
+                  <HandCoins className="h-8 w-8 mx-auto mb-2 text-primary" />
+                  <h3 className="font-semibold">{language === 'bn' ? 'ক্যাশ অন ডেলিভারি' : 'Cash on Delivery'}</h3>
+                  <p className="text-xs text-muted-foreground">{language === 'bn' ? 'সেবা প্রদানের পর' : 'Pay after service'}</p>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Payment Instructions */}
@@ -662,7 +684,7 @@ export function EasyOrderModal({ isOpen, onClose, packages = defaultPackages, pr
                       ))}
                     </ul>
                   </div>
-                ) : (
+                ) : paymentMethod === 'bank_transfer' ? (
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">{language === 'bn' ? 'ব্যাংক' : 'Bank'}</span>
@@ -686,12 +708,32 @@ export function EasyOrderModal({ isOpen, onClose, packages = defaultPackages, pr
                       <span className="font-medium">{paymentInfo.bank_transfer.branch}</span>
                     </div>
                   </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-green-600">
+                      <HandCoins className="h-5 w-5" />
+                      <span className="font-semibold">{language === 'bn' ? 'ক্যাশ অন ডেলিভারি' : 'Cash on Delivery'}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {language === 'bn' 
+                        ? 'সেবা প্রদানের সময় পেমেন্ট করুন। কোনো অগ্রিম পেমেন্টের প্রয়োজন নেই।'
+                        : 'Pay when the service is delivered. No advance payment required.'}
+                    </p>
+                    <ul className="text-xs space-y-1">
+                      {paymentInfo.cod.instructions[language].map((inst, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="text-primary font-bold">{i + 1}.</span>
+                          {inst}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
               </div>
             )}
 
             {/* Screenshot Upload */}
-            {paymentMethod && (
+            {paymentMethod && paymentMethod !== 'cod' && (
               <div className="space-y-2">
                 <Label>{language === 'bn' ? 'পেমেন্ট স্ক্রিনশট (ঐচ্ছিক)' : 'Payment Screenshot (Optional)'}</Label>
                 <div className="border-2 border-dashed rounded-lg p-4 text-center">
