@@ -59,6 +59,7 @@ import AffiliateDashboard from "./pages/dashboard/AffiliateDashboard";
 import ProjectMilestones from "./pages/dashboard/ProjectMilestones";
 import Subscriptions from "./pages/dashboard/Subscriptions";
 import SupportTickets from "./pages/dashboard/SupportTickets";
+import Onboarding from "./pages/dashboard/Onboarding";
 import { ResellerDashboard } from "./pages/reseller";
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -151,6 +152,7 @@ const LanguageRoutes = () => {
           <Route path="/bn/dashboard/milestones" element={<ProtectedRoute><ProjectMilestones /></ProtectedRoute>} />
           <Route path="/bn/dashboard/subscriptions" element={<ProtectedRoute><Subscriptions /></ProtectedRoute>} />
           <Route path="/bn/dashboard/support" element={<ProtectedRoute><SupportTickets /></ProtectedRoute>} />
+          <Route path="/bn/dashboard/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
           <Route path="/bn/dashboard/reseller" element={<ProtectedRoute><ResellerDashboard /></ProtectedRoute>} />
           <Route path="/bn/dashboard/*" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           
@@ -229,6 +231,7 @@ const LanguageRoutes = () => {
           <Route path="/en/dashboard/milestones" element={<ProtectedRoute><ProjectMilestones /></ProtectedRoute>} />
           <Route path="/en/dashboard/subscriptions" element={<ProtectedRoute><Subscriptions /></ProtectedRoute>} />
           <Route path="/en/dashboard/support" element={<ProtectedRoute><SupportTickets /></ProtectedRoute>} />
+          <Route path="/en/dashboard/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
           <Route path="/en/dashboard/reseller" element={<ProtectedRoute><ResellerDashboard /></ProtectedRoute>} />
           <Route path="/en/dashboard/*" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           

@@ -4,7 +4,8 @@ import { useLanguage } from '@/lib/i18n';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { ShoppingCart, FileText, Globe, Server, FolderKanban, CreditCard } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { ShoppingCart, FileText, Globe, Server, FolderKanban, CreditCard, Rocket } from 'lucide-react';
 
 interface DashboardStats {
   totalOrders: number;
@@ -154,7 +155,13 @@ export default function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+              <QuickActionCard
+                icon={Rocket}
+                title={language === 'bn' ? 'নতুন সেবা শুরু' : 'Get Started'}
+                href={`/${language}/dashboard/onboarding`}
+                highlight
+              />
               <QuickActionCard
                 icon={ShoppingCart}
                 title={language === 'bn' ? 'নতুন অর্ডার' : 'New Order'}
@@ -186,18 +193,23 @@ export default function Dashboard() {
 function QuickActionCard({ 
   icon: Icon, 
   title, 
-  href 
+  href,
+  highlight 
 }: { 
   icon: React.ElementType; 
   title: string; 
   href: string;
+  highlight?: boolean;
 }) {
   return (
     <a
       href={href}
-      className="flex items-center gap-3 rounded-lg border p-4 transition-colors hover:bg-accent"
+      className={cn(
+        "flex items-center gap-3 rounded-lg border p-4 transition-colors hover:bg-accent",
+        highlight && "border-primary bg-primary/5 hover:bg-primary/10"
+      )}
     >
-      <Icon className="h-5 w-5 text-primary" />
+      <Icon className={cn("h-5 w-5", highlight ? "text-primary" : "text-primary")} />
       <span className="font-medium">{title}</span>
     </a>
   );

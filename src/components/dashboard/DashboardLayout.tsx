@@ -20,6 +20,7 @@ import {
   RefreshCw,
   Headphones,
   Building2,
+  Rocket,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -40,6 +41,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       label: language === 'bn' ? 'ড্যাশবোর্ড' : 'Dashboard', 
       icon: LayoutDashboard, 
       href: `${basePath}/dashboard` 
+    },
+    { 
+      label: language === 'bn' ? 'নতুন সেবা শুরু' : 'Get Started', 
+      icon: Rocket, 
+      href: `${basePath}/dashboard/onboarding` 
     },
     { 
       label: language === 'bn' ? 'অর্ডারসমূহ' : 'Orders', 
