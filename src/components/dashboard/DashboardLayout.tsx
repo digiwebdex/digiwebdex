@@ -21,6 +21,7 @@ import {
   Headphones,
   Building2,
   Rocket,
+  Package,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -46,6 +47,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       label: language === 'bn' ? 'নতুন সেবা শুরু' : 'Get Started', 
       icon: Rocket, 
       href: `${basePath}/dashboard/onboarding` 
+    },
+    { 
+      label: language === 'bn' ? 'ডোমেইন+হোস্টিং' : 'Domain+Hosting', 
+      icon: Package, 
+      href: `${basePath}/dashboard/bundle-checkout` 
     },
     { 
       label: language === 'bn' ? 'অর্ডারসমূহ' : 'Orders', 
