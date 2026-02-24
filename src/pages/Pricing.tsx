@@ -273,12 +273,18 @@ export default function Pricing() {
   return (
     <Layout>
       <SEOHead
-        title={language === 'bn' ? 'মূল্য তালিকা - সেরা দামে প্রিমিয়াম সেবা' : 'Pricing - Premium Services at Best Prices'}
+        title={language === 'bn' 
+          ? 'ওয়েবসাইট তৈরি খরচ বাংলাদেশ ২০২৬ | ওয়েব ডেভেলপমেন্ট মূল্য তালিকা' 
+          : 'Website Development Cost Bangladesh 2026 | Web Development Pricing'}
         description={language === 'bn' 
-          ? 'ওয়েব হোস্টিং, ওয়েব ডেভেলপমেন্ট, সফটওয়্যার ডেভেলপমেন্ট এবং ডিজিটাল মার্কেটিং এর স্বচ্ছ মূল্য তালিকা। বাংলাদেশে সেরা দামে প্রফেশনাল সেবা।'
-          : 'Transparent pricing for web hosting, web development, software development, and digital marketing. Best prices in Bangladesh.'}
-        keywords={['pricing', 'web hosting price', 'website development cost bangladesh', 'মূল্য তালিকা', 'ওয়েবসাইট খরচ']}
+          ? 'বাংলাদেশে ওয়েবসাইট তৈরি খরচ কত? ওয়েব ডেভেলপমেন্ট ৳১৫,০০০ থেকে, সফটওয়্যার ৳৩০,০০০ থেকে, ই-কমার্স ৳৫০,০০০ থেকে। AI চ্যাটবট ও ১ বছর সাপোর্ট সহ।'
+          : 'How much does a website cost in Bangladesh? Web development from ৳15,000, software from ৳30,000, e-commerce from ৳50,000. AI chatbot & 1 year support included.'}
+        keywords={['website development cost bangladesh', 'ওয়েবসাইট তৈরি খরচ', 'web development price dhaka', 'ওয়েব ডেভেলপমেন্ট মূল্য', 'software development cost', 'সফটওয়্যার ডেভেলপমেন্ট খরচ', 'e-commerce website price', 'ই-কমার্স ওয়েবসাইট দাম', 'ERP software price bangladesh', 'digital marketing cost', 'hosting price bangladesh']}
         canonicalUrl={`${baseUrl}${basePath}/pricing`}
+        breadcrumbs={[
+          { name: language === 'bn' ? 'হোম' : 'Home', url: `/${language}` },
+          { name: language === 'bn' ? 'মূল্য তালিকা' : 'Pricing', url: `/${language}/pricing` },
+        ]}
       />
       <MultiSchemaMarkup schemas={[
         { schema: faqSchema, id: 'faq-schema' },

@@ -265,12 +265,17 @@ const DomainHostingPage = () => {
     <Layout>
       <SEOHead
         title={language === 'bn' 
-          ? 'ডোমেইন ও হোস্টিং সেবা | Digiwebdex - বাংলাদেশের সেরা হোস্টিং' 
-          : 'Domain & Hosting Services | Digiwebdex - Best Hosting in Bangladesh'}
+          ? 'ডোমেইন রেজিস্ট্রেশন ও ওয়েব হোস্টিং বাংলাদেশ | সেরা দামে হোস্টিং' 
+          : 'Domain Registration & Web Hosting Bangladesh | Best Hosting Prices'}
         description={language === 'bn'
-          ? 'নিরাপদ ও দ্রুত ডোমেইন এবং হোস্টিং সলিউশন। 99.9% আপটাইম, ফ্রি SSL, cPanel, ডেইলি ব্যাকআপ সহ সাশ্রয়ী মূল্যে প্রিমিয়াম হোস্টিং।'
-          : 'Secure & fast domain and hosting solutions. 99.9% uptime, free SSL, cPanel, daily backup with premium hosting at affordable prices.'}
-        keywords={['domain', 'hosting', 'web hosting', 'Bangladesh hosting', 'SSD hosting', 'cPanel', 'SSL', 'ডোমেইন', 'হোস্টিং']}
+          ? 'বাংলাদেশে সেরা ডোমেইন ও হোস্টিং সেবা। .com ডোমেইন ৳৯৯৯ থেকে, SSD হোস্টিং ৳১,৫০০/বছর থেকে। ৯৯.৯% আপটাইম, ফ্রি SSL, cPanel, ডেইলি ব্যাকআপ।'
+          : 'Best domain & hosting services in Bangladesh. .com domain from ৳999, SSD hosting from ৳1,500/year. 99.9% uptime, free SSL, cPanel, daily backup.'}
+        keywords={['domain registration bangladesh', 'web hosting bangladesh', 'ডোমেইন রেজিস্ট্রেশন', 'ওয়েব হোস্টিং বাংলাদেশ', 'SSD hosting', 'cPanel hosting', 'SSL hosting', 'cheap hosting bangladesh', 'হোস্টিং দাম', 'best hosting bd']}
+        breadcrumbs={[
+          { name: language === 'bn' ? 'হোম' : 'Home', url: `/${language}` },
+          { name: language === 'bn' ? 'সেবাসমূহ' : 'Services', url: `/${language}` },
+          { name: language === 'bn' ? 'ডোমেইন ও হোস্টিং' : 'Domain & Hosting', url: `/${language}/services/domain-hosting` },
+        ]}
       />
       <SchemaMarkup schema={serviceSchema} id="service-schema" />
 

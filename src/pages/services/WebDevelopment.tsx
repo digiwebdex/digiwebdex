@@ -37,14 +37,36 @@ const WebDevelopmentPage = () => {
   const serviceSchema = {
     "@context": "https://schema.org",
     "@type": "Service",
-    "name": language === 'bn' ? "ওয়েব ডেভেলপমেন্ট সেবা" : "Web Development Services",
+    "name": language === 'bn' ? "ওয়েব ডেভেলপমেন্ট সেবা - বাংলাদেশ" : "Web Development Services - Bangladesh",
+    "description": language === 'bn' 
+      ? "বাংলাদেশে প্রফেশনাল ওয়েব ডেভেলপমেন্ট সেবা। কর্পোরেট ওয়েবসাইট, ই-কমার্স, নিউজ পোর্টাল তৈরি।"
+      : "Professional web development services in Bangladesh. Corporate websites, e-commerce, news portals.",
     "provider": {
       "@type": "Organization",
-      "name": "Digiwebdex"
+      "name": "Digiwebdex",
+      "url": "https://digiwebdex.com"
     },
     "serviceType": "Web Development",
-    "areaServed": "Bangladesh",
+    "areaServed": {
+      "@type": "Country",
+      "name": "Bangladesh"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Web Development Packages",
+      "itemListElement": [
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Basic Website"}, "price": "15000", "priceCurrency": "BDT"},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Business Website + Software"}, "price": "30000", "priceCurrency": "BDT"},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "E-commerce + ERP Software"}, "price": "50000", "priceCurrency": "BDT"}
+      ]
+    }
   };
+
+  const breadcrumbs = [
+    { name: language === 'bn' ? 'হোম' : 'Home', url: `/${language}` },
+    { name: language === 'bn' ? 'সেবাসমূহ' : 'Services', url: `/${language}` },
+    { name: language === 'bn' ? 'ওয়েব ডেভেলপমেন্ট' : 'Web Development', url: `/${language}/services/web-development` },
+  ];
 
   // Website Types
   const websiteTypes = [
@@ -241,12 +263,13 @@ const WebDevelopmentPage = () => {
     <Layout>
       <SEOHead
         title={language === 'bn' 
-          ? 'ওয়েব ডেভেলপমেন্ট সেবা | Digiwebdex - প্রফেশনাল ওয়েবসাইট তৈরি' 
-          : 'Web Development Services | Digiwebdex - Professional Website Development'}
+          ? 'ওয়েব ডেভেলপমেন্ট সেবা বাংলাদেশ | প্রফেশনাল ওয়েবসাইট তৈরি ঢাকা' 
+          : 'Web Development Services Bangladesh | Professional Website Development Dhaka'}
         description={language === 'bn'
-          ? 'আপনার ব্যবসার জন্য প্রফেশনাল ওয়েবসাইট তৈরি করুন। কর্পোরেট, ই-কমার্স, পোর্টফোলিও, নিউজ পোর্টাল - সব ধরনের ওয়েবসাইট ডেভেলপমেন্ট সেবা।'
-          : 'Create professional websites for your business. Corporate, e-commerce, portfolio, news portal - all types of web development services.'}
-        keywords={['web development', 'website design', 'e-commerce', 'corporate website', 'ওয়েব ডেভেলপমেন্ট', 'ওয়েবসাইট']}
+          ? 'বাংলাদেশে সেরা ওয়েব ডেভেলপমেন্ট সেবা। কর্পোরেট ওয়েবসাইট ৳১৫,০০০ থেকে, ই-কমার্স ওয়েবসাইট ৳৫০,০০০ থেকে। রেসপন্সিভ ডিজাইন, SEO অপ্টিমাইজড, ১ বছর সাপোর্ট সহ।'
+          : 'Best web development services in Bangladesh. Corporate websites from ৳15,000, e-commerce from ৳50,000. Responsive design, SEO optimized, 1 year support included.'}
+        keywords={['web development bangladesh', 'website design dhaka', 'ওয়েব ডেভেলপমেন্ট বাংলাদেশ', 'ওয়েবসাইট ডিজাইন ঢাকা', 'e-commerce website bangladesh', 'ই-কমার্স ওয়েবসাইট', 'corporate website', 'কর্পোরেট ওয়েবসাইট', 'website development cost bangladesh', 'ওয়েবসাইট তৈরি খরচ', 'best web design company', 'responsive website']}
+        breadcrumbs={breadcrumbs}
       />
       <SchemaMarkup schema={serviceSchema} id="webdev-service-schema" />
 

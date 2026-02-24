@@ -32,12 +32,12 @@ const Home = () => {
     <Layout>
       <SEOHead
         title={language === 'bn' 
-          ? 'Digiwebdex - বাংলাদেশের সেরা ডিজিটাল এজেন্সি | ডোমেইন, হোস্টিং, ওয়েব ডেভেলপমেন্ট' 
-          : 'Digiwebdex - Bangladesh\'s Premier Digital Agency | Domain, Hosting, Web Development'}
+          ? 'Digiwebdex - বাংলাদেশের #১ ওয়েব ডেভেলপমেন্ট ও সফটওয়্যার কোম্পানি | ঢাকা' 
+          : 'Digiwebdex - #1 Web Development & Software Company Bangladesh | Dhaka'}
         description={language === 'bn'
-          ? 'Digiwebdex - বাংলাদেশের সেরা ডোমেইন রেজিস্ট্রেশন, ওয়েব হোস্টিং, ওয়েব ডেভেলপমেন্ট, সফটওয়্যার ডেভেলপমেন্ট এবং ডিজিটাল মার্কেটিং সেবা। সাশ্রয়ী মূল্যে প্রিমিয়াম সার্ভিস।'
-          : 'Digiwebdex - Best domain registration, web hosting, web development, software development, and digital marketing services in Bangladesh. Premium services at affordable prices.'}
-        keywords={['domain', 'hosting', 'web development', 'software development', 'digital marketing', 'Bangladesh', 'Dhaka', 'Digiwebdex', 'ডোমেইন', 'হোস্টিং', 'ওয়েব ডেভেলপমেন্ট']}
+          ? 'বাংলাদেশের সেরা ওয়েব ডেভেলপমেন্ট, সফটওয়্যার ডেভেলপমেন্ট, ERP সফটওয়্যার, ই-কমার্স ওয়েবসাইট, ডোমেইন হোস্টিং ও ডিজিটাল মার্কেটিং সেবা। ৫০০+ সফল প্রজেক্ট। সাশ্রয়ী মূল্যে প্রিমিয়াম সার্ভিস।'
+          : 'Best web development, software development, ERP software, e-commerce website, domain hosting & digital marketing services in Bangladesh. 500+ successful projects. Premium services at affordable prices.'}
+        keywords={['web development bangladesh', 'ওয়েব ডেভেলপমেন্ট বাংলাদেশ', 'software company dhaka', 'সফটওয়্যার কোম্পানি ঢাকা', 'website design bangladesh', 'ওয়েবসাইট ডিজাইন', 'ERP software bangladesh', 'e-commerce website', 'ই-কমার্স ওয়েবসাইট', 'digital marketing bangladesh', 'ডিজিটাল মার্কেটিং', 'domain hosting', 'ডোমেইন হোস্টিং', 'web development company dhaka', 'best web design company bangladesh', 'website development cost bangladesh', 'ওয়েবসাইট তৈরি খরচ']}
       />
       <SchemaMarkup schema={orgSchema} id="organization-schema" />
       <SchemaMarkup schema={localBusinessSchema} id="local-business-schema" />

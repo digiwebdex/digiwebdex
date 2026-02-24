@@ -35,14 +35,27 @@ const DigitalMarketingPage = () => {
   const serviceSchema = {
     "@context": "https://schema.org",
     "@type": "Service",
-    "name": language === 'bn' ? "ডিজিটাল মার্কেটিং সেবা" : "Digital Marketing Services",
+    "name": language === 'bn' ? "ডিজিটাল মার্কেটিং সেবা - বাংলাদেশ" : "Digital Marketing Services - Bangladesh",
+    "description": language === 'bn'
+      ? "SEO, সোশ্যাল মিডিয়া মার্কেটিং, গুগল অ্যাডস, কনটেন্ট মার্কেটিং সেবা বাংলাদেশে।"
+      : "SEO, social media marketing, Google Ads, content marketing services in Bangladesh.",
     "provider": {
       "@type": "Organization",
-      "name": "Digiwebdex"
+      "name": "Digiwebdex",
+      "url": "https://digiwebdex.com"
     },
     "serviceType": "Digital Marketing",
-    "areaServed": "Bangladesh",
+    "areaServed": {
+      "@type": "Country",
+      "name": "Bangladesh"
+    }
   };
+
+  const breadcrumbs = [
+    { name: language === 'bn' ? 'হোম' : 'Home', url: `/${language}` },
+    { name: language === 'bn' ? 'সেবাসমূহ' : 'Services', url: `/${language}` },
+    { name: language === 'bn' ? 'ডিজিটাল মার্কেটিং' : 'Digital Marketing', url: `/${language}/services/digital-marketing` },
+  ];
 
   // Services
   const services = [
@@ -284,12 +297,13 @@ const DigitalMarketingPage = () => {
     <Layout>
       <SEOHead
         title={language === 'bn' 
-          ? 'ডিজিটাল মার্কেটিং সেবা | Digiwebdex - SEO, সোশ্যাল মিডিয়া, গুগল অ্যাডস' 
-          : 'Digital Marketing Services | Digiwebdex - SEO, Social Media, Google Ads'}
+          ? 'ডিজিটাল মার্কেটিং সেবা বাংলাদেশ | SEO, সোশ্যাল মিডিয়া, গুগল অ্যাডস ঢাকা' 
+          : 'Digital Marketing Services Bangladesh | SEO, Social Media, Google Ads Dhaka'}
         description={language === 'bn'
-          ? 'ডিজিটাল মার্কেটিং দিয়ে ব্যবসা বৃদ্ধি করুন। SEO, সোশ্যাল মিডিয়া মার্কেটিং, গুগল অ্যাডস, কনটেন্ট মার্কেটিং - সব ধরনের ডিজিটাল মার্কেটিং সেবা।'
-          : 'Grow your business with digital marketing. SEO, Social Media Marketing, Google Ads, Content Marketing - all types of digital marketing services.'}
-        keywords={['digital marketing', 'SEO', 'social media marketing', 'Google Ads', 'content marketing', 'ডিজিটাল মার্কেটিং']}
+          ? 'বাংলাদেশে সেরা ডিজিটাল মার্কেটিং সেবা। SEO অপ্টিমাইজেশন, ফেসবুক মার্কেটিং, গুগল অ্যাডস ম্যানেজমেন্ট মাত্র ৳৫,০০০/মাস থেকে। ROI ফোকাসড মার্কেটিং।'
+          : 'Best digital marketing services in Bangladesh. SEO optimization, Facebook marketing, Google Ads management from ৳5,000/month. ROI-focused marketing.'}
+        keywords={['digital marketing bangladesh', 'SEO service dhaka', 'ডিজিটাল মার্কেটিং বাংলাদেশ', 'SEO সেবা ঢাকা', 'social media marketing', 'সোশ্যাল মিডিয়া মার্কেটিং', 'Google Ads bangladesh', 'ফেসবুক মার্কেটিং', 'content marketing', 'digital marketing agency dhaka']}
+        breadcrumbs={breadcrumbs}
       />
       <SchemaMarkup schema={serviceSchema} id="marketing-service-schema" />
 

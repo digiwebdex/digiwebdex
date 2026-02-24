@@ -39,14 +39,36 @@ const SoftwareDevelopmentPage = () => {
   const serviceSchema = {
     "@context": "https://schema.org",
     "@type": "Service",
-    "name": language === 'bn' ? "সফটওয়্যার ডেভেলপমেন্ট সেবা" : "Software Development Services",
+    "name": language === 'bn' ? "সফটওয়্যার ডেভেলপমেন্ট সেবা - বাংলাদেশ" : "Software Development Services - Bangladesh",
+    "description": language === 'bn'
+      ? "কাস্টম সফটওয়্যার, ERP, POS, ইনভেন্টরি ম্যানেজমেন্ট সফটওয়্যার ডেভেলপমেন্ট সেবা বাংলাদেশে।"
+      : "Custom software, ERP, POS, inventory management software development services in Bangladesh.",
     "provider": {
       "@type": "Organization",
-      "name": "Digiwebdex"
+      "name": "Digiwebdex",
+      "url": "https://digiwebdex.com"
     },
     "serviceType": "Software Development",
-    "areaServed": "Bangladesh",
+    "areaServed": {
+      "@type": "Country",
+      "name": "Bangladesh"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Software Development Packages",
+      "itemListElement": [
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Starter Software"}, "price": "30000", "priceCurrency": "BDT"},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Business Software"}, "price": "60000", "priceCurrency": "BDT"},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Enterprise ERP/POS"}, "price": "100000", "priceCurrency": "BDT"}
+      ]
+    }
   };
+
+  const breadcrumbs = [
+    { name: language === 'bn' ? 'হোম' : 'Home', url: `/${language}` },
+    { name: language === 'bn' ? 'সেবাসমূহ' : 'Services', url: `/${language}` },
+    { name: language === 'bn' ? 'সফটওয়্যার ডেভেলপমেন্ট' : 'Software Development', url: `/${language}/services/software-development` },
+  ];
 
   // Software Solutions
   const softwareSolutions = [
@@ -260,12 +282,13 @@ const SoftwareDevelopmentPage = () => {
     <Layout>
       <SEOHead
         title={language === 'bn' 
-          ? 'সফটওয়্যার ডেভেলপমেন্ট সেবা | Digiwebdex - ERP, POS, কাস্টম সফটওয়্যার' 
-          : 'Software Development Services | Digiwebdex - ERP, POS, Custom Software'}
+          ? 'সফটওয়্যার ডেভেলপমেন্ট বাংলাদেশ | ERP, POS, কাস্টম সফটওয়্যার ঢাকা' 
+          : 'Software Development Bangladesh | ERP, POS, Custom Software Dhaka'}
         description={language === 'bn'
-          ? 'কাস্টম সফটওয়্যার ও ERP সলিউশন। ERP, POS, ইনভেন্টরি ম্যানেজমেন্ট, কাস্টম বিজনেস অটোমেশন - সব ধরনের সফটওয়্যার ডেভেলপমেন্ট সেবা।'
-          : 'Custom software & ERP solutions. ERP, POS, Inventory Management, Custom Business Automation - all types of software development services.'}
-        keywords={['software development', 'ERP', 'POS', 'inventory management', 'custom software', 'সফটওয়্যার ডেভেলপমেন্ট']}
+          ? 'বাংলাদেশে সেরা সফটওয়্যার ডেভেলপমেন্ট কোম্পানি। ERP সফটওয়্যার ৳৩০,০০০ থেকে, POS সিস্টেম, কাস্টম বিজনেস অটোমেশন। ১ বছর সাপোর্ট ও মেইনটেন্যান্স সহ।'
+          : 'Best software development company in Bangladesh. ERP software from ৳30,000, POS systems, custom business automation. 1 year support & maintenance included.'}
+        keywords={['software development bangladesh', 'ERP software bangladesh', 'ERP সফটওয়্যার বাংলাদেশ', 'POS software dhaka', 'POS সফটওয়্যার', 'custom software', 'কাস্টম সফটওয়্যার', 'inventory management software', 'সফটওয়্যার কোম্পানি ঢাকা', 'business automation', 'software company bangladesh']}
+        breadcrumbs={breadcrumbs}
       />
       <SchemaMarkup schema={serviceSchema} id="software-service-schema" />
 

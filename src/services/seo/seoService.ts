@@ -348,16 +348,53 @@ export const seoService = {
 
     // Add static pages
     const staticPages: SitemapEntry[] = [
+      // Homepage
       { url: '/bn', lastModified: new Date().toISOString(), changeFrequency: 'daily', priority: 1.0 },
       { url: '/en', lastModified: new Date().toISOString(), changeFrequency: 'daily', priority: 1.0 },
-      { url: '/bn/pricing', lastModified: new Date().toISOString(), changeFrequency: 'weekly', priority: 0.9 },
-      { url: '/en/pricing', lastModified: new Date().toISOString(), changeFrequency: 'weekly', priority: 0.9 },
-      { url: '/bn/domains', lastModified: new Date().toISOString(), changeFrequency: 'weekly', priority: 0.9 },
-      { url: '/en/domains', lastModified: new Date().toISOString(), changeFrequency: 'weekly', priority: 0.9 },
+      // Pricing (high intent)
+      { url: '/bn/pricing', lastModified: new Date().toISOString(), changeFrequency: 'weekly', priority: 0.95 },
+      { url: '/en/pricing', lastModified: new Date().toISOString(), changeFrequency: 'weekly', priority: 0.95 },
+      // Service Pages (high priority)
+      { url: '/bn/services/web-development', lastModified: new Date().toISOString(), changeFrequency: 'weekly', priority: 0.95 },
+      { url: '/en/services/web-development', lastModified: new Date().toISOString(), changeFrequency: 'weekly', priority: 0.95 },
+      { url: '/bn/services/software-development', lastModified: new Date().toISOString(), changeFrequency: 'weekly', priority: 0.95 },
+      { url: '/en/services/software-development', lastModified: new Date().toISOString(), changeFrequency: 'weekly', priority: 0.95 },
+      { url: '/bn/services/digital-marketing', lastModified: new Date().toISOString(), changeFrequency: 'weekly', priority: 0.9 },
+      { url: '/en/services/digital-marketing', lastModified: new Date().toISOString(), changeFrequency: 'weekly', priority: 0.9 },
+      { url: '/bn/services/domain-hosting', lastModified: new Date().toISOString(), changeFrequency: 'weekly', priority: 0.9 },
+      { url: '/en/services/domain-hosting', lastModified: new Date().toISOString(), changeFrequency: 'weekly', priority: 0.9 },
+      // Domain search
+      { url: '/bn/domains', lastModified: new Date().toISOString(), changeFrequency: 'weekly', priority: 0.85 },
+      { url: '/en/domains', lastModified: new Date().toISOString(), changeFrequency: 'weekly', priority: 0.85 },
+      // SEO Landing Pages (high intent keywords)
+      { url: '/bn/best-hosting-in-bangladesh', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.85 },
+      { url: '/en/best-hosting-in-bangladesh', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.85 },
+      { url: '/bn/web-design-company-in-dhaka', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.85 },
+      { url: '/en/web-design-company-in-dhaka', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.85 },
+      { url: '/bn/erp-software-bangladesh', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.85 },
+      { url: '/en/erp-software-bangladesh', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.85 },
+      { url: '/bn/travel-agency-website-development-bangladesh', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.8 },
+      { url: '/bn/real-estate-website-development-bd', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.8 },
+      { url: '/bn/hospital-clinic-website-development', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.8 },
+      { url: '/bn/restaurant-website-design-bangladesh', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.8 },
+      { url: '/bn/ecommerce-website-for-fashion-brand', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.8 },
+      // About & Authority Pages
+      { url: '/bn/about-us', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.7 },
+      { url: '/en/about-us', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.7 },
+      { url: '/bn/why-digiwebdex', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.75 },
+      { url: '/en/why-digiwebdex', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.75 },
+      // Case Studies
+      { url: '/bn/case-studies', lastModified: new Date().toISOString(), changeFrequency: 'weekly', priority: 0.8 },
+      { url: '/en/case-studies', lastModified: new Date().toISOString(), changeFrequency: 'weekly', priority: 0.8 },
+      // Blog
+      { url: '/bn/blog', lastModified: new Date().toISOString(), changeFrequency: 'daily', priority: 0.85 },
+      { url: '/en/blog', lastModified: new Date().toISOString(), changeFrequency: 'daily', priority: 0.85 },
+      // Contact
       { url: '/bn/contact', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.7 },
       { url: '/en/contact', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.7 },
-      { url: '/bn/blog', lastModified: new Date().toISOString(), changeFrequency: 'daily', priority: 0.8 },
-      { url: '/en/blog', lastModified: new Date().toISOString(), changeFrequency: 'daily', priority: 0.8 }
+      // Locations
+      { url: '/bn/locations', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.65 },
+      { url: '/en/locations', lastModified: new Date().toISOString(), changeFrequency: 'monthly', priority: 0.65 },
     ];
 
     const allEntries = [...staticPages, ...entries];
