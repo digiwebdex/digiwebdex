@@ -81,17 +81,7 @@ export function FloatingActions() {
 
       </div>
 
-      {/* WhatsApp Floating Bar - Left Side (Desktop) */}
-      <div className="fixed bottom-[8.5rem] left-6 z-50 hidden md:block">
-        <Button
-          className="h-12 px-5 rounded-full shadow-xl bg-emerald-500 hover:bg-emerald-600 text-white hover:shadow-2xl hover:shadow-emerald-500/30 transition-all"
-          onClick={openWhatsApp}
-          aria-label="WhatsApp"
-        >
-          <MessageCircle className="h-5 w-5 mr-2" />
-          {language === 'bn' ? 'সরাসরি হোয়াটসঅ্যাপ যোগাযোগ করুন' : 'Contact via WhatsApp'}
-        </Button>
-      </div>
+      {/* WhatsApp button moved to WhatsAppChatWidget */}
 
       {/* Mobile Bottom Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-background/95 backdrop-blur-md border-t shadow-2xl safe-area-inset-bottom">
