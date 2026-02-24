@@ -49,7 +49,7 @@ export function FloatingActions() {
 
   return (
     <>
-      {/* Desktop Floating Action Buttons */}
+      {/* Desktop Floating Action Buttons - Right Side */}
       <div className="fixed bottom-6 right-6 z-50 hidden md:flex flex-col items-end gap-3">
         {/* Scroll to Top */}
         <Button
@@ -79,13 +79,17 @@ export function FloatingActions() {
           </Button>
         )}
 
-        {/* WhatsApp Button */}
+      </div>
+
+      {/* WhatsApp Floating Bar - Left Side (Desktop) */}
+      <div className="fixed bottom-6 left-6 z-50 hidden md:block">
         <Button
-          className="h-14 w-14 rounded-full shadow-xl bg-emerald-500 hover:bg-emerald-600 text-white hover:shadow-2xl hover:shadow-emerald-500/30 transition-all"
+          className="h-12 px-5 rounded-full shadow-xl bg-emerald-500 hover:bg-emerald-600 text-white hover:shadow-2xl hover:shadow-emerald-500/30 transition-all"
           onClick={openWhatsApp}
           aria-label="WhatsApp"
         >
-          <MessageCircle className="h-6 w-6" />
+          <MessageCircle className="h-5 w-5 mr-2" />
+          {language === 'bn' ? 'সরাসরি হোয়াটসঅ্যাপ যোগাযোগ করুন' : 'Contact via WhatsApp'}
         </Button>
       </div>
 
