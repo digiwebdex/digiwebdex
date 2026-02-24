@@ -277,7 +277,7 @@ export default function Contact() {
               <Card className="glass-card overflow-hidden">
                 <div className="aspect-video">
                   <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3652.0!2d90.3590!3d23.7590!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c0!2sShekhertek%2C%20Mohammadpur%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1700000000000"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3652.2619824894498!2d90.35484131543688!3d23.757415984585!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755bf4de5765b8f%3A0x52b61e22e1c1f715!2sShekertek%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1709000000000!5m2!1sen!2sbd"
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
