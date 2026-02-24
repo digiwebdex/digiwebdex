@@ -82,7 +82,7 @@ export function FloatingActions() {
       </div>
 
       {/* WhatsApp Floating Bar - Left Side (Desktop) */}
-      <div className="fixed bottom-6 left-6 z-50 hidden md:block">
+      <div className="fixed bottom-[8.5rem] left-6 z-50 hidden md:block">
         <Button
           className="h-12 px-5 rounded-full shadow-xl bg-emerald-500 hover:bg-emerald-600 text-white hover:shadow-2xl hover:shadow-emerald-500/30 transition-all"
           onClick={openWhatsApp}
