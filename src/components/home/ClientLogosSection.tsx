@@ -17,6 +17,7 @@ export function ClientLogosSection() {
     'SM Elite Hajj',
     'Titas Build',
     'ZN Laboratories',
+    'Rofrof Travels',
   ];
 
   return (

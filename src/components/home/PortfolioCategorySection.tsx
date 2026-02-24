@@ -20,6 +20,7 @@ import smelitehajjSoftImg from '@/assets/portfolio/smelitehajj-soft.jpg';
 import darulfurkanImg from '@/assets/portfolio/darulfurkantravels.jpg';
 import smelitehajjImg from '@/assets/portfolio/smelitehajj.jpg';
 import zenithoverseasImg from '@/assets/portfolio/zenithoverseasbd.jpg';
+import rofroftravelsImg from '@/assets/portfolio/rofroftravels.jpg';
 
 interface Project {
   id: string;
@@ -172,6 +173,15 @@ const projects: Project[] = [
     contributions: ['UI/UX', 'SEO', 'Performance'],
     screenshot: zenithoverseasImg,
   },
+  {
+    id: '15',
+    name: 'Rofrof Travels',
+    url: 'rofroftravels.com',
+    category: 'travel',
+    industry: 'Hajj & Umrah',
+    contributions: ['UI/UX', 'SEO', 'Performance'],
+    screenshot: rofroftravelsImg,
+  },
 ];
 
 const contributionIcons: Record<string, React.ReactNode> = {
@@ -302,7 +312,7 @@ export function PortfolioCategorySection() {
         {/* Stats Row */}
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 animate-slide-up delay-400">
           {[
-            { value: '14+', label: language === 'bn' ? 'লাইভ প্রজেক্ট' : 'Live Projects' },
+            { value: '15+', label: language === 'bn' ? 'লাইভ প্রজেক্ট' : 'Live Projects' },
             { value: '5', label: language === 'bn' ? 'ইন্ডাস্ট্রি' : 'Industries' },
             { value: '100%', label: language === 'bn' ? 'ক্লায়েন্ট সন্তুষ্টি' : 'Client Satisfaction' },
             { value: '24/7', label: language === 'bn' ? 'সাপোর্ট' : 'Support' },
