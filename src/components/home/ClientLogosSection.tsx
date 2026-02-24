@@ -18,6 +18,7 @@ export function ClientLogosSection() {
     'Titas Build',
     'ZN Laboratories',
     'Rofrof Travels',
+    'Seven Trip',
   ];
 
   return (
