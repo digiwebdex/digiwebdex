@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { MessageCircle, X, Send, Bot, User, Loader2, CreditCard } from 'lucide-react';
+import chatIconImg from '@/assets/chat-icon.png';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n';
@@ -169,8 +170,8 @@ export function OnboardingChatWidget() {
           )}
           aria-label="AI Assistant"
         >
-          <div className="h-9 w-9 rounded-full bg-primary-foreground/20 flex items-center justify-center flex-shrink-0">
-            {isDashboard ? <CreditCard className="h-5 w-5" /> : <Bot className="h-5 w-5" />}
+          <div className="h-9 w-9 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0">
+            <img src={chatIconImg} alt="Chat" className="h-9 w-9 object-cover" />
           </div>
           <span className="text-sm font-medium whitespace-nowrap">
             {language === 'bn' ? 'কি জানতে চাচ্ছেন? বলুন আমাকে' : 'Have a question? Ask me'}
