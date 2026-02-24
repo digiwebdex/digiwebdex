@@ -26,7 +26,7 @@ export function Footer() {
   ];
 
   const socialLinks = [
-    { icon: Facebook, href: 'https://facebook.com', label: 'Facebook' },
+    { icon: Facebook, href: 'https://www.facebook.com/digitalwebdex', label: 'Facebook' },
     { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
     { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
     { icon: Instagram, href: 'https://instagram.com', label: 'Instagram' },
