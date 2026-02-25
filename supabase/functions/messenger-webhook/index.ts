@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const SYSTEM_PROMPT = `You are DigiWebDex's friendly AI payment & onboarding assistant. You help customers in both Bangla and English (respond in the language the user writes in).
 
