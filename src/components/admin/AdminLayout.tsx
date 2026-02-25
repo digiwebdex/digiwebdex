@@ -33,6 +33,7 @@ import {
   Palette,
   FormInput,
   Mail,
+  MessageSquare,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -97,6 +98,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       title: language === 'bn' ? 'সাপোর্ট' : 'Support',
       items: [
         { label: language === 'bn' ? 'টিকেট' : 'Tickets', icon: Headphones, href: `${basePath}/admin/tickets` },
+        { label: language === 'bn' ? 'চ্যাটবট লগ' : 'Chatbot Logs', icon: MessageSquare, href: `${basePath}/admin/chatbot` },
       ],
     },
     {

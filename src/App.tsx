@@ -88,6 +88,7 @@ import AdminCustomFields from "./pages/admin/AdminCustomFields";
 import AdminNotificationTemplates from "./pages/admin/AdminNotificationTemplates";
 import AdminProposalTemplates from "./pages/admin/AdminProposalTemplates";
 import AdminTrackingAnalytics from "./pages/admin/AdminTrackingAnalytics";
+import AdminChatbotLogs from "./pages/admin/AdminChatbotLogs";
 
 // Public Pages
 import ProposalView from "./pages/ProposalView";
@@ -185,6 +186,7 @@ const LanguageRoutes = () => {
           <Route path="/bn/admin/notifications" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminNotificationTemplates /></ProtectedRoute>} />
           <Route path="/bn/admin/proposal-templates" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminProposalTemplates /></ProtectedRoute>} />
           <Route path="/bn/admin/tracking" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminTrackingAnalytics /></ProtectedRoute>} />
+          <Route path="/bn/admin/chatbot" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminChatbotLogs /></ProtectedRoute>} />
           <Route path="/bn/admin/*" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminDashboard /></ProtectedRoute>} />
           
           {/* English routes */}
@@ -266,6 +268,7 @@ const LanguageRoutes = () => {
           <Route path="/en/admin/notifications" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminNotificationTemplates /></ProtectedRoute>} />
           <Route path="/en/admin/proposal-templates" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminProposalTemplates /></ProtectedRoute>} />
           <Route path="/en/admin/tracking" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminTrackingAnalytics /></ProtectedRoute>} />
+          <Route path="/en/admin/chatbot" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminChatbotLogs /></ProtectedRoute>} />
           <Route path="/en/admin/*" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminDashboard /></ProtectedRoute>} />
           
           {/* Dynamic Landing Pages - must be before catch-all */}
