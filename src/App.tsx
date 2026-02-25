@@ -21,6 +21,8 @@ import LandingPage from "./pages/LandingPage";
 import CaseStudies from "./pages/CaseStudies";
 import CaseStudy from "./pages/CaseStudy";
 import GetStarted from "./pages/GetStarted";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsConditions from "./pages/TermsConditions";
 
 // SEO Landing Pages
 import { 
@@ -123,6 +125,8 @@ const LanguageRoutes = () => {
           <Route path="/bn/case-studies/:slug" element={<CaseStudy />} />
           <Route path="/bn/about-us" element={<About />} />
           <Route path="/bn/get-started" element={<GetStarted />} />
+          <Route path="/bn/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/bn/terms-and-conditions" element={<TermsConditions />} />
           
           {/* Bangla - SEO Landing Pages */}
           <Route path="/bn/best-hosting-in-bangladesh" element={<BestHostingBangladesh />} />
@@ -204,6 +208,8 @@ const LanguageRoutes = () => {
           <Route path="/en/case-studies/:slug" element={<CaseStudy />} />
           <Route path="/en/about-us" element={<About />} />
           <Route path="/en/get-started" element={<GetStarted />} />
+          <Route path="/en/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/en/terms-and-conditions" element={<TermsConditions />} />
           
           {/* English - SEO Landing Pages */}
           <Route path="/en/best-hosting-in-bangladesh" element={<BestHostingBangladesh />} />

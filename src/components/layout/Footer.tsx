@@ -137,8 +137,17 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
+        <div className="mt-12 pt-8 border-t flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <p>{t.footer.copyright}</p>
+          <div className="flex gap-4">
+            <Link to={`${basePath}/privacy-policy`} className="hover:text-primary transition-colors">
+              {language === 'bn' ? 'গোপনীয়তা নীতি' : 'Privacy Policy'}
+            </Link>
+            <span>•</span>
+            <Link to={`${basePath}/terms-and-conditions`} className="hover:text-primary transition-colors">
+              {language === 'bn' ? 'শর্তাবলী' : 'Terms & Conditions'}
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
