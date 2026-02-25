@@ -110,6 +110,16 @@ const LanguageRoutes = () => {
           {/* Default redirect to Bangla */}
           <Route path="/" element={<Navigate to="/bn" replace />} />
           
+          {/* Common non-prefixed redirects */}
+          <Route path="/about" element={<Navigate to="/bn/about-us" replace />} />
+          <Route path="/about/" element={<Navigate to="/bn/about-us" replace />} />
+          <Route path="/about-us" element={<Navigate to="/bn/about-us" replace />} />
+          <Route path="/pricing" element={<Navigate to="/bn/pricing" replace />} />
+          <Route path="/contact" element={<Navigate to="/bn/contact" replace />} />
+          <Route path="/blog" element={<Navigate to="/bn/blog" replace />} />
+          <Route path="/domains" element={<Navigate to="/bn/domains" replace />} />
+          <Route path="/services" element={<Navigate to="/bn" replace />} />
+          
           {/* Bangla routes */}
           <Route path="/bn" element={<Home />} />
           <Route path="/bn/pricing" element={<Pricing />} />
