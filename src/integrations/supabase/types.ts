@@ -770,6 +770,33 @@ export type Database = {
         }
         Relationships: []
       }
+      chatbot_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          message_in: string
+          message_out: string
+          platform: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_in: string
+          message_out: string
+          platform?: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_in?: string
+          message_out?: string
+          platform?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
       consultation_bookings: {
         Row: {
           created_at: string
