@@ -98,6 +98,15 @@ export default function AdminOrders() {
   };
 
   const handlePackageChange = (packageId: string) => {
+    if (packageId === 'custom') {
+      setCreateForm(prev => ({
+        ...prev,
+        package_id: 'custom',
+        subtotal: 0,
+        total: 0 - prev.discount + prev.tax,
+      }));
+      return;
+    }
     const pkg = packages.find(p => p.id === packageId);
     const price = pkg?.price || 0;
     setCreateForm(prev => ({
@@ -113,6 +122,10 @@ export default function AdminOrders() {
       toast({ title: language === 'bn' ? 'সব তথ্য পূরণ করুন' : 'Fill all required fields', variant: 'destructive' });
       return;
     }
+    if (createForm.package_id === 'custom' && createForm.subtotal <= 0) {
+      toast({ title: language === 'bn' ? 'কাস্টম প্রাইস দিন' : 'Enter custom price', variant: 'destructive' });
+      return;
+    }
     setCreating(true);
     try {
       // Generate order number
@@ -126,7 +139,7 @@ export default function AdminOrders() {
         order_number: orderNumber,
         user_id: createForm.user_id,
         service_id: createForm.service_id,
-        package_id: createForm.package_id,
+        package_id: createForm.package_id === 'custom' ? null : createForm.package_id,
         service_type: createForm.service_type as Database['public']['Enums']['service_type'],
         billing_type: createForm.billing_type as Database['public']['Enums']['billing_type'],
         subtotal: createForm.subtotal,
@@ -517,10 +530,30 @@ export default function AdminOrders() {
                         {language === 'bn' ? p.name_bn : p.name_en} - ৳{p.price.toLocaleString()}
                       </SelectItem>
                     ))}
+                    <SelectItem value="custom" className="font-semibold border-t">
+                      ✏️ {language === 'bn' ? 'কাস্টম (ম্যানুয়াল প্রাইস)' : 'Custom (Manual Price)'}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
+
+            {/* Custom Price Input */}
+            {createForm.package_id === 'custom' && (
+              <div className="space-y-2 p-3 border border-dashed rounded-md bg-muted/50">
+                <Label>{language === 'bn' ? 'কাস্টম প্রাইস (৳) *' : 'Custom Price (৳) *'}</Label>
+                <Input
+                  type="number"
+                  placeholder={language === 'bn' ? 'ম্যানুয়ালি প্রাইস লিখুন' : 'Enter price manually'}
+                  value={createForm.subtotal || ''}
+                  onChange={(e) => {
+                    const subtotal = Number(e.target.value);
+                    setCreateForm(prev => ({ ...prev, subtotal, total: subtotal - prev.discount + prev.tax }));
+                  }}
+                  min={0}
+                />
+              </div>
+            )}
 
             {/* Billing Type */}
             <div className="grid grid-cols-2 gap-4">
