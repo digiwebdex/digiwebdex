@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
-import { Eye, FileText } from 'lucide-react';
+import { Eye, FileText, Bell, Send } from 'lucide-react';
 import { format } from 'date-fns';
 import { Database } from '@/integrations/supabase/types';
 
@@ -41,6 +41,7 @@ export default function AdminOrders() {
   const [adminNotes, setAdminNotes] = useState('');
   const [advancePayment, setAdvancePayment] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [sendingReminder, setSendingReminder] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -162,6 +163,46 @@ export default function AdminOrders() {
     setSaving(false);
   };
 
+  const handleSendDueReminder = async (order: Order) => {
+    const advance = (order as any).advance_payment || 0;
+    const dueAmount = order.total - advance;
+    
+    if (dueAmount <= 0) {
+      toast({ title: language === 'bn' ? 'কোনো বাকি নেই' : 'No Due', description: language === 'bn' ? 'এই অর্ডারে কোনো বাকি পেমেন্ট নেই' : 'No due payment for this order' });
+      return;
+    }
+
+    setSendingReminder(true);
+    try {
+      await supabase.functions.invoke('contact-notification', {
+        body: {
+          type: 'due_payment_reminder',
+          orderNumber: order.order_number,
+          customerName: order.profiles?.full_name || 'Customer',
+          customerPhone: order.profiles?.phone || '',
+          userId: order.user_id,
+          packageName: order.services
+            ? (language === 'bn' ? order.services.name_bn : order.services.name_en)
+            : '',
+          amount: order.total,
+          advancePayment: advance,
+          dueAmount: dueAmount,
+        },
+      });
+
+      toast({ 
+        title: language === 'bn' ? '✅ রিমাইন্ডার পাঠানো হয়েছে' : '✅ Reminder Sent', 
+        description: language === 'bn' 
+          ? `${order.profiles?.full_name || 'কাস্টমার'}-কে ৳${dueAmount} বাকি পেমেন্টের রিমাইন্ডার পাঠানো হয়েছে` 
+          : `Due payment reminder of ৳${dueAmount} sent to ${order.profiles?.full_name || 'customer'}` 
+      });
+    } catch (error) {
+      console.error('Reminder error:', error);
+      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
+    }
+    setSendingReminder(false);
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat(language === 'bn' ? 'bn-BD' : 'en-US', {
       style: 'currency',
@@ -220,13 +261,21 @@ export default function AdminOrders() {
     {
       key: 'actions',
       header: language === 'bn' ? 'অ্যাকশন' : 'Actions',
-      render: (row) => (
-        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-          <Button size="icon" variant="ghost" onClick={() => handleViewOrder(row)}>
-            <Eye className="h-4 w-4" />
-          </Button>
-        </div>
-      ),
+      render: (row) => {
+        const due = row.total - ((row as any).advance_payment || 0);
+        return (
+          <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+            <Button size="icon" variant="ghost" onClick={() => handleViewOrder(row)}>
+              <Eye className="h-4 w-4" />
+            </Button>
+            {due > 0 && (
+              <Button size="icon" variant="ghost" className="text-orange-600 hover:text-orange-700" onClick={() => handleSendDueReminder(row)} disabled={sendingReminder}>
+                <Bell className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        );
+      },
     },
   ];
 
@@ -345,13 +394,28 @@ export default function AdminOrders() {
             </div>
           )}
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDetailOpen(false)}>
-              {language === 'bn' ? 'বন্ধ করুন' : 'Close'}
-            </Button>
-            <Button onClick={handleUpdateOrder} disabled={saving}>
-              {saving ? (language === 'bn' ? 'সংরক্ষণ হচ্ছে...' : 'Saving...') : (language === 'bn' ? 'আপডেট করুন' : 'Update')}
-            </Button>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            {selectedOrder && (selectedOrder.total - ((selectedOrder as any).advance_payment || 0)) > 0 && (
+              <Button 
+                variant="outline" 
+                className="border-orange-500 text-orange-600 hover:bg-orange-50"
+                onClick={() => selectedOrder && handleSendDueReminder(selectedOrder)} 
+                disabled={sendingReminder}
+              >
+                <Send className="h-4 w-4 mr-2" />
+                {sendingReminder 
+                  ? (language === 'bn' ? 'পাঠানো হচ্ছে...' : 'Sending...') 
+                  : (language === 'bn' ? 'ডিউ পেমেন্ট রিমাইন্ডার পাঠান' : 'Send Due Reminder')}
+              </Button>
+            )}
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setDetailOpen(false)}>
+                {language === 'bn' ? 'বন্ধ করুন' : 'Close'}
+              </Button>
+              <Button onClick={handleUpdateOrder} disabled={saving}>
+                {saving ? (language === 'bn' ? 'সংরক্ষণ হচ্ছে...' : 'Saving...') : (language === 'bn' ? 'আপডেট করুন' : 'Update')}
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>

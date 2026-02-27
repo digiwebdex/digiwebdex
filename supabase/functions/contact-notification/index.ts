@@ -15,7 +15,7 @@ const WHATSAPP_NUMBER = '8801674533303';
 const SMS_API_URL = 'http://bulksmsbd.net/api/smsapi';
 
 interface ContactNotificationRequest {
-  type: 'contact_form' | 'order_created' | 'payment_received' | 'payment_approved' | 'payment_completed';
+  type: 'contact_form' | 'order_created' | 'payment_received' | 'payment_approved' | 'payment_completed' | 'due_payment_reminder';
   // Contact form fields
   name?: string;
   email?: string;
@@ -31,6 +31,7 @@ interface ContactNotificationRequest {
   amount?: number;
   advancePayment?: number;
   totalPaid?: number;
+  dueAmount?: number;
   paymentMethod?: string;
   invoiceUrl?: string;
   invoiceNumber?: string;
@@ -513,6 +514,95 @@ DigiWebDex Team
           });
         })
       );
+    } else if (data.type === 'due_payment_reminder') {
+      // Fetch customer email from auth if userId provided
+      let customerEmail = data.customerEmail || '';
+      if (!customerEmail && data.userId) {
+        try {
+          const { data: userData } = await supabase.auth.admin.getUserById(data.userId);
+          if (userData?.user?.email) {
+            customerEmail = userData.user.email;
+          }
+        } catch (e) {
+          console.error('Error fetching user email:', e);
+        }
+      }
+      data.customerEmail = customerEmail;
+
+      const dueAmount = data.dueAmount || ((data.amount || 0) - (data.advancePayment || 0));
+      const paymentLink = 'https://digiwebdex.lovable.app/bn/dashboard/payments';
+
+      // Customer SMS - due payment reminder
+      if (data.customerPhone && isValidBDPhone(data.customerPhone)) {
+        const dueSms = `DigiWebDex: প্রিয় ${data.customerName}, আপনার অর্ডার ${data.orderNumber} এ ৳${dueAmount} বাকি আছে। অনুগ্রহ করে পেমেন্ট করুন। লিংক: ${paymentLink} ধন্যবাদ!`;
+        smsPromises.push(
+          sendSMS(data.customerPhone, dueSms).then(result => {
+            notifications.push({
+              recipient: normalizePhone(data.customerPhone!),
+              notification_type: 'sms',
+              subject: 'Due Payment Reminder',
+              body: dueSms,
+              status: result.success ? 'sent' : 'failed',
+              sent_at: result.success ? new Date().toISOString() : undefined,
+              error_message: result.error,
+              metadata: { type: 'due_reminder_customer_sms', orderNumber: data.orderNumber, api_response: result.response }
+            });
+          })
+        );
+      }
+
+      // Customer Email - due payment reminder
+      if (data.customerEmail) {
+        const dueEmailBody = `
+প্রিয় ${data.customerName},
+
+⚠️ পেমেন্ট রিমাইন্ডার
+
+আপনার অর্ডারের বাকি পেমেন্ট সম্পর্কে আপনাকে জানাচ্ছি।
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 অর্ডার নম্বর: ${data.orderNumber}
+📋 প্যাকেজ: ${data.packageName || 'N/A'}
+💰 মোট মূল্য: ৳${data.amount}
+✅ অগ্রিম পরিশোধিত: ৳${data.advancePayment || 0}
+❌ বাকি পেমেন্ট: ৳${dueAmount}
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💳 এখনই পেমেন্ট করুন: ${paymentLink}
+
+পেমেন্ট পদ্ধতি:
+• bKash: 01674533303 (Personal)
+• ব্যাংক ট্রান্সফার: Pubali Bank - 2706101077904
+
+পেমেন্টের পর স্ক্রিনশট আপনার ড্যাশবোর্ডে আপলোড করুন।
+
+ধন্যবাদ,
+DigiWebDex Team
+📞 +880 1674 533303
+🌐 digiwebdex.com
+        `.trim();
+
+        notifications.push({
+          recipient: data.customerEmail,
+          notification_type: 'email',
+          subject: `⚠️ পেমেন্ট রিমাইন্ডার - অর্ডার ${data.orderNumber} - বাকি ৳${dueAmount}`,
+          body: dueEmailBody,
+          status: 'pending',
+          metadata: { type: 'due_reminder_customer_email', orderNumber: data.orderNumber, dueAmount }
+        });
+      }
+
+      // Customer WhatsApp
+      if (data.customerPhone) {
+        notifications.push({
+          recipient: normalizePhone(data.customerPhone),
+          notification_type: 'whatsapp',
+          subject: 'Due Payment Reminder',
+          body: `⚠️ *পেমেন্ট রিমাইন্ডার*\n\nপ্রিয় ${data.customerName},\n\n📦 *অর্ডার:* ${data.orderNumber}\n💰 *মোট:* ৳${data.amount}\n✅ *অগ্রিম:* ৳${data.advancePayment || 0}\n❌ *বাকি:* ৳${dueAmount}\n\n💳 *পেমেন্ট করুন:* ${paymentLink}\n\n🏢 *DigiWebDex*\n📞 +880 1674 533303`,
+          status: 'pending',
+          metadata: { type: 'due_reminder_customer_whatsapp', orderNumber: data.orderNumber }
+        });
+      }
     }
 
     // Wait for all SMS to be sent
