@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
-import { Eye, Download, Trash2, Printer, Pencil } from 'lucide-react';
+import { Eye, Download, Trash2, Printer, Pencil, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { Database } from '@/integrations/supabase/types';
 import { logAudit } from '@/lib/auditLog';
@@ -47,8 +47,30 @@ export default function AdminInvoices() {
   const [editTax, setEditTax] = useState(0);
   const [editNotes, setEditNotes] = useState('');
   const [editDueDate, setEditDueDate] = useState('');
+  // Create invoice
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createSaving, setCreateSaving] = useState(false);
+  const [newInvUserId, setNewInvUserId] = useState('');
+  const [newInvOrderId, setNewInvOrderId] = useState('');
+  const [newInvSubtotal, setNewInvSubtotal] = useState(0);
+  const [newInvDiscount, setNewInvDiscount] = useState(0);
+  const [newInvTax, setNewInvTax] = useState(0);
+  const [newInvDueDate, setNewInvDueDate] = useState('');
+  const [newInvNotes, setNewInvNotes] = useState('');
+  const [customers, setCustomers] = useState<{ user_id: string; full_name: string }[]>([]);
+  const [orders, setOrders] = useState<{ id: string; order_number: string }[]>([]);
 
-  useEffect(() => { fetchInvoices(); }, []);
+  useEffect(() => { fetchInvoices(); fetchCustomers(); fetchOrders(); }, []);
+
+  const fetchCustomers = async () => {
+    const { data } = await supabase.from('profiles').select('user_id, full_name').order('full_name');
+    setCustomers((data || []).filter(p => p.full_name));
+  };
+
+  const fetchOrders = async () => {
+    const { data } = await supabase.from('orders').select('id, order_number').order('created_at', { ascending: false });
+    setOrders(data || []);
+  };
 
   const fetchInvoices = async () => {
     setLoading(true);
@@ -142,6 +164,50 @@ export default function AdminInvoices() {
     }
   };
 
+  const handleCreateInvoice = async () => {
+    if (!newInvUserId || newInvSubtotal <= 0) {
+      toast({ title: language === 'bn' ? 'ত্রুটি' : 'Error', description: language === 'bn' ? 'কাস্টমার এবং সাবটোটাল আবশ্যক' : 'Customer and subtotal are required', variant: 'destructive' });
+      return;
+    }
+    setCreateSaving(true);
+    const total = newInvSubtotal - newInvDiscount + newInvTax;
+    const { data: invNum } = await supabase.rpc('generate_invoice_number');
+    const invoiceData: any = {
+      invoice_number: invNum || `INV-${Date.now()}`,
+      user_id: newInvUserId,
+      order_id: (newInvOrderId && newInvOrderId !== 'none') ? newInvOrderId : null,
+      subtotal: newInvSubtotal,
+      discount: newInvDiscount,
+      tax: newInvTax,
+      total,
+      status: 'unpaid',
+      due_date: newInvDueDate || null,
+      notes: newInvNotes || null,
+      currency: 'BDT',
+    };
+    const { error } = await supabase.from('invoices').insert(invoiceData);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      await logAudit('create', 'invoice', null as any, null, invoiceData);
+      toast({ title: language === 'bn' ? 'ইনভয়েস তৈরি হয়েছে' : 'Invoice created successfully' });
+      setCreateOpen(false);
+      resetCreateForm();
+      fetchInvoices();
+    }
+    setCreateSaving(false);
+  };
+
+  const resetCreateForm = () => {
+    setNewInvUserId('');
+    setNewInvOrderId('');
+    setNewInvSubtotal(0);
+    setNewInvDiscount(0);
+    setNewInvTax(0);
+    setNewInvDueDate('');
+    setNewInvNotes('');
+  };
+
   const handlePrintInvoice = () => {
     if (!selectedInvoice) return;
     const data = [{
@@ -218,9 +284,15 @@ export default function AdminInvoices() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">{language === 'bn' ? 'ইনভয়েস ম্যানেজমেন্ট' : 'Invoices Management'}</h1>
-          <p className="text-muted-foreground">{language === 'bn' ? 'সব ইনভয়েস দেখুন এবং পরিচালনা করুন' : 'View and manage all invoices'}</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">{language === 'bn' ? 'ইনভয়েস ম্যানেজমেন্ট' : 'Invoices Management'}</h1>
+            <p className="text-muted-foreground">{language === 'bn' ? 'সব ইনভয়েস দেখুন এবং পরিচালনা করুন' : 'View and manage all invoices'}</p>
+          </div>
+          <Button onClick={() => setCreateOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            {language === 'bn' ? 'নতুন ইনভয়েস' : 'New Invoice'}
+          </Button>
         </div>
 
         <Card>
@@ -317,6 +389,72 @@ export default function AdminInvoices() {
         title={language === 'bn' ? 'ইনভয়েস মুছে ফেলুন' : 'Delete Invoice'}
         description={language === 'bn' ? `আপনি কি নিশ্চিত যে আপনি ইনভয়েস ${invoiceToDelete?.invoice_number} মুছে ফেলতে চান?` : `Are you sure you want to delete invoice ${invoiceToDelete?.invoice_number}?`}
       />
+
+      {/* Create Invoice Modal */}
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{language === 'bn' ? 'নতুন ইনভয়েস তৈরি করুন' : 'Create New Invoice'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <Label>{language === 'bn' ? 'কাস্টমার' : 'Customer'} *</Label>
+              <Select value={newInvUserId} onValueChange={setNewInvUserId}>
+                <SelectTrigger><SelectValue placeholder={language === 'bn' ? 'কাস্টমার নির্বাচন করুন' : 'Select customer'} /></SelectTrigger>
+                <SelectContent>
+                  {customers.map((c) => (
+                    <SelectItem key={c.user_id} value={c.user_id}>{c.full_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label>{language === 'bn' ? 'অর্ডার (ঐচ্ছিক)' : 'Order (Optional)'}</Label>
+              <Select value={newInvOrderId} onValueChange={setNewInvOrderId}>
+                <SelectTrigger><SelectValue placeholder={language === 'bn' ? 'অর্ডার নির্বাচন করুন' : 'Select order'} /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">{language === 'bn' ? 'কোনো অর্ডার নেই' : 'No order'}</SelectItem>
+                  {orders.map((o) => (
+                    <SelectItem key={o.id} value={o.id}>{o.order_number}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label>{language === 'bn' ? 'সাবটোটাল' : 'Subtotal'} *</Label>
+                <Input type="number" value={newInvSubtotal} onChange={(e) => setNewInvSubtotal(Number(e.target.value))} />
+              </div>
+              <div className="space-y-1">
+                <Label>{language === 'bn' ? 'ডিসকাউন্ট' : 'Discount'}</Label>
+                <Input type="number" value={newInvDiscount} onChange={(e) => setNewInvDiscount(Number(e.target.value))} />
+              </div>
+              <div className="space-y-1">
+                <Label>{language === 'bn' ? 'ট্যাক্স' : 'Tax'}</Label>
+                <Input type="number" value={newInvTax} onChange={(e) => setNewInvTax(Number(e.target.value))} />
+              </div>
+              <div className="space-y-1">
+                <Label>{language === 'bn' ? 'মোট' : 'Total'}</Label>
+                <p className="font-bold text-lg pt-1">{formatCurrency(newInvSubtotal - newInvDiscount + newInvTax)}</p>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label>{language === 'bn' ? 'বকেয়া তারিখ' : 'Due Date'}</Label>
+              <Input type="date" value={newInvDueDate} onChange={(e) => setNewInvDueDate(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <Label>{language === 'bn' ? 'নোট' : 'Notes'}</Label>
+              <Textarea value={newInvNotes} onChange={(e) => setNewInvNotes(e.target.value)} rows={2} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>{language === 'bn' ? 'বাতিল' : 'Cancel'}</Button>
+            <Button onClick={handleCreateInvoice} disabled={createSaving}>
+              {createSaving ? (language === 'bn' ? 'তৈরি হচ্ছে...' : 'Creating...') : (language === 'bn' ? 'ইনভয়েস তৈরি করুন' : 'Create Invoice')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 }
