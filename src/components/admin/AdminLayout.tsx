@@ -35,6 +35,7 @@ import {
   Mail,
   MessageSquare,
   Contact,
+  Shield,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -110,6 +111,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         { label: language === 'bn' ? 'রিসেলার' : 'Resellers', icon: Building2, href: `${basePath}/admin/resellers` },
         { label: language === 'bn' ? 'কাস্টম ফিল্ড' : 'Custom Fields', icon: FormInput, href: `${basePath}/admin/custom-fields` },
         { label: language === 'bn' ? 'নোটিফিকেশন টেমপ্লেট' : 'Notifications', icon: Mail, href: `${basePath}/admin/notifications` },
+        { label: language === 'bn' ? 'পারমিশন' : 'Permissions', icon: Shield, href: `${basePath}/admin/permissions` },
         { label: language === 'bn' ? 'সেটিংস' : 'Settings', icon: Settings, href: `${basePath}/admin/settings` },
       ],
     },
