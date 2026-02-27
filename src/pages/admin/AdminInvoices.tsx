@@ -30,7 +30,6 @@ const INVOICE_STATUSES = [
   { value: 'paid', label_en: 'Paid', label_bn: 'পরিশোধিত' },
   { value: 'overdue', label_en: 'Overdue', label_bn: 'বকেয়া' },
   { value: 'cancelled', label_en: 'Cancelled', label_bn: 'বাতিল' },
-  { value: 'refunded', label_en: 'Refunded', label_bn: 'ফেরত' },
 ];
 
 export default function AdminInvoices() {

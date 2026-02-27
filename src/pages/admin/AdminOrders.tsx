@@ -30,7 +30,6 @@ const ORDER_STATUSES = [
   { value: 'active', label_en: 'Active', label_bn: 'সক্রিয়' },
   { value: 'completed', label_en: 'Completed', label_bn: 'সম্পন্ন' },
   { value: 'cancelled', label_en: 'Cancelled', label_bn: 'বাতিল' },
-  { value: 'refunded', label_en: 'Refunded', label_bn: 'ফেরত' },
 ];
 
 export default function AdminOrders() {
