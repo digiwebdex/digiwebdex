@@ -1,71 +1,151 @@
 
 
-# ফেসবুক মেসেঞ্জার AI চ্যাটবট — বাস্তবায়ন পরিকল্পনা
+## ERP-Level Admin System Upgrade Plan
 
-## ধাপসমূহ
+This is a large-scale upgrade across the entire admin panel. The work will be broken into focused implementation phases.
 
-### ১. Secrets সংগ্রহ
-দুটি সিক্রেট প্রয়োজন:
-- **META_PAGE_ACCESS_TOKEN** — Facebook Page Access Token (ব্যবহারকারী থেকে নিতে হবে)
-- **META_WEBHOOK_VERIFY_TOKEN** — একটি verify token (আমরা তৈরি করে দেব, যেমন `digiwebdex_messenger_verify_2025`)
+### Current State Assessment
 
-### ২. Edge Function তৈরি: `messenger-webhook`
-ফাইল: `supabase/functions/messenger-webhook/index.ts`
+**Already implemented (functional):**
+- Orders: View, Edit status, Search, Due reminders
+- Invoices: View, Edit status, Search (auto-generated via DB trigger)
+- Customers: List, Detail view with tabs (orders/invoices/domains/hosting/payments/projects/tickets/subscriptions)
+- Packages: Full CRUD (Add/Edit/Delete), Search
+- Services: Full CRUD, Search
+- Domains: Full CRUD with DNS editor, status control
+- Hosting: Full CRUD with lifecycle actions (suspend/unsuspend)
+- Leads: Full CRUD with status pipeline, stats, filters
+- Notification Templates: Admin-editable
+- Audit Logs: Insert logging exists
+- Role system: user_roles table with has_role() function
 
-- **GET** → Meta webhook verification (hub.mode, hub.verify_token, hub.challenge)
-- **POST** → ইনকামিং মেসেজ প্রসেস:
-  1. মেসেজ extract করা (sender PSID + text)
-  2. DB থেকে শেষ ১০টি মেসেজ লোড (context)
-  3. Lovable AI (Gemini 3 Flash) কল করা — বর্তমান `onboarding-chat` এর system prompt পুনরায় ব্যবহার
-  4. Facebook Graph API (`POST /me/messages`) দিয়ে রিপ্লাই পাঠানো
-  5. কনভার্সেশন DB তে সেভ করা
-- Non-streaming AI call (invoke style) — মেসেঞ্জার API-তে সরাসরি টেক্সট পাঠাতে হয়
+**Missing across ALL modules:**
+- Print view
+- PDF download
+- CSV/Excel export
+- Delete for Orders/Invoices
+- Bulk actions
+- Status filter dropdowns (most modules)
+- Customer edit/add from admin
+- Order create from admin
+- Invoice line items editing
+- Granular permission system (only admin/client/staff roles exist, no per-action permissions)
 
-### ৩. Database Migration
-টেবিল: `chatbot_conversations`
-- `id` (uuid, PK)
-- `platform` (text, default 'messenger')
-- `sender_id` (text)
-- `message_in` (text)
-- `message_out` (text)
-- `created_at` (timestamptz)
+---
 
-RLS: Admin-only read via `is_admin_or_staff()` function।
+### Implementation Plan
 
-### ৪. Config.toml আপডেট
-```toml
-[functions.messenger-webhook]
-verify_jwt = false
-```
-(স্বয়ংক্রিয়ভাবে পরিচালিত হয়)
+#### Phase 1: Shared Export/Print Utility
+Create a reusable utility module `src/lib/exportUtils.ts` that provides:
+- `exportToCSV(data, columns, filename)` - generates and downloads CSV
+- `exportToPDF(data, columns, filename, title)` - generates printable PDF (using browser print with styled HTML)
+- `printTable(data, columns, title)` - opens print dialog with formatted table
 
-### ৫. ব্যবহারকারীর পরবর্তী কাজ
-Edge function deploy হওয়ার পর:
-1. Webhook Callback URL সেট করবেন: `https://qszmmysnwjvywpsofbgs.supabase.co/functions/v1/messenger-webhook`
-2. Verify Token দেবেন: `digiwebdex_messenger_verify_2025`
-3. `messages` event সাবস্ক্রাইব করবেন
+Create a reusable `ExportToolbar` component with Print, PDF, CSV buttons that all admin tables can use.
 
-## প্রযুক্তিগত বিবরণ
+#### Phase 2: DataTable Enhancement
+Upgrade the shared `DataTable` component to support:
+- Status filter dropdown prop (`filterKey`, `filterOptions`)
+- Bulk selection with bulk action toolbar (delete, export, status change)
+- Export toolbar integration (Print/PDF/CSV buttons in header)
 
+#### Phase 3: Customer Module Upgrade
+- Add **Create Customer** button (creates auth user via `admin-create-user` edge function + profile)
+- Add **Edit Customer** modal (edit profile fields: name, phone, company, address, city)
+- Add **Delete Customer** with confirmation
+- Add export buttons to customer list
+- Add export buttons inside customer detail tabs
+
+#### Phase 4: Order Module Upgrade
+- Add **Create Order** from admin (select customer, service, package, set pricing)
+- Add **Delete Order** with confirmation dialog
+- Add **Print Order** button in detail modal
+- Add **Download PDF** button in detail modal
+- Add status filter dropdown in list view
+- Add CSV export to orders list
+
+#### Phase 5: Invoice Module Upgrade
+- Add **Edit Invoice** (edit subtotal, discount, tax, notes, due date)
+- Add **Delete Invoice** with confirmation
+- Add **Print Invoice** as formatted invoice document
+- Add **Download Invoice PDF** using styled print-to-PDF
+- Add **Add Manual Payment** button linking to payment form
+- Add customer name column (fetch from profiles)
+- Add status filter dropdown
+- Add CSV export
+
+#### Phase 6: Domain & Hosting Module Upgrades
+- Add Print/PDF/CSV export to both modules
+- Add status filter dropdowns
+- Add history view (domain_logs, renewal_logs) in detail modals
+
+#### Phase 7: Leads, Payments, Subscriptions Export
+- Add Print/PDF/CSV export buttons to AdminLeads, AdminPaymentVerification, AdminSubscriptions
+
+#### Phase 8: Audit Log Enhancements
+- Ensure all admin CRUD operations log to `audit_logs` table
+- Add a utility function `logAuditAction(action, entityType, entityId, oldValues, newValues)` used across all admin pages
+- Add export to audit logs page
+
+#### Phase 9: Data Integrity (Database)
+- Add database trigger: prevent order deletion if paid invoices exist
+- Add database trigger: prevent hosting without domain validation
+- Add unique constraint check for customer phone/email to prevent duplicates
+- orderService `createOrder` already links customer via `user_id`
+
+#### Phase 10: Permission System Enhancement
+Database migration to add:
+- `permissions` table with `role`, `module`, `action` columns (view/edit/delete/export/financial)
+- New roles: `support` added to `app_role` enum
+- A `has_permission(user_id, module, action)` function
+- Admin UI page to configure permissions per role
+
+---
+
+### Technical Details
+
+**Export Utility Architecture:**
 ```text
-Facebook User sends message
-    ↓
-Meta Platform → POST to messenger-webhook
-    ↓
-Extract sender_id + message_text
-    ↓
-Query chatbot_conversations (last 10 by sender_id)
-    ↓
-Call Lovable AI Gateway (non-streaming, Gemini 3 Flash)
-    ↓
-POST https://graph.facebook.com/v21.0/me/messages
-    ↓
-INSERT into chatbot_conversations
-    ↓
-Return 200 OK to Meta
+src/lib/exportUtils.ts
+  ├── exportToCSV()     → Blob download as .csv
+  ├── printView()       → window.print() with styled HTML
+  └── exportToPDF()     → Same as print but triggers save
+
+src/components/admin/common/ExportToolbar.tsx
+  └── <ExportToolbar data={} columns={} filename="" />
+       ├── [Print] button
+       ├── [PDF] button  
+       └── [CSV] button
 ```
 
-Edge function-এ Facebook-এর ২০ সেকেন্ড টাইমআউট মেনে চলার জন্য non-streaming AI কল ব্যবহার করা হবে। মেসেজ ২,০০০ ক্যারেক্টারের বেশি হলে ভেঙে পাঠানো হবে (Messenger API limit)।
+**Audit Logging Utility:**
+```text
+src/lib/auditLog.ts
+  └── logAudit(action, entityType, entityId, oldVals, newVals)
+       → INSERT into audit_logs via supabase
+```
 
-System prompt: বর্তমান `onboarding-chat` edge function-এর সম্পূর্ণ prompt পুনরায় ব্যবহার করা হবে।
+**Files to Create:**
+- `src/lib/exportUtils.ts`
+- `src/components/admin/common/ExportToolbar.tsx`
+- `src/lib/auditLog.ts`
+
+**Files to Modify (major):**
+- `src/components/admin/common/DataTable.tsx` (filter, bulk actions)
+- `src/pages/admin/AdminOrders.tsx` (create, delete, print, PDF, filter, export)
+- `src/pages/admin/AdminInvoices.tsx` (edit, delete, print, PDF, filter, export, customer info)
+- `src/pages/admin/AdminCustomers.tsx` (add, edit, delete, export)
+- `src/pages/admin/AdminDomains.tsx` (export, history)
+- `src/pages/admin/AdminHosting.tsx` (export, history)
+- `src/pages/admin/AdminLeads.tsx` (export)
+- `src/pages/admin/AdminPaymentVerification.tsx` (export)
+- `src/pages/admin/AdminSubscriptions.tsx` (export)
+
+**Database Migrations:**
+- Add `support` to `app_role` enum
+- Create `role_permissions` table
+- Create `has_permission()` function
+- Add data integrity triggers
+
+This is a very large scope. I recommend implementing in the phases above, starting with Phases 1-2 (shared utilities) then 3-5 (core modules) as they provide the most value.
 
