@@ -459,8 +459,11 @@ function CustomerFormModal({ open, onOpenChange, isEdit, name, setName, phone, s
           <div className="space-y-1"><Label>{language === 'bn' ? 'ঠিকানা' : 'Address'}</Label><Input value={address} onChange={(e: any) => setAddress(e.target.value)} /></div>
           {!isEdit && (
             <div className="grid grid-cols-2 gap-3">
-              {renderPackageSelect(language === 'bn' ? 'ডোমেইন প্যাকেজ' : 'Domain Package', domain, setDomain, packages?.domain || [])}
-              {renderPackageSelect(language === 'bn' ? 'হোস্টিং প্যাকেজ' : 'Hosting Package', hosting, setHosting, packages?.hosting || [])}
+              <div className="space-y-1">
+                <Label>{language === 'bn' ? 'ডোমেইন নাম' : 'Domain Name'}</Label>
+                <Input value={domain} onChange={(e: any) => setDomain(e.target.value)} placeholder={language === 'bn' ? 'example.com' : 'example.com'} />
+              </div>
+               {renderPackageSelect(language === 'bn' ? 'হোস্টিং প্যাকেজ' : 'Hosting Package', hosting, setHosting, packages?.hosting || [])}
               {renderPackageSelect(language === 'bn' ? 'ওয়েবসাইট প্যাকেজ' : 'Website Package', website, setWebsite, packages?.website || [])}
               {renderPackageSelect(language === 'bn' ? 'সফটওয়্যার প্যাকেজ' : 'Software Package', software, setSoftware, packages?.software || [])}
             </div>
