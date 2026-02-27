@@ -211,6 +211,24 @@ export default function AdminOrders() {
           if (metaEntries.length > 0) {
             await supabase.from('order_meta').insert(metaEntries);
           }
+
+          // Add invoice item for the auto-generated invoice
+          const { data: autoInvoice } = await supabase.from('invoices').select('id').eq('order_id', insertedOrder.data.id).single();
+          if (autoInvoice) {
+            const svc = servicesList.find(s => s.id === item.service_id);
+            const pkg = item.package_id !== 'custom' ? packages.find(p => p.id === item.package_id) : null;
+            await supabase.from('invoice_items').insert({
+              invoice_id: autoInvoice.id,
+              service_type: item.service_type,
+              package_name: pkg ? (language === 'bn' ? pkg.name_bn : pkg.name_en) : 'Custom',
+              domain: item.domain_name || null,
+              description: svc ? (language === 'bn' ? svc.name_bn : svc.name_en) : '',
+              price: item.subtotal,
+              qty: 1,
+              total: item.subtotal,
+              renewal_date: item.renewal_date || null,
+            });
+          }
         }
         await logAudit('create', 'order', null as any, null, { order_number: orderNumber } as any);
       }

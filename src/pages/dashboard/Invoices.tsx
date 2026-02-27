@@ -47,6 +47,7 @@ export default function InvoicesPage() {
     const statusConfig: Record<InvoiceStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
       unpaid: { label: language === 'bn' ? 'অপরিশোধিত' : 'Unpaid', variant: 'outline' },
       paid: { label: language === 'bn' ? 'পরিশোধিত' : 'Paid', variant: 'default' },
+      partial: { label: language === 'bn' ? 'আংশিক' : 'Partial', variant: 'secondary' },
       overdue: { label: language === 'bn' ? 'বকেয়া' : 'Overdue', variant: 'destructive' },
       cancelled: { label: language === 'bn' ? 'বাতিল' : 'Cancelled', variant: 'secondary' },
     };

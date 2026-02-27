@@ -20,10 +20,12 @@ import { printTable } from '@/lib/exportUtils';
 type Invoice = Database['public']['Tables']['invoices']['Row'] & {
   orders?: { order_number: string; service_type: string } | null;
   customer_name?: string;
+  items?: any[];
 };
 
 const INVOICE_STATUSES = [
   { value: 'unpaid', label_en: 'Unpaid', label_bn: 'অপরিশোধিত' },
+  { value: 'partial', label_en: 'Partial', label_bn: 'আংশিক' },
   { value: 'paid', label_en: 'Paid', label_bn: 'পরিশোধিত' },
   { value: 'overdue', label_en: 'Overdue', label_bn: 'বকেয়া' },
   { value: 'cancelled', label_en: 'Cancelled', label_bn: 'বাতিল' },
@@ -45,6 +47,7 @@ export default function AdminInvoices() {
   const [editSubtotal, setEditSubtotal] = useState(0);
   const [editDiscount, setEditDiscount] = useState(0);
   const [editTax, setEditTax] = useState(0);
+  const [editAdvancePaid, setEditAdvancePaid] = useState(0);
   const [editNotes, setEditNotes] = useState('');
   const [editDueDate, setEditDueDate] = useState('');
   // Create invoice
@@ -55,6 +58,7 @@ export default function AdminInvoices() {
   const [newInvSubtotal, setNewInvSubtotal] = useState(0);
   const [newInvDiscount, setNewInvDiscount] = useState(0);
   const [newInvTax, setNewInvTax] = useState(0);
+  const [newInvAdvancePaid, setNewInvAdvancePaid] = useState(0);
   const [newInvDueDate, setNewInvDueDate] = useState('');
   const [newInvNotes, setNewInvNotes] = useState('');
   const [customers, setCustomers] = useState<{ user_id: string; full_name: string }[]>([]);
@@ -105,6 +109,7 @@ export default function AdminInvoices() {
     setEditSubtotal(invoice.subtotal);
     setEditDiscount(invoice.discount || 0);
     setEditTax(invoice.tax || 0);
+    setEditAdvancePaid((invoice as any).advance_paid || 0);
     setEditNotes(invoice.notes || '');
     setEditDueDate(invoice.due_date || '');
     setDetailOpen(true);
@@ -114,17 +119,22 @@ export default function AdminInvoices() {
     if (!selectedInvoice) return;
     setSaving(true);
     const newTotal = editSubtotal - editDiscount + editTax;
+    const dueAmount = newTotal - editAdvancePaid;
+    const autoStatus = dueAmount <= 0 ? 'paid' : editAdvancePaid > 0 ? 'partial' : 'unpaid';
+    const finalStatus = newStatus; // admin can override
     const oldValues = { status: selectedInvoice.status, subtotal: selectedInvoice.subtotal, discount: selectedInvoice.discount, tax: selectedInvoice.tax, notes: selectedInvoice.notes };
     const updates: Record<string, unknown> = {
-      status: newStatus,
+      status: finalStatus,
       subtotal: editSubtotal,
       discount: editDiscount,
       tax: editTax,
       total: newTotal,
+      advance_paid: editAdvancePaid,
+      due_amount: dueAmount,
       notes: editNotes,
       due_date: editDueDate || null,
     };
-    if (newStatus === 'paid' && selectedInvoice.status !== 'paid') updates.paid_at = new Date().toISOString();
+    if (finalStatus === 'paid' && selectedInvoice.status !== 'paid') updates.paid_at = new Date().toISOString();
 
     const { error } = await supabase.from('invoices').update(updates).eq('id', selectedInvoice.id);
     if (error) {
@@ -171,6 +181,7 @@ export default function AdminInvoices() {
     }
     setCreateSaving(true);
     const total = newInvSubtotal - newInvDiscount + newInvTax;
+    const dueAmount = total - newInvAdvancePaid;
     const { data: invNum } = await supabase.rpc('generate_invoice_number');
     const invoiceData: any = {
       invoice_number: invNum || `INV-${Date.now()}`,
@@ -180,7 +191,9 @@ export default function AdminInvoices() {
       discount: newInvDiscount,
       tax: newInvTax,
       total,
-      status: 'unpaid',
+      advance_paid: newInvAdvancePaid,
+      due_amount: dueAmount,
+      status: dueAmount <= 0 ? 'paid' : newInvAdvancePaid > 0 ? 'partial' : 'unpaid',
       due_date: newInvDueDate || null,
       notes: newInvNotes || null,
       currency: 'BDT',
@@ -204,6 +217,7 @@ export default function AdminInvoices() {
     setNewInvSubtotal(0);
     setNewInvDiscount(0);
     setNewInvTax(0);
+    setNewInvAdvancePaid(0);
     setNewInvDueDate('');
     setNewInvNotes('');
   };
@@ -257,6 +271,19 @@ export default function AdminInvoices() {
       key: 'total', header: language === 'bn' ? 'মোট' : 'Total', sortable: true,
       render: (row) => <span className="font-medium">{formatCurrency(row.total)}</span>,
       exportValue: (row) => String(row.total),
+    },
+    {
+      key: 'advance_paid', header: language === 'bn' ? 'অগ্রিম' : 'Paid',
+      render: (row) => <span className="text-green-600">{formatCurrency((row as any).advance_paid || 0)}</span>,
+      exportValue: (row) => String((row as any).advance_paid || 0),
+    },
+    {
+      key: 'due_amount', header: language === 'bn' ? 'বাকি' : 'Due',
+      render: (row) => {
+        const due = (row as any).due_amount || 0;
+        return <span className={due > 0 ? 'text-red-600 font-medium' : ''}>{formatCurrency(due)}</span>;
+      },
+      exportValue: (row) => String((row as any).due_amount || 0),
     },
     {
       key: 'status', header: language === 'bn' ? 'স্ট্যাটাস' : 'Status',
@@ -347,6 +374,14 @@ export default function AdminInvoices() {
                   <Label>{language === 'bn' ? 'মোট' : 'Total'}</Label>
                   <p className="font-bold text-lg pt-1">{formatCurrency(editSubtotal - editDiscount + editTax)}</p>
                 </div>
+                <div className="space-y-1">
+                  <Label>{language === 'bn' ? 'অগ্রিম পেমেন্ট' : 'Advance Paid'}</Label>
+                  <Input type="number" value={editAdvancePaid} onChange={(e) => setEditAdvancePaid(Number(e.target.value))} min={0} />
+                </div>
+                <div className="space-y-1">
+                  <Label>{language === 'bn' ? 'বাকি' : 'Due Amount'}</Label>
+                  <p className="font-bold text-lg pt-1 text-destructive">{formatCurrency((editSubtotal - editDiscount + editTax) - editAdvancePaid)}</p>
+                </div>
               </div>
               <div className="space-y-1">
                 <Label>{language === 'bn' ? 'বকেয়া তারিখ' : 'Due Date'}</Label>
@@ -436,6 +471,14 @@ export default function AdminInvoices() {
               <div className="space-y-1">
                 <Label>{language === 'bn' ? 'মোট' : 'Total'}</Label>
                 <p className="font-bold text-lg pt-1">{formatCurrency(newInvSubtotal - newInvDiscount + newInvTax)}</p>
+              </div>
+              <div className="space-y-1">
+                <Label>{language === 'bn' ? 'অগ্রিম পেমেন্ট' : 'Advance Paid'}</Label>
+                <Input type="number" value={newInvAdvancePaid} onChange={(e) => setNewInvAdvancePaid(Number(e.target.value))} min={0} />
+              </div>
+              <div className="space-y-1">
+                <Label>{language === 'bn' ? 'বাকি' : 'Due'}</Label>
+                <p className="font-bold text-lg pt-1 text-destructive">{formatCurrency((newInvSubtotal - newInvDiscount + newInvTax) - newInvAdvancePaid)}</p>
               </div>
             </div>
             <div className="space-y-1">

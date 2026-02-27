@@ -1359,11 +1359,63 @@ export type Database = {
           },
         ]
       }
+      invoice_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          domain: string | null
+          id: string
+          invoice_id: string
+          package_name: string | null
+          price: number
+          qty: number
+          renewal_date: string | null
+          service_type: string | null
+          total: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          domain?: string | null
+          id?: string
+          invoice_id: string
+          package_name?: string | null
+          price?: number
+          qty?: number
+          renewal_date?: string | null
+          service_type?: string | null
+          total?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          domain?: string | null
+          id?: string
+          invoice_id?: string
+          package_name?: string | null
+          price?: number
+          qty?: number
+          renewal_date?: string | null
+          service_type?: string | null
+          total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
+          advance_paid: number | null
           created_at: string
           currency: string | null
           discount: number | null
+          due_amount: number | null
           due_date: string | null
           id: string
           invoice_number: string
@@ -1379,9 +1431,11 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          advance_paid?: number | null
           created_at?: string
           currency?: string | null
           discount?: number | null
+          due_amount?: number | null
           due_date?: string | null
           id?: string
           invoice_number: string
@@ -1397,9 +1451,11 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          advance_paid?: number | null
           created_at?: string
           currency?: string | null
           discount?: number | null
+          due_amount?: number | null
           due_date?: string | null
           id?: string
           invoice_number?: string
@@ -2132,6 +2188,7 @@ export type Database = {
         Row: {
           address: string | null
           avatar_url: string | null
+          balance_due: number | null
           city: string | null
           company_name: string | null
           country: string | null
@@ -2145,6 +2202,7 @@ export type Database = {
         Insert: {
           address?: string | null
           avatar_url?: string | null
+          balance_due?: number | null
           city?: string | null
           company_name?: string | null
           country?: string | null
@@ -2158,6 +2216,7 @@ export type Database = {
         Update: {
           address?: string | null
           avatar_url?: string | null
+          balance_due?: number | null
           city?: string | null
           company_name?: string | null
           country?: string | null
@@ -3700,7 +3759,7 @@ export type Database = {
         | "transferred"
       earning_status: "pending" | "approved" | "paid"
       hosting_status: "pending" | "active" | "suspended" | "terminated"
-      invoice_status: "unpaid" | "paid" | "overdue" | "cancelled"
+      invoice_status: "unpaid" | "paid" | "overdue" | "cancelled" | "partial"
       lead_status: "new" | "contacted" | "converted" | "lost"
       notification_status: "pending" | "sent" | "failed"
       notification_type: "email" | "sms" | "whatsapp" | "in_app"
@@ -3909,7 +3968,7 @@ export const Constants = {
       ],
       earning_status: ["pending", "approved", "paid"],
       hosting_status: ["pending", "active", "suspended", "terminated"],
-      invoice_status: ["unpaid", "paid", "overdue", "cancelled"],
+      invoice_status: ["unpaid", "paid", "overdue", "cancelled", "partial"],
       lead_status: ["new", "contacted", "converted", "lost"],
       notification_status: ["pending", "sent", "failed"],
       notification_type: ["email", "sms", "whatsapp", "in_app"],
