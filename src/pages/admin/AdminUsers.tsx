@@ -38,6 +38,7 @@ export default function AdminUsers() {
   // Add user form state
   const [addForm, setAddForm] = useState({
     email: '', password: '', full_name: '', phone: '', company_name: '', role: 'client',
+    city: '', address: '', domain: '', hosting: '', website: '', software: '',
   });
 
   useEffect(() => {
@@ -114,7 +115,7 @@ export default function AdminUsers() {
     } else {
       toast({ title: language === 'bn' ? 'সফল' : 'Success', description: language === 'bn' ? 'নতুন কাস্টমার যোগ হয়েছে' : 'New customer added' });
       setAddModalOpen(false);
-      setAddForm({ email: '', password: '', full_name: '', phone: '', company_name: '', role: 'client' });
+      setAddForm({ email: '', password: '', full_name: '', phone: '', company_name: '', role: 'client', city: '', address: '', domain: '', hosting: '', website: '', software: '' });
       fetchUsers();
     }
     setSaving(false);
@@ -304,6 +305,56 @@ export default function AdminUsers() {
                 value={addForm.company_name}
                 onChange={(e) => setAddForm({ ...addForm, company_name: e.target.value })}
                 placeholder={language === 'bn' ? 'কোম্পানির নাম' : 'Company name'}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{language === 'bn' ? 'শহর' : 'City'}</Label>
+              <Input
+                value={addForm.city}
+                onChange={(e) => setAddForm({ ...addForm, city: e.target.value })}
+                placeholder={language === 'bn' ? 'শহর' : 'City'}
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label>{language === 'bn' ? 'ঠিকানা' : 'Address'}</Label>
+            <Input
+              value={addForm.address}
+              onChange={(e) => setAddForm({ ...addForm, address: e.target.value })}
+              placeholder={language === 'bn' ? 'ঠিকানা লিখুন' : 'Enter address'}
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>{language === 'bn' ? 'ডোমেইন' : 'Domain'}</Label>
+              <Input
+                value={addForm.domain}
+                onChange={(e) => setAddForm({ ...addForm, domain: e.target.value })}
+                placeholder={language === 'bn' ? 'example.com' : 'example.com'}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{language === 'bn' ? 'হোস্টিং' : 'Hosting'}</Label>
+              <Input
+                value={addForm.hosting}
+                onChange={(e) => setAddForm({ ...addForm, hosting: e.target.value })}
+                placeholder={language === 'bn' ? 'হোস্টিং প্যাকেজ' : 'Hosting package'}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{language === 'bn' ? 'ওয়েবসাইট' : 'Website'}</Label>
+              <Input
+                value={addForm.website}
+                onChange={(e) => setAddForm({ ...addForm, website: e.target.value })}
+                placeholder={language === 'bn' ? 'ওয়েবসাইট সার্ভিস' : 'Website service'}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{language === 'bn' ? 'সফটওয়্যার' : 'Software'}</Label>
+              <Input
+                value={addForm.software}
+                onChange={(e) => setAddForm({ ...addForm, software: e.target.value })}
+                placeholder={language === 'bn' ? 'সফটওয়্যার সার্ভিস' : 'Software service'}
               />
             </div>
             <div className="space-y-2">
