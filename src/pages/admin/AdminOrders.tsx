@@ -113,6 +113,49 @@ export default function AdminOrders() {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: language === 'bn' ? 'সফল' : 'Success', description: language === 'bn' ? 'অর্ডার আপডেট হয়েছে' : 'Order updated' });
+
+      // Auto-trigger payment_completed notification when full payment received
+      const previousAdvance = (selectedOrder as any).advance_payment || 0;
+      const isFullPaymentNow = advancePayment >= selectedOrder.total && previousAdvance < selectedOrder.total;
+      const isPaidStatusNow = newStatus === 'paid' && selectedOrder.status !== 'paid';
+
+      if (isFullPaymentNow || isPaidStatusNow) {
+        try {
+          // Get invoice for this order
+          const { data: invoice } = await supabase
+            .from('invoices')
+            .select('invoice_number')
+            .eq('order_id', selectedOrder.id)
+            .single();
+
+          const invoiceUrl = `https://digiwebdex.lovable.app/bn/dashboard/invoices`;
+
+          await supabase.functions.invoke('contact-notification', {
+            body: {
+              type: 'payment_completed',
+              orderNumber: selectedOrder.order_number,
+              customerName: selectedOrder.profiles?.full_name || 'Customer',
+              customerPhone: selectedOrder.profiles?.phone || '',
+              userId: selectedOrder.user_id,
+              packageName: selectedOrder.services
+                ? (language === 'bn' ? selectedOrder.services.name_bn : selectedOrder.services.name_en)
+                : '',
+              amount: selectedOrder.total,
+              totalPaid: advancePayment,
+              invoiceUrl,
+              invoiceNumber: invoice?.invoice_number || '',
+            },
+          });
+
+          toast({ 
+            title: language === 'bn' ? '✅ নোটিফিকেশন পাঠানো হয়েছে' : '✅ Notification Sent', 
+            description: language === 'bn' ? 'পেমেন্ট নিশ্চিতকরণ SMS ও ইমেইল পাঠানো হয়েছে' : 'Payment confirmation SMS & email sent' 
+          });
+        } catch (notifError) {
+          console.error('Notification error:', notifError);
+        }
+      }
+
       setDetailOpen(false);
       fetchOrders();
     }

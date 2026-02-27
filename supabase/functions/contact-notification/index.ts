@@ -15,7 +15,7 @@ const WHATSAPP_NUMBER = '8801674533303';
 const SMS_API_URL = 'http://bulksmsbd.net/api/smsapi';
 
 interface ContactNotificationRequest {
-  type: 'contact_form' | 'order_created' | 'payment_received' | 'payment_approved';
+  type: 'contact_form' | 'order_created' | 'payment_received' | 'payment_approved' | 'payment_completed';
   // Contact form fields
   name?: string;
   email?: string;
@@ -29,7 +29,12 @@ interface ContactNotificationRequest {
   customerPhone?: string;
   packageName?: string;
   amount?: number;
+  advancePayment?: number;
+  totalPaid?: number;
   paymentMethod?: string;
+  invoiceUrl?: string;
+  invoiceNumber?: string;
+  userId?: string;
 }
 
 // Phone number validation and normalization
@@ -409,6 +414,105 @@ DigiWebDex Team
           metadata: { type: 'payment_approved_customer_email', orderNumber: data.orderNumber }
         });
       }
+    } else if (data.type === 'payment_completed') {
+      // Fetch customer email from auth if userId provided and no email given
+      let customerEmail = data.customerEmail || '';
+      if (!customerEmail && data.userId) {
+        try {
+          const { data: userData } = await supabase.auth.admin.getUserById(data.userId);
+          if (userData?.user?.email) {
+            customerEmail = userData.user.email;
+          }
+        } catch (e) {
+          console.error('Error fetching user email:', e);
+        }
+      }
+      data.customerEmail = customerEmail;
+
+      const invoiceLink = data.invoiceUrl || 'https://digiwebdex.lovable.app/bn/dashboard/invoices';
+
+      // Customer SMS - payment complete with invoice link
+      if (data.customerPhone && isValidBDPhone(data.customerPhone)) {
+        const completeSms = `DigiWebDex: আপনার সম্পূর্ণ পেমেন্ট ৳${data.amount} গৃহীত হয়েছে! অর্ডার: ${data.orderNumber}। ইনভয়েস: ${invoiceLink} ধন্যবাদ!`;
+        smsPromises.push(
+          sendSMS(data.customerPhone, completeSms).then(result => {
+            notifications.push({
+              recipient: normalizePhone(data.customerPhone!),
+              notification_type: 'sms',
+              subject: 'Payment Complete',
+              body: completeSms,
+              status: result.success ? 'sent' : 'failed',
+              sent_at: result.success ? new Date().toISOString() : undefined,
+              error_message: result.error,
+              metadata: { type: 'payment_complete_customer_sms', orderNumber: data.orderNumber, api_response: result.response }
+            });
+          })
+        );
+      }
+
+      // Customer Email - full payment confirmation with invoice
+      if (data.customerEmail) {
+        const completeEmailBody = `
+প্রিয় ${data.customerName},
+
+🎉 আপনার সম্পূর্ণ পেমেন্ট সফলভাবে গৃহীত হয়েছে!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 অর্ডার নম্বর: ${data.orderNumber}
+${data.invoiceNumber ? `📄 ইনভয়েস নম্বর: ${data.invoiceNumber}` : ''}
+📋 প্যাকেজ: ${data.packageName || 'N/A'}
+💰 মোট মূল্য: ৳${data.amount}
+✅ পরিশোধিত: ৳${data.totalPaid || data.amount}
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📄 আপনার ইনভয়েস দেখুন: ${invoiceLink}
+
+আমরা আপনার প্রজেক্টে কাজ শুরু করেছি। যেকোনো আপডেটের জন্য আমরা আপনার সাথে যোগাযোগ করব।
+
+ধন্যবাদ,
+DigiWebDex Team
+📞 +880 1674 533303
+🌐 digiwebdex.com
+        `.trim();
+
+        notifications.push({
+          recipient: data.customerEmail,
+          notification_type: 'email',
+          subject: `✅ পেমেন্ট সম্পন্ন - ইনভয়েস ${data.invoiceNumber || data.orderNumber}`,
+          body: completeEmailBody,
+          status: 'pending',
+          metadata: { type: 'payment_complete_customer_email', orderNumber: data.orderNumber, invoiceUrl: invoiceLink }
+        });
+      }
+
+      // Customer WhatsApp
+      if (data.customerPhone) {
+        notifications.push({
+          recipient: normalizePhone(data.customerPhone),
+          notification_type: 'whatsapp',
+          subject: 'Payment Complete',
+          body: `🎉 *সম্পূর্ণ পেমেন্ট গৃহীত!*\n\n📦 *অর্ডার:* ${data.orderNumber}\n${data.invoiceNumber ? `📄 *ইনভয়েস:* ${data.invoiceNumber}\n` : ''}💰 *মোট:* ৳${data.amount}\n✅ *পরিশোধিত:* ৳${data.totalPaid || data.amount}\n\n📄 *ইনভয়েস লিংক:* ${invoiceLink}\n\n🏢 *DigiWebDex*\n📞 +880 1674 533303`,
+          status: 'pending',
+          metadata: { type: 'payment_complete_customer_whatsapp', orderNumber: data.orderNumber }
+        });
+      }
+
+      // Admin notification
+      const adminCompleteSms = `✅ সম্পূর্ণ পেমেন্ট! Order: ${data.orderNumber}, ৳${data.amount} - ${data.customerName}`;
+      smsPromises.push(
+        sendSMS(ADMIN_PHONE, adminCompleteSms).then(result => {
+          notifications.push({
+            recipient: ADMIN_PHONE,
+            notification_type: 'sms',
+            subject: 'Payment Complete',
+            body: adminCompleteSms,
+            status: result.success ? 'sent' : 'failed',
+            sent_at: result.success ? new Date().toISOString() : undefined,
+            error_message: result.error,
+            metadata: { type: 'payment_complete_admin_sms', orderNumber: data.orderNumber, api_response: result.response }
+          });
+        })
+      );
     }
 
     // Wait for all SMS to be sent
