@@ -291,6 +291,11 @@ export default function AdminDomains() {
               searchKeys={['domain_name', 'registrar']}
               searchPlaceholder={language === 'bn' ? 'ডোমেইন নাম দিয়ে খুঁজুন...' : 'Search domains...'}
               onRowClick={handleOpenModal}
+              filterKey="status"
+              filterOptions={DOMAIN_STATUSES.map(s => ({ value: s.value, label: language === 'bn' ? s.label_bn : s.label_en }))}
+              filterLabel={language === 'bn' ? 'স্ট্যাটাস' : 'Status'}
+              exportFilename="domains"
+              exportTitle={language === 'bn' ? 'ডোমেইন তালিকা' : 'Domains List'}
             />
           </CardContent>
         </Card>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ExportToolbar } from '@/components/admin/common/ExportToolbar';
 import { useLanguage } from '@/lib/i18n';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -182,10 +183,18 @@ export default function AdminSubscriptions() {
                 : 'Manage subscriptions and recurring billing'}
             </p>
           </div>
-          <Button onClick={fetchData} variant="outline" disabled={loading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            {language === 'bn' ? 'রিফ্রেশ' : 'Refresh'}
-          </Button>
+          <div className="flex gap-2">
+            <ExportToolbar
+              data={subscriptions.map(s => ({ plan: s.plan_name, service: s.service_type, customer: (s.profile as any)?.full_name || 'N/A', amount: String(s.amount), cycle: s.billing_cycle, status: s.status, next_billing: s.next_billing_date } as Record<string, unknown>))}
+              columns={[{ key: 'plan', header: 'Plan' }, { key: 'service', header: 'Service' }, { key: 'customer', header: 'Customer' }, { key: 'amount', header: 'Amount' }, { key: 'cycle', header: 'Cycle' }, { key: 'status', header: 'Status' }, { key: 'next_billing', header: 'Next Billing' }]}
+              filename="subscriptions"
+              title={language === 'bn' ? 'সাবস্ক্রিপশন' : 'Subscriptions'}
+            />
+            <Button onClick={fetchData} variant="outline" disabled={loading}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              {language === 'bn' ? 'রিফ্রেশ' : 'Refresh'}
+            </Button>
+          </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>

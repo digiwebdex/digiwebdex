@@ -10,9 +10,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Search, ChevronUp, ChevronDown, ChevronsUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Search, ChevronUp, ChevronDown, ChevronsUpDown, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n';
+import { ExportToolbar } from './ExportToolbar';
+import type { ExportColumn } from '@/lib/exportUtils';
 
 export interface Column<T> {
   key: string;
@@ -20,6 +23,12 @@ export interface Column<T> {
   render?: (row: T) => React.ReactNode;
   sortable?: boolean;
   className?: string;
+  exportValue?: (row: T) => string;
+}
+
+export interface FilterOption {
+  value: string;
+  label: string;
 }
 
 interface DataTableProps<T> {
@@ -35,6 +44,17 @@ interface DataTableProps<T> {
   emptyMessage?: string;
   pageSize?: number;
   getRowId?: (row: T) => string;
+  // Filter support
+  filterKey?: string;
+  filterOptions?: FilterOption[];
+  filterLabel?: string;
+  // Export support
+  exportFilename?: string;
+  exportTitle?: string;
+  // Bulk actions
+  onBulkDelete?: (rows: T[]) => void;
+  onBulkStatusChange?: (rows: T[], status: string) => void;
+  bulkStatusOptions?: FilterOption[];
 }
 
 export function DataTable<T extends Record<string, unknown>>({
@@ -50,24 +70,40 @@ export function DataTable<T extends Record<string, unknown>>({
   emptyMessage,
   pageSize = 10,
   getRowId = (row) => String(row.id),
+  filterKey,
+  filterOptions,
+  filterLabel,
+  exportFilename,
+  exportTitle,
+  onBulkDelete,
+  onBulkStatusChange,
+  bulkStatusOptions,
 }: DataTableProps<T>) {
   const { language } = useLanguage();
   const [search, setSearch] = useState('');
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
+  const [filterValue, setFilterValue] = useState<string>('all');
+  const [bulkStatus, setBulkStatus] = useState<string>('');
+
+  // Filter data based on status filter
+  const statusFilteredData = useMemo(() => {
+    if (!filterKey || !filterValue || filterValue === 'all') return data;
+    return data.filter((row) => String(row[filterKey]) === filterValue);
+  }, [data, filterKey, filterValue]);
 
   // Filter data based on search
   const filteredData = useMemo(() => {
-    if (!search) return data;
+    if (!search) return statusFilteredData;
     const searchLower = search.toLowerCase();
-    return data.filter((row) =>
+    return statusFilteredData.filter((row) =>
       searchKeys.some((key) => {
         const value = row[key];
         return value && String(value).toLowerCase().includes(searchLower);
       })
     );
-  }, [data, search, searchKeys]);
+  }, [statusFilteredData, search, searchKeys]);
 
   // Sort data
   const sortedData = useMemo(() => {
@@ -123,21 +159,99 @@ export function DataTable<T extends Record<string, unknown>>({
     return sortOrder === 'asc' ? <ChevronUp className="h-4 w-4 ml-1" /> : <ChevronDown className="h-4 w-4 ml-1" />;
   };
 
+  // Build export columns
+  const exportColumns: ExportColumn[] = columns
+    .filter((c) => c.key !== 'actions')
+    .map((c) => ({ key: c.key, header: c.header }));
+
+  // Build export data with plain text values
+  const exportData = sortedData.map((row) => {
+    const exportRow: Record<string, unknown> = {};
+    columns.forEach((col) => {
+      if (col.key !== 'actions') {
+        exportRow[col.key] = col.exportValue ? col.exportValue(row) : (row[col.key] ?? '');
+      }
+    });
+    return exportRow;
+  });
+
   return (
     <div className="space-y-4">
-      {/* Search */}
-      {searchKeys.length > 0 && (
-        <div className="relative max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder={searchPlaceholder || (language === 'bn' ? 'খুঁজুন...' : 'Search...')}
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="pl-10"
+      {/* Toolbar: Search + Filter + Export */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 justify-between">
+        <div className="flex items-center gap-3 flex-wrap">
+          {searchKeys.length > 0 && (
+            <div className="relative max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder={searchPlaceholder || (language === 'bn' ? 'খুঁজুন...' : 'Search...')}
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="pl-10 w-[220px]"
+              />
+            </div>
+          )}
+
+          {filterKey && filterOptions && (
+            <Select value={filterValue} onValueChange={(v) => { setFilterValue(v); setCurrentPage(1); }}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder={filterLabel || (language === 'bn' ? 'ফিল্টার' : 'Filter')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{language === 'bn' ? 'সব' : 'All'}</SelectItem>
+                {filterOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+
+        {exportFilename && (
+          <ExportToolbar
+            data={exportData}
+            columns={exportColumns}
+            filename={exportFilename}
+            title={exportTitle}
           />
+        )}
+      </div>
+
+      {/* Bulk action bar */}
+      {selectable && selectedRows.length > 0 && (
+        <div className="flex items-center gap-3 p-3 bg-muted rounded-md">
+          <span className="text-sm font-medium">
+            {selectedRows.length} {language === 'bn' ? 'টি নির্বাচিত' : 'selected'}
+          </span>
+          {onBulkDelete && (
+            <Button variant="destructive" size="sm" onClick={() => onBulkDelete(selectedRows)}>
+              <Trash2 className="h-4 w-4 mr-1" />
+              {language === 'bn' ? 'মুছুন' : 'Delete'}
+            </Button>
+          )}
+          {onBulkStatusChange && bulkStatusOptions && (
+            <div className="flex items-center gap-2">
+              <Select value={bulkStatus} onValueChange={setBulkStatus}>
+                <SelectTrigger className="w-[140px] h-8">
+                  <SelectValue placeholder={language === 'bn' ? 'স্ট্যাটাস' : 'Status'} />
+                </SelectTrigger>
+                <SelectContent>
+                  {bulkStatusOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button size="sm" disabled={!bulkStatus} onClick={() => { onBulkStatusChange(selectedRows, bulkStatus); setBulkStatus(''); }}>
+                {language === 'bn' ? 'প্রয়োগ' : 'Apply'}
+              </Button>
+            </div>
+          )}
+          <Button variant="ghost" size="sm" onClick={() => onSelectionChange?.([])}>
+            {language === 'bn' ? 'বাতিল' : 'Clear'}
+          </Button>
         </div>
       )}
 

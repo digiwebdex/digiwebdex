@@ -299,6 +299,11 @@ export default function AdminHosting() {
               searchKeys={['username', 'package_name']}
               searchPlaceholder={language === 'bn' ? 'ইউজারনেম বা প্যাকেজ দিয়ে খুঁজুন...' : 'Search by username or package...'}
               onRowClick={handleOpenModal}
+              filterKey="status"
+              filterOptions={HOSTING_STATUSES.map(s => ({ value: s.value, label: language === 'bn' ? s.label_bn : s.label_en }))}
+              filterLabel={language === 'bn' ? 'স্ট্যাটাস' : 'Status'}
+              exportFilename="hosting-accounts"
+              exportTitle={language === 'bn' ? 'হোস্টিং অ্যাকাউন্ট' : 'Hosting Accounts'}
             />
           </CardContent>
         </Card>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ExportToolbar } from '@/components/admin/common/ExportToolbar';
 import { useLanguage } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
 import { AdminLayout } from '@/components/admin/AdminLayout';
@@ -235,14 +236,22 @@ export default function AdminPaymentVerification() {
                   {language === 'bn' ? 'সকল ম্যানুয়াল পেমেন্ট জমা' : 'All manual payment submissions'}
                 </CardDescription>
               </div>
-              <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder={language === 'bn' ? 'অনুসন্ধান করুন...' : 'Search...'}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
+              <div className="flex items-center gap-3">
+                <ExportToolbar
+                  data={filteredPayments.map(p => ({ transaction_id: p.transaction_id, method: p.method, amount: String(p.amount), sender: p.sender_number || '', customer: p.user_name || '', status: p.status, date: format(new Date(p.created_at), 'dd MMM yyyy') } as Record<string, unknown>))}
+                  columns={[{ key: 'transaction_id', header: 'Transaction' }, { key: 'method', header: 'Method' }, { key: 'amount', header: 'Amount' }, { key: 'sender', header: 'Sender' }, { key: 'customer', header: 'Customer' }, { key: 'status', header: 'Status' }, { key: 'date', header: 'Date' }]}
+                  filename="payments"
+                  title={language === 'bn' ? 'পেমেন্ট তালিকা' : 'Payments List'}
                 />
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder={language === 'bn' ? 'অনুসন্ধান করুন...' : 'Search...'}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
               </div>
             </div>
           </CardHeader>

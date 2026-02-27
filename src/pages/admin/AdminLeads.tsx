@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ExportToolbar } from '@/components/admin/common/ExportToolbar';
 import { useLanguage } from '@/lib/i18n';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -148,10 +149,18 @@ export default function AdminLeads() {
               {language === 'bn' ? 'সকল লিড দেখুন এবং ম্যানেজ করুন' : 'View and manage all leads'}
             </p>
           </div>
-          <Button onClick={fetchData} variant="outline" className="gap-2">
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            {language === 'bn' ? 'রিফ্রেশ' : 'Refresh'}
-          </Button>
+          <div className="flex gap-2">
+            <ExportToolbar
+              data={leads.map(l => ({ name: l.name, phone: l.phone, email: l.email || '', service: l.service_interest || '', status: l.status, source: l.source || '', created: l.created_at ? format(new Date(l.created_at), 'dd MMM yyyy') : '' } as Record<string, unknown>))}
+              columns={[{ key: 'name', header: 'Name' }, { key: 'phone', header: 'Phone' }, { key: 'email', header: 'Email' }, { key: 'service', header: 'Service' }, { key: 'status', header: 'Status' }, { key: 'source', header: 'Source' }, { key: 'created', header: 'Date' }]}
+              filename="leads"
+              title={language === 'bn' ? 'লিড তালিকা' : 'Leads List'}
+            />
+            <Button onClick={fetchData} variant="outline" className="gap-2">
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              {language === 'bn' ? 'রিফ্রেশ' : 'Refresh'}
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
