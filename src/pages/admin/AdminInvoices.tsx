@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/lib/i18n';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { DataTable, Column, StatusBadge, DeleteConfirmDialog } from '@/components/admin/common';
@@ -11,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
-import { Eye, Download, Trash2, Printer, Pencil, Plus } from 'lucide-react';
+import { Eye, Download, Trash2, Printer, Pencil, Plus, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { Database } from '@/integrations/supabase/types';
 import { logAudit } from '@/lib/auditLog';
@@ -34,6 +35,8 @@ const INVOICE_STATUSES = [
 
 export default function AdminInvoices() {
   const { language } = useLanguage();
+  const navigate = useNavigate();
+  const basePath = language === 'en' ? '/en' : '/bn';
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -295,11 +298,7 @@ export default function AdminInvoices() {
       render: (row) => (
         <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
           <Button size="icon" variant="ghost" onClick={() => handleViewInvoice(row)}><Eye className="h-4 w-4" /></Button>
-          {row.pdf_url && (
-            <Button size="icon" variant="ghost" asChild>
-              <a href={row.pdf_url} target="_blank" rel="noopener noreferrer"><Download className="h-4 w-4" /></a>
-            </Button>
-          )}
+          <Button size="icon" variant="ghost" onClick={() => navigate(`${basePath}/admin/invoices/${row.id}`)} title="Invoice PDF"><FileText className="h-4 w-4" /></Button>
           <Button size="icon" variant="ghost" className="text-destructive" onClick={() => { setInvoiceToDelete(row); setDeleteOpen(true); }}><Trash2 className="h-4 w-4" /></Button>
         </div>
       ),

@@ -93,6 +93,7 @@ import AdminTrackingAnalytics from "./pages/admin/AdminTrackingAnalytics";
 import AdminChatbotLogs from "./pages/admin/AdminChatbotLogs";
 import AdminCustomers from "./pages/admin/AdminCustomers";
 import AdminPermissions from "./pages/admin/AdminPermissions";
+import AdminInvoiceView from "./pages/admin/AdminInvoiceView";
 
 // Public Pages
 import ProposalView from "./pages/ProposalView";
@@ -185,6 +186,7 @@ const LanguageRoutes = () => {
           <Route path="/bn/admin/packages" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminPackages /></ProtectedRoute>} />
           <Route path="/bn/admin/orders" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminOrders /></ProtectedRoute>} />
           <Route path="/bn/admin/invoices" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminInvoices /></ProtectedRoute>} />
+          <Route path="/bn/admin/invoices/:id" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminInvoiceView /></ProtectedRoute>} />
           <Route path="/bn/admin/domains" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminDomains /></ProtectedRoute>} />
           <Route path="/bn/admin/hosting" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminHosting /></ProtectedRoute>} />
           <Route path="/bn/admin/projects" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminProjects /></ProtectedRoute>} />
@@ -271,6 +273,7 @@ const LanguageRoutes = () => {
           <Route path="/en/admin/packages" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminPackages /></ProtectedRoute>} />
           <Route path="/en/admin/orders" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminOrders /></ProtectedRoute>} />
           <Route path="/en/admin/invoices" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminInvoices /></ProtectedRoute>} />
+          <Route path="/en/admin/invoices/:id" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminInvoiceView /></ProtectedRoute>} />
           <Route path="/en/admin/domains" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminDomains /></ProtectedRoute>} />
           <Route path="/en/admin/hosting" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminHosting /></ProtectedRoute>} />
           <Route path="/en/admin/projects" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminProjects /></ProtectedRoute>} />
