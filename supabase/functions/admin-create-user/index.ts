@@ -12,7 +12,6 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify the caller is admin
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -25,7 +24,7 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    // Verify caller is admin using their token
+    // Verify caller is admin
     const callerClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -37,7 +36,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Check admin role
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
     const { data: roleData } = await adminClient
       .from("user_roles")
@@ -52,7 +50,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { email, password, full_name, phone, company_name, role } = await req.json();
+    const { email, password, full_name, phone, company_name, role, city, address, domain, hosting, website, software } = await req.json();
 
     if (!email || !password) {
       return new Response(JSON.stringify({ error: "Email and password required" }), {
@@ -61,7 +59,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Create user with admin API
+    // Create user
     const { data: newUser, error: createError } = await adminClient.auth.admin.createUser({
       email,
       password,
@@ -76,24 +74,115 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Update profile
-    if (newUser?.user) {
-      await adminClient
-        .from("profiles")
-        .update({ full_name, phone, company_name })
-        .eq("user_id", newUser.user.id);
+    const userId = newUser?.user?.id;
+    if (!userId) {
+      return new Response(JSON.stringify({ error: "User creation failed" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
-      // Set role if not default client
-      if (role && role !== "client") {
-        await adminClient
-          .from("user_roles")
-          .update({ role })
-          .eq("user_id", newUser.user.id);
+    // Update profile
+    await adminClient
+      .from("profiles")
+      .update({ full_name, phone, company_name, city, address })
+      .eq("user_id", userId);
+
+    // Set role if not default client
+    if (role && role !== "client") {
+      await adminClient
+        .from("user_roles")
+        .update({ role })
+        .eq("user_id", userId);
+    }
+
+    // Helper: generate order number
+    const generateOrderNumber = () => {
+      const now = new Date();
+      const yy = String(now.getFullYear()).slice(-2);
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const rand = String(Math.floor(Math.random() * 999999)).padStart(6, "0");
+      return `${yy}${mm}${rand}`;
+    };
+
+    // Collect package IDs to create orders for
+    const packageSelections: { packageId: string; serviceTypeKey: string }[] = [];
+
+    if (hosting && hosting !== "none" && hosting !== "") {
+      packageSelections.push({ packageId: hosting, serviceTypeKey: "hosting" });
+    }
+    if (website && website !== "none" && website !== "") {
+      packageSelections.push({ packageId: website, serviceTypeKey: "web_development" });
+    }
+    if (software && software !== "none" && software !== "") {
+      packageSelections.push({ packageId: software, serviceTypeKey: "software_development" });
+    }
+
+    const createdOrders: string[] = [];
+
+    // Fetch package details and create orders
+    for (const sel of packageSelections) {
+      const { data: pkg } = await adminClient
+        .from("service_packages")
+        .select("id, name_en, name_bn, price, service_id")
+        .eq("id", sel.packageId)
+        .single();
+
+      if (!pkg) continue;
+
+      const billingType = sel.serviceTypeKey === "hosting" ? "recurring" : "one_time";
+
+      const orderNumber = generateOrderNumber();
+
+      const { data: order, error: orderError } = await adminClient
+        .from("orders")
+        .insert({
+          order_number: orderNumber,
+          user_id: userId,
+          service_id: pkg.service_id,
+          package_id: pkg.id,
+          service_type: sel.serviceTypeKey,
+          billing_type: billingType,
+          subtotal: pkg.price,
+          discount: 0,
+          tax: 0,
+          total: pkg.price,
+          advance_payment: 0,
+          status: "pending",
+          notes: `Auto-created with customer by admin. Package: ${pkg.name_en}`,
+          admin_notes: `Created by admin (${caller.email}) during customer onboarding`,
+        })
+        .select("id")
+        .single();
+
+      if (order) {
+        createdOrders.push(order.id);
+      } else {
+        console.error("Order creation error:", orderError?.message);
       }
     }
 
+    // If domain name provided, create a domain record
+    if (domain && domain.trim() !== "") {
+      const domainName = domain.trim().toLowerCase();
+      const tldParts = domainName.split(".");
+      const tld = tldParts.length > 1 ? "." + tldParts.slice(1).join(".") : ".com";
+
+      await adminClient.from("domains").insert({
+        domain_name: domainName,
+        tld: tld,
+        user_id: userId,
+        status: "pending",
+      });
+    }
+
     return new Response(
-      JSON.stringify({ success: true, user_id: newUser?.user?.id }),
+      JSON.stringify({ 
+        success: true, 
+        user_id: userId, 
+        orders_created: createdOrders.length,
+        message: `Customer created with ${createdOrders.length} order(s) and auto-generated invoice(s)` 
+      }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
