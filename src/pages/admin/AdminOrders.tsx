@@ -68,6 +68,9 @@ export default function AdminOrders() {
     advance_payment: 0,
     notes: '',
     admin_notes: '',
+    domain_name: '',
+    registration_date: '',
+    renewal_date: '',
   });
 
   useEffect(() => { fetchOrders(); fetchCustomersAndServices(); }, []);
@@ -153,10 +156,24 @@ export default function AdminOrders() {
       });
 
       if (error) throw error;
+
+      // Save order meta (domain_name, registration_date, renewal_date)
+      const insertedOrder = await supabase.from('orders').select('id').eq('order_number', orderNumber).single();
+      if (insertedOrder.data) {
+        const metaEntries = [
+          { order_id: insertedOrder.data.id, meta_key: 'domain_name', meta_value: createForm.domain_name as any },
+          { order_id: insertedOrder.data.id, meta_key: 'registration_date', meta_value: createForm.registration_date as any },
+          { order_id: insertedOrder.data.id, meta_key: 'renewal_date', meta_value: createForm.renewal_date as any },
+        ].filter(m => m.meta_value);
+        if (metaEntries.length > 0) {
+          await supabase.from('order_meta').insert(metaEntries);
+        }
+      }
+
       await logAudit('create', 'order', null as any, null, { order_number: orderNumber } as any);
       toast({ title: language === 'bn' ? '✅ অর্ডার তৈরি হয়েছে' : '✅ Order Created' });
       setCreateOpen(false);
-      setCreateForm({ user_id: '', service_id: '', package_id: '', service_type: '', billing_type: 'one_time', subtotal: 0, discount: 0, tax: 0, total: 0, advance_payment: 0, notes: '', admin_notes: '' });
+      setCreateForm({ user_id: '', service_id: '', package_id: '', service_type: '', billing_type: 'one_time', subtotal: 0, discount: 0, tax: 0, total: 0, advance_payment: 0, notes: '', admin_notes: '', domain_name: '', registration_date: '', renewal_date: '' });
       fetchOrders();
     } catch (err) {
       toast({ title: 'Error', description: (err as Error).message, variant: 'destructive' });
@@ -554,6 +571,34 @@ export default function AdminOrders() {
                 />
               </div>
             )}
+
+            {/* Domain & Date Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>{language === 'bn' ? 'ডোমেইন নেইম' : 'Domain Name'}</Label>
+                <Input
+                  placeholder="example.com"
+                  value={createForm.domain_name}
+                  onChange={(e) => setCreateForm(prev => ({ ...prev, domain_name: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{language === 'bn' ? 'রেজিস্ট্রেশন তারিখ' : 'Registration Date'}</Label>
+                <Input
+                  type="date"
+                  value={createForm.registration_date}
+                  onChange={(e) => setCreateForm(prev => ({ ...prev, registration_date: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{language === 'bn' ? 'রিনিউ তারিখ' : 'Renewal Date'}</Label>
+                <Input
+                  type="date"
+                  value={createForm.renewal_date}
+                  onChange={(e) => setCreateForm(prev => ({ ...prev, renewal_date: e.target.value }))}
+                />
+              </div>
+            </div>
 
             {/* Billing Type */}
             <div className="grid grid-cols-2 gap-4">
