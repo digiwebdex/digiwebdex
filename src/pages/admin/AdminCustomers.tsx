@@ -11,9 +11,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Users, ArrowLeft, ShoppingCart, FileText, Globe, Server, CreditCard, FolderKanban, Headphones, Plus, Pencil, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { logAudit } from '@/lib/auditLog';
+
+type ServicePackage = {
+  id: string;
+  name_en: string;
+  name_bn: string;
+  service_id: string;
+  price: number;
+};
 
 interface Customer {
   user_id: string;
@@ -56,11 +65,35 @@ export default function AdminCustomers() {
   const [editEmail, setEditEmail] = useState('');
   const [editPassword, setEditPassword] = useState('');
   const [saving, setSaving] = useState(false);
+  // Package selections
+  const [editDomain, setEditDomain] = useState('');
+  const [editHosting, setEditHosting] = useState('');
+  const [editWebsite, setEditWebsite] = useState('');
+  const [editSoftware, setEditSoftware] = useState('');
+  const [packages, setPackages] = useState<{ hosting: ServicePackage[]; domain: ServicePackage[]; website: ServicePackage[]; software: ServicePackage[] }>({ hosting: [], domain: [], website: [], software: [] });
   // Delete
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
 
-  useEffect(() => { fetchCustomers(); }, []);
+  useEffect(() => { fetchCustomers(); fetchPackages(); }, []);
+
+  const fetchPackages = async () => {
+    const { data } = await supabase.from('service_packages').select('id, name_en, name_bn, service_id, price').eq('is_active', true).order('sort_order');
+    if (data) {
+      const { data: services } = await supabase.from('services').select('id, service_type').eq('is_active', true);
+      const serviceMap: Record<string, string> = {};
+      services?.forEach(s => { serviceMap[s.id] = s.service_type; });
+      const grouped = { hosting: [] as ServicePackage[], domain: [] as ServicePackage[], website: [] as ServicePackage[], software: [] as ServicePackage[] };
+      data.forEach((pkg: any) => {
+        const type = serviceMap[pkg.service_id];
+        if (type === 'hosting') grouped.hosting.push(pkg);
+        else if (type === 'domain') grouped.domain.push(pkg);
+        else if (type === 'web_development') grouped.website.push(pkg);
+        else if (type === 'software_development') grouped.software.push(pkg);
+      });
+      setPackages(grouped);
+    }
+  };
 
   const fetchCustomers = async () => {
     try {
@@ -113,6 +146,7 @@ export default function AdminCustomers() {
   const openCreateModal = () => {
     setEditCustomer(null);
     setEditName(''); setEditPhone(''); setEditCompany(''); setEditCity(''); setEditAddress(''); setEditEmail(''); setEditPassword('');
+    setEditDomain(''); setEditHosting(''); setEditWebsite(''); setEditSoftware('');
     setEditOpen(true);
   };
 
@@ -155,7 +189,7 @@ export default function AdminCustomers() {
       }
       try {
         const { data, error } = await supabase.functions.invoke('admin-create-user', {
-          body: { email: editEmail, password: editPassword, full_name: editName, phone: editPhone, company_name: editCompany, city: editCity, address: editAddress, role: 'client' },
+          body: { email: editEmail, password: editPassword, full_name: editName, phone: editPhone, company_name: editCompany, city: editCity, address: editAddress, role: 'client', domain: editDomain, hosting: editHosting, website: editWebsite, software: editSoftware },
         });
         if (error) throw error;
         await logAudit('create', 'customer', null, null, { email: editEmail, full_name: editName } as any);
@@ -322,6 +356,9 @@ export default function AdminCustomers() {
           company={editCompany} setCompany={setEditCompany} city={editCity} setCity={setEditCity}
           address={editAddress} setAddress={setEditAddress} email={editEmail} setEmail={setEditEmail}
           password={editPassword} setPassword={setEditPassword}
+          domain={editDomain} setDomain={setEditDomain} hosting={editHosting} setHosting={setEditHosting}
+          website={editWebsite} setWebsite={setEditWebsite} software={editSoftware} setSoftware={setEditSoftware}
+          packages={packages}
           saving={saving} onSave={handleSaveCustomer} language={language}
         />
       </AdminLayout>
@@ -366,6 +403,9 @@ export default function AdminCustomers() {
         company={editCompany} setCompany={setEditCompany} city={editCity} setCity={setEditCity}
         address={editAddress} setAddress={setEditAddress} email={editEmail} setEmail={setEditEmail}
         password={editPassword} setPassword={setEditPassword}
+        domain={editDomain} setDomain={setEditDomain} hosting={editHosting} setHosting={setEditHosting}
+        website={editWebsite} setWebsite={setEditWebsite} software={editSoftware} setSoftware={setEditSoftware}
+        packages={packages}
         saving={saving} onSave={handleSaveCustomer} language={language}
       />
 
@@ -379,10 +419,27 @@ export default function AdminCustomers() {
 }
 
 // Reusable sub-components
-function CustomerFormModal({ open, onOpenChange, isEdit, name, setName, phone, setPhone, company, setCompany, city, setCity, address, setAddress, email, setEmail, password, setPassword, saving, onSave, language }: any) {
+function CustomerFormModal({ open, onOpenChange, isEdit, name, setName, phone, setPhone, company, setCompany, city, setCity, address, setAddress, email, setEmail, password, setPassword, domain, setDomain, hosting, setHosting, website, setWebsite, software, setSoftware, packages, saving, onSave, language }: any) {
+  const renderPackageSelect = (label: string, value: string, onChange: (v: string) => void, options: ServicePackage[]) => (
+    <div className="space-y-1">
+      <Label>{label}</Label>
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger><SelectValue placeholder={language === 'bn' ? 'নির্বাচন করুন' : 'Select'} /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="none">{language === 'bn' ? 'নেই' : 'None'}</SelectItem>
+          {options.map((pkg: ServicePackage) => (
+            <SelectItem key={pkg.id} value={pkg.id}>
+              {language === 'bn' ? pkg.name_bn : pkg.name_en} - ৳{pkg.price}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEdit ? (language === 'bn' ? 'কাস্টমার সম্পাদনা' : 'Edit Customer') : (language === 'bn' ? 'নতুন কাস্টমার' : 'New Customer')}</DialogTitle>
         </DialogHeader>
@@ -400,6 +457,14 @@ function CustomerFormModal({ open, onOpenChange, isEdit, name, setName, phone, s
             <div className="space-y-1"><Label>{language === 'bn' ? 'শহর' : 'City'}</Label><Input value={city} onChange={(e: any) => setCity(e.target.value)} /></div>
           </div>
           <div className="space-y-1"><Label>{language === 'bn' ? 'ঠিকানা' : 'Address'}</Label><Input value={address} onChange={(e: any) => setAddress(e.target.value)} /></div>
+          {!isEdit && (
+            <div className="grid grid-cols-2 gap-3">
+              {renderPackageSelect(language === 'bn' ? 'ডোমেইন প্যাকেজ' : 'Domain Package', domain, setDomain, packages?.domain || [])}
+              {renderPackageSelect(language === 'bn' ? 'হোস্টিং প্যাকেজ' : 'Hosting Package', hosting, setHosting, packages?.hosting || [])}
+              {renderPackageSelect(language === 'bn' ? 'ওয়েবসাইট প্যাকেজ' : 'Website Package', website, setWebsite, packages?.website || [])}
+              {renderPackageSelect(language === 'bn' ? 'সফটওয়্যার প্যাকেজ' : 'Software Package', software, setSoftware, packages?.software || [])}
+            </div>
+          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>{language === 'bn' ? 'বাতিল' : 'Cancel'}</Button>
