@@ -88,7 +88,7 @@ export function HeroSection() {
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-primary shadow-lg shadow-primary/50"></span>
               </span>
               <span className="text-sm font-semibold text-foreground tracking-wide">
-                {language === 'bn' ? '🚀 বাংলাদেশের #১ ডিজিটাল এজেন্সি' : '🚀 Bangladesh\'s #1 Digital Agency'}
+                {language === 'bn' ? '🚀 বাংলাদেশের #১ ওয়েবসাইট এবং সফটওয়্যার কোম্পানি' : '🚀 Bangladesh\'s #1 Website & Software Company'}
               </span>
             </div>
           </div>
