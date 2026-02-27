@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/lib/i18n';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { DataTable, Column, StatusBadge } from '@/components/admin/common';
@@ -38,6 +39,7 @@ export default function AdminOrders() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [newStatus, setNewStatus] = useState('');
   const [adminNotes, setAdminNotes] = useState('');
+  const [advancePayment, setAdvancePayment] = useState(0);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -81,6 +83,7 @@ export default function AdminOrders() {
     setSelectedOrder(order);
     setNewStatus(order.status);
     setAdminNotes(order.admin_notes || '');
+    setAdvancePayment((order as any).advance_payment || 0);
     setDetailOpen(true);
   };
 
@@ -90,7 +93,8 @@ export default function AdminOrders() {
 
     const updates: Record<string, unknown> = { 
       status: newStatus, 
-      admin_notes: adminNotes 
+      admin_notes: adminNotes,
+      advance_payment: advancePayment,
     };
     
     if (newStatus === 'completed' && selectedOrder.status !== 'completed') {
@@ -241,6 +245,14 @@ export default function AdminOrders() {
                   <Label className="text-muted-foreground">{language === 'bn' ? 'মোট' : 'Total'}</Label>
                   <p className="font-medium text-lg">{formatCurrency(selectedOrder.total)}</p>
                 </div>
+                <div>
+                  <Label className="text-muted-foreground">{language === 'bn' ? 'অগ্রিম পেমেন্ট' : 'Advance Payment'}</Label>
+                  <p className="font-medium text-lg text-green-600">{formatCurrency((selectedOrder as any).advance_payment || 0)}</p>
+                </div>
+                <div className="col-span-2">
+                  <Label className="text-muted-foreground">{language === 'bn' ? 'বাকি পেমেন্ট' : 'Due Amount'}</Label>
+                  <p className="font-medium text-lg text-red-600">{formatCurrency(selectedOrder.total - ((selectedOrder as any).advance_payment || 0))}</p>
+                </div>
               </div>
 
               {selectedOrder.notes && (
@@ -264,6 +276,18 @@ export default function AdminOrders() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>{language === 'bn' ? 'অগ্রিম পেমেন্ট' : 'Advance Payment'}</Label>
+                <Input
+                  type="number"
+                  value={advancePayment}
+                  onChange={(e) => setAdvancePayment(Number(e.target.value))}
+                  min={0}
+                  max={selectedOrder?.total || 0}
+                  placeholder="0"
+                />
               </div>
 
               <div className="space-y-2">

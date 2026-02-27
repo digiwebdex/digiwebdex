@@ -1972,6 +1972,7 @@ export type Database = {
       orders: {
         Row: {
           admin_notes: string | null
+          advance_payment: number | null
           billing_type: Database["public"]["Enums"]["billing_type"]
           completed_at: string | null
           coupon_code: string | null
@@ -1994,6 +1995,7 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
+          advance_payment?: number | null
           billing_type?: Database["public"]["Enums"]["billing_type"]
           completed_at?: string | null
           coupon_code?: string | null
@@ -2016,6 +2018,7 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
+          advance_payment?: number | null
           billing_type?: Database["public"]["Enums"]["billing_type"]
           completed_at?: string | null
           coupon_code?: string | null

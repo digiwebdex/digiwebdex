@@ -1,0 +1,1 @@
+ALTER TABLE public.orders ADD COLUMN advance_payment numeric DEFAULT 0;
