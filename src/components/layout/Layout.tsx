@@ -5,7 +5,7 @@ import { FloatingActions } from '@/components/order';
 import { ExitIntentPopup, FloatingLeadButton } from '@/components/leads';
 import { FacebookPixel, GoogleTracking, CookieConsentBanner } from '@/components/tracking';
 import { OnboardingChatWidget } from '@/components/chat/OnboardingChatWidget';
-import { WhatsAppChatWidget } from '@/components/chat/WhatsAppChatWidget';
+
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -21,7 +21,7 @@ export function Layout({ children }: LayoutProps) {
       <Footer />
       <FloatingActions />
       <FloatingLeadButton />
-      <WhatsAppChatWidget />
+      
       <OnboardingChatWidget />
       <ExitIntentPopup />
       <CookieConsentBanner />
