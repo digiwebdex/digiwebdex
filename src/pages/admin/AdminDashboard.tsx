@@ -14,6 +14,7 @@ import {
   TrendingUp,
   AlertCircle,
 } from 'lucide-react';
+import { ExpiringServicesAlert } from '@/components/admin/analytics/ExpiringServicesAlert';
 
 interface AdminStats {
   totalOrders: number;
@@ -283,6 +284,9 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Expiring Services & Renewal Alerts */}
+        <ExpiringServicesAlert />
       </div>
     </AdminLayout>
   );
