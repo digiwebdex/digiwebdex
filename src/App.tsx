@@ -91,6 +91,7 @@ import AdminNotificationTemplates from "./pages/admin/AdminNotificationTemplates
 import AdminProposalTemplates from "./pages/admin/AdminProposalTemplates";
 import AdminTrackingAnalytics from "./pages/admin/AdminTrackingAnalytics";
 import AdminChatbotLogs from "./pages/admin/AdminChatbotLogs";
+import AdminCustomers from "./pages/admin/AdminCustomers";
 
 // Public Pages
 import ProposalView from "./pages/ProposalView";
@@ -201,6 +202,7 @@ const LanguageRoutes = () => {
           <Route path="/bn/admin/proposal-templates" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminProposalTemplates /></ProtectedRoute>} />
           <Route path="/bn/admin/tracking" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminTrackingAnalytics /></ProtectedRoute>} />
           <Route path="/bn/admin/chatbot" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminChatbotLogs /></ProtectedRoute>} />
+          <Route path="/bn/admin/customers" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminCustomers /></ProtectedRoute>} />
           <Route path="/bn/admin/*" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminDashboard /></ProtectedRoute>} />
           
           {/* English routes */}
@@ -285,6 +287,7 @@ const LanguageRoutes = () => {
           <Route path="/en/admin/proposal-templates" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminProposalTemplates /></ProtectedRoute>} />
           <Route path="/en/admin/tracking" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminTrackingAnalytics /></ProtectedRoute>} />
           <Route path="/en/admin/chatbot" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminChatbotLogs /></ProtectedRoute>} />
+          <Route path="/en/admin/customers" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminCustomers /></ProtectedRoute>} />
           <Route path="/en/admin/*" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminDashboard /></ProtectedRoute>} />
           
           {/* Dynamic Landing Pages - must be before catch-all */}

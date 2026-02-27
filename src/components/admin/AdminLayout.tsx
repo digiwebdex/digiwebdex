@@ -34,6 +34,7 @@ import {
   FormInput,
   Mail,
   MessageSquare,
+  Contact,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -104,6 +105,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     {
       title: language === 'bn' ? 'ব্যবস্থাপনা' : 'Management',
       items: [
+        { label: language === 'bn' ? 'কাস্টমার' : 'Customers', icon: Contact, href: `${basePath}/admin/customers` },
         { label: language === 'bn' ? 'ব্যবহারকারী' : 'Users', icon: Users, href: `${basePath}/admin/users` },
         { label: language === 'bn' ? 'রিসেলার' : 'Resellers', icon: Building2, href: `${basePath}/admin/resellers` },
         { label: language === 'bn' ? 'কাস্টম ফিল্ড' : 'Custom Fields', icon: FormInput, href: `${basePath}/admin/custom-fields` },
