@@ -1,6 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2, Check } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -34,6 +36,7 @@ interface InvoiceData {
 
 interface InvoicePDFProps {
   invoice: InvoiceData;
+  invoiceId?: string; // DB id to save pdf_url back
   companyName?: string;
   companyAddress?: string;
   companyPhone?: string;
@@ -42,6 +45,7 @@ interface InvoicePDFProps {
 
 export function InvoicePDF({
   invoice,
+  invoiceId,
   companyName = 'DigiWebDex',
   companyAddress = 'Dhaka, Bangladesh',
   companyPhone = '+880 1XXX-XXXXXX',
@@ -49,6 +53,7 @@ export function InvoicePDF({
 }: InvoicePDFProps) {
   const invoiceRef = useRef<HTMLDivElement>(null);
   const [generating, setGenerating] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const generatePDF = async () => {
     if (!invoiceRef.current) return;
@@ -64,9 +69,33 @@ export function InvoicePDF({
       const imgWidth = 210;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+
+      // Save locally
       pdf.save(`${invoice.invoice_number}.pdf`);
+
+      // Upload to storage & save URL
+      if (invoiceId) {
+        const pdfBlob = pdf.output('blob');
+        const filePath = `${invoice.invoice_number}.pdf`;
+
+        const { error: uploadErr } = await supabase.storage
+          .from('invoices')
+          .upload(filePath, pdfBlob, { contentType: 'application/pdf', upsert: true });
+
+        if (!uploadErr) {
+          const { data: urlData } = supabase.storage.from('invoices').getPublicUrl(filePath);
+          if (urlData?.publicUrl) {
+            await supabase.from('invoices').update({ pdf_url: urlData.publicUrl }).eq('id', invoiceId);
+            setSaved(true);
+            toast({ title: '✅ PDF saved to invoice record' });
+          }
+        } else {
+          console.error('Upload failed:', uploadErr);
+        }
+      }
     } catch (err) {
       console.error('PDF generation failed:', err);
+      toast({ title: 'Error', description: (err as Error).message, variant: 'destructive' });
     } finally {
       setGenerating(false);
     }
@@ -78,8 +107,8 @@ export function InvoicePDF({
     <div>
       {/* Download Button */}
       <Button onClick={generatePDF} disabled={generating} className="mb-4">
-        {generating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
-        {generating ? 'Generating...' : 'Download PDF'}
+        {generating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : saved ? <Check className="h-4 w-4 mr-2" /> : <Download className="h-4 w-4 mr-2" />}
+        {generating ? 'Generating...' : saved ? 'Downloaded & Saved' : 'Download PDF'}
       </Button>
 
       {/* Invoice Template (rendered for capture) */}

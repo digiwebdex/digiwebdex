@@ -107,7 +107,7 @@ export default function AdminInvoiceView() {
           {language === 'bn' ? 'ইনভয়েস তালিকা' : 'Back to Invoices'}
         </Button>
 
-        <InvoicePDF invoice={invoiceData} />
+        <InvoicePDF invoice={invoiceData} invoiceId={invoice.id} />
       </div>
     </AdminLayout>
   );
