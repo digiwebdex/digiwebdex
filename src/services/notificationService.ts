@@ -97,8 +97,46 @@ class NotificationService {
   }
 
   private async sendEmail(notification: Notification): Promise<void> {
-    console.log('Email notification:', { to: notification.recipient, subject: notification.subject });
-    await this.markAsSent(notification.id);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-email', {
+        body: {
+          to: notification.recipient,
+          subject: notification.subject || 'DigiWebDex Notification',
+          html: this.wrapEmailHtml(notification.subject || '', notification.body),
+        },
+      });
+
+      if (error || !data?.success) {
+        await this.markAsFailed(notification.id, data?.error || error?.message || 'Email send failed');
+      } else {
+        await this.markAsSent(notification.id);
+      }
+    } catch (err) {
+      await this.markAsFailed(notification.id, (err as Error).message);
+    }
+  }
+
+  private wrapEmailHtml(subject: string, body: string): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="utf-8"></head>
+      <body style="font-family:Arial,sans-serif;background:#f9fafb;padding:32px;">
+        <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:8px;padding:32px;border:1px solid #e5e7eb;">
+          <div style="text-align:center;margin-bottom:24px;">
+            <h2 style="color:#111827;margin:0;">DigiWebDex</h2>
+          </div>
+          <h3 style="color:#111827;">${subject}</h3>
+          <div style="color:#374151;line-height:1.6;">${body}</div>
+          <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;" />
+          <p style="color:#9ca3af;font-size:12px;text-align:center;">
+            © ${new Date().getFullYear()} DigiWebDex. All rights reserved.<br/>
+            📞 01674533303 | 📧 digiwebdex@gmail.com
+          </p>
+        </div>
+      </body>
+      </html>
+    `;
   }
 
   private async sendSMS(notification: Notification): Promise<void> {
