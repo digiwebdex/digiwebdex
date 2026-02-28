@@ -1,6 +1,8 @@
 const brandColor = '#2563eb';
 const footerText = `© ${new Date().getFullYear()} DigiWebDex. All rights reserved.`;
-const footerContact = '📞 01674533303 | 📧 digiwebdex@gmail.com';
+const footerContact = '📞 +880 1674-533303 | 📧 info@digiwebdex.com';
+
+const logoUrl = 'https://digiwebdex.com/images/email-logo.png';
 
 function baseLayout(content: string): string {
   return `
@@ -9,8 +11,8 @@ function baseLayout(content: string): string {
     <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
     <body style="font-family:Arial,sans-serif;background:#f3f4f6;margin:0;padding:32px 16px;">
       <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #e5e7eb;">
-        <div style="background:${brandColor};padding:20px 24px;text-align:center;">
-          <h1 style="color:#ffffff;margin:0;font-size:22px;">DigiWebDex</h1>
+        <div style="background:#ffffff;padding:24px;text-align:center;border-bottom:2px solid ${brandColor};">
+          <img src="${logoUrl}" alt="DigiWebDex" style="height:48px;width:auto;" />
         </div>
         <div style="padding:28px 24px;">
           ${content}
