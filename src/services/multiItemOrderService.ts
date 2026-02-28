@@ -104,51 +104,50 @@ export async function createOrderWithItems(
 
   if (invError) throw new Error(`Invoice not found: ${invError.message}`);
 
-  // --- Insert invoice items ---
-  const invoiceItems = items.map((item) => ({
-    invoice_id: invoice.id,
-    service_type: item.type as string,
-    package_name: item.package,
-    domain: item.domain || null,
-    description: item.description || null,
-    price: Number(item.price),
-    qty: item.qty || 1,
-    total: Number(item.price) * (item.qty || 1),
-    renewal_date: item.renewalDate || null,
-  }));
+  // --- Helper: add one year ---
+  const addOneYear = (date: Date): Date => {
+    const d = new Date(date);
+    d.setFullYear(d.getFullYear() + 1);
+    return d;
+  };
 
-  const { error: itemsError } = await supabase
-    .from('invoice_items')
-    .insert(invoiceItems);
+  // --- Build invoice items + subscriptions + meta ---
+  const invoiceItemsToInsert: Array<{
+    invoice_id: string;
+    service_type: string;
+    package_name: string;
+    domain: string | null;
+    description: string;
+    price: number;
+    qty: number;
+    total: number;
+    renewal_date: string | null;
+  }> = [];
+  const metaEntries: Array<{ order_id: string; meta_key: string; meta_value: Json }> = [];
 
-  if (itemsError) throw new Error(itemsError.message);
+  for (let idx = 0; idx < items.length; idx++) {
+    const item = items[idx];
+    const qty = item.qty || 1;
+    let renewalDate: string | null = item.renewalDate || null;
+    let description = item.description || '';
 
-  // --- Store items as order_meta for reference ---
-  const metaEntries = items.map((item, idx) => ({
-    order_id: order.id,
-    meta_key: `item_${idx}`,
-    meta_value: {
-      type: item.type,
-      package: item.package,
-      domain: item.domain,
-      price: item.price,
-      qty: item.qty || 1,
-      renewalDate: item.renewalDate,
-    } as Json,
-  }));
-
-  await supabase.from('order_meta').insert(metaEntries);
-
-  // --- Create subscriptions for domain/hosting items ---
-  for (const item of items) {
+    // --- Domain / Hosting → auto renewal date + subscription ---
     if (item.type === 'domain' || item.type === 'hosting') {
+      if (!renewalDate) {
+        renewalDate = addOneYear(new Date()).toISOString().split('T')[0];
+      }
+
+      const typeLabel = item.type === 'domain' ? 'ডোমেইন রেজিস্ট্রেশন' : 'ওয়েব হোস্টিং';
+      description = description || `${typeLabel} (${item.type})\n${item.domain || ''}\nRenewal: ${renewalDate}`;
+
+      // Create subscription
       await supabase.from('subscriptions').insert({
         user_id: userId,
         service_type: item.type as string,
         plan_name: item.package,
         amount: Number(item.price),
         billing_cycle: 'yearly' as Database['public']['Enums']['billing_cycle'],
-        next_billing_date: item.renewalDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        next_billing_date: renewalDate,
         status: 'active' as Database['public']['Enums']['subscription_status'],
         metadata: {
           order_id: order.id,
@@ -156,7 +155,53 @@ export async function createOrderWithItems(
         } as Json,
       });
     }
+
+    // --- Web / Software → one-time ---
+    if (item.type === 'web_development' || item.type === 'software_development') {
+      const typeLabel = item.type === 'web_development' ? 'ওয়েব ডেভেলপমেন্ট' : 'সফটওয়্যার ডেভেলপমেন্ট';
+      description = description || `${typeLabel} (${item.type})\nOne Time Payment`;
+    }
+
+    // --- Digital marketing ---
+    if (item.type === 'digital_marketing') {
+      description = description || `ডিজিটাল মার্কেটিং (${item.type})`;
+    }
+
+    invoiceItemsToInsert.push({
+      invoice_id: invoice.id,
+      service_type: item.type as string,
+      package_name: item.package,
+      domain: item.domain || null,
+      description: description || item.package,
+      price: Number(item.price),
+      qty,
+      total: Number(item.price) * qty,
+      renewal_date: renewalDate,
+    });
+
+    metaEntries.push({
+      order_id: order.id,
+      meta_key: `item_${idx}`,
+      meta_value: {
+        type: item.type,
+        package: item.package,
+        domain: item.domain,
+        price: item.price,
+        qty,
+        renewalDate,
+      } as Json,
+    });
   }
+
+  // --- Insert invoice items ---
+  const { error: itemsError } = await supabase
+    .from('invoice_items')
+    .insert(invoiceItemsToInsert);
+
+  if (itemsError) throw new Error(itemsError.message);
+
+  // --- Store order meta ---
+  await supabase.from('order_meta').insert(metaEntries);
 
   // --- Record advance payment ---
   if (advance > 0) {
