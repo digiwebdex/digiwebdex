@@ -48,7 +48,7 @@ export function InvoicePDF({
   invoiceId,
   companyName = 'DigiWebDex',
   companyAddress = 'Dhaka, Bangladesh',
-  companyPhone = '+880 1XXX-XXXXXX',
+  companyPhone = '+880 1674-533303',
   companyEmail = 'info@digiwebdex.com',
 }: InvoicePDFProps) {
   const invoiceRef = useRef<HTMLDivElement>(null);
