@@ -122,9 +122,12 @@ export default function AdminInvoices() {
     if (!selectedInvoice) return;
     setSaving(true);
     const newTotal = editSubtotal - editDiscount + editTax;
-    const dueAmount = newTotal - editAdvancePaid;
-    const autoStatus = dueAmount <= 0 ? 'paid' : editAdvancePaid > 0 ? 'partial' : 'unpaid';
+    let dueAmount = newTotal - editAdvancePaid;
     const finalStatus = newStatus; // admin can override
+    // If marked as paid or cancelled, force due_amount to 0
+    if (finalStatus === 'paid' || finalStatus === 'cancelled') {
+      dueAmount = 0;
+    }
     const oldValues = { status: selectedInvoice.status, subtotal: selectedInvoice.subtotal, discount: selectedInvoice.discount, tax: selectedInvoice.tax, notes: selectedInvoice.notes };
     const updates: Record<string, unknown> = {
       status: finalStatus,
