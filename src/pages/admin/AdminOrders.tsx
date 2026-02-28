@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 import { Eye, Bell, Send, Trash2, Printer, Plus } from 'lucide-react';
+import OrdersBulkActions from '@/components/admin/orders/OrdersBulkActions';
 import { format } from 'date-fns';
 import { Database } from '@/integrations/supabase/types';
 import { logAudit } from '@/lib/auditLog';
@@ -442,6 +443,11 @@ export default function AdminOrders() {
             {language === 'bn' ? 'নতুন অর্ডার' : 'New Order'}
           </Button>
         </div>
+
+        <OrdersBulkActions
+          selectedOrderIds={selectedRows.map(r => r.id)}
+          onComplete={() => { setSelectedRows([]); fetchOrders(); }}
+        />
 
         <Card>
           <CardContent className="pt-6">
