@@ -51,6 +51,7 @@ export default function OrdersPage() {
       active: { label: language === 'bn' ? 'সক্রিয়' : 'Active', variant: 'default' },
       completed: { label: language === 'bn' ? 'সম্পন্ন' : 'Completed', variant: 'secondary' },
       cancelled: { label: language === 'bn' ? 'বাতিল' : 'Cancelled', variant: 'destructive' },
+      merged: { label: language === 'bn' ? 'মার্জড' : 'Merged', variant: 'secondary' },
     };
 
     const config = statusConfig[status];

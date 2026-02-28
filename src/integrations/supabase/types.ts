@@ -2036,6 +2036,7 @@ export type Database = {
           currency: string | null
           discount: number | null
           id: string
+          merged_invoice_id: string | null
           notes: string | null
           order_number: string
           package_id: string | null
@@ -2059,6 +2060,7 @@ export type Database = {
           currency?: string | null
           discount?: number | null
           id?: string
+          merged_invoice_id?: string | null
           notes?: string | null
           order_number: string
           package_id?: string | null
@@ -2082,6 +2084,7 @@ export type Database = {
           currency?: string | null
           discount?: number | null
           id?: string
+          merged_invoice_id?: string | null
           notes?: string | null
           order_number?: string
           package_id?: string | null
@@ -2096,6 +2099,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_merged_invoice_id_fkey"
+            columns: ["merged_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_package_id_fkey"
             columns: ["package_id"]
@@ -3800,6 +3810,7 @@ export type Database = {
         | "active"
         | "completed"
         | "cancelled"
+        | "merged"
       payment_gateway:
         | "sslcommerz"
         | "bkash"
@@ -4009,6 +4020,7 @@ export const Constants = {
         "active",
         "completed",
         "cancelled",
+        "merged",
       ],
       payment_gateway: [
         "sslcommerz",
