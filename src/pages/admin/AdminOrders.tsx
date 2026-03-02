@@ -11,8 +11,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
-import { Eye, Bell, Send, Trash2, Printer, Plus } from 'lucide-react';
+import { Eye, Bell, Send, Trash2, Printer, Plus, ArrowUpDown } from 'lucide-react';
 import OrdersBulkActions from '@/components/admin/orders/OrdersBulkActions';
+import PackageChangeModal from '@/components/admin/orders/PackageChangeModal';
 import { format } from 'date-fns';
 import { Database } from '@/integrations/supabase/types';
 import { logAudit } from '@/lib/auditLog';
@@ -51,7 +52,8 @@ export default function AdminOrders() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
   const [selectedRows, setSelectedRows] = useState<Order[]>([]);
-
+  const [pkgChangeOpen, setPkgChangeOpen] = useState(false);
+  const [pkgChangeItem, setPkgChangeItem] = useState<DbOrderItem | null>(null);
   // Manual order creation state
   const [createOpen, setCreateOpen] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -501,10 +503,11 @@ export default function AdminOrders() {
                     <table className="w-full text-sm">
                       <thead className="bg-muted">
                         <tr>
-                          <th className="text-left p-2">#</th>
+                         <th className="text-left p-2">#</th>
                           <th className="text-left p-2">{language === 'bn' ? 'সার্ভিস' : 'Service'}</th>
                           <th className="text-left p-2">{language === 'bn' ? 'প্যাকেজ' : 'Package'}</th>
                           <th className="text-right p-2">{language === 'bn' ? 'মূল্য' : 'Price'}</th>
+                          <th className="text-center p-2">{language === 'bn' ? 'পরিবর্তন' : 'Change'}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -517,6 +520,12 @@ export default function AdminOrders() {
                             </td>
                             <td className="p-2">{item.package_name}</td>
                             <td className="p-2 text-right font-medium">{formatCurrency(item.total)}</td>
+                            <td className="p-2 text-center">
+                              <Button size="sm" variant="ghost" className="h-7 text-xs gap-1" onClick={() => { setPkgChangeItem(item); setPkgChangeOpen(true); }}>
+                                <ArrowUpDown className="h-3 w-3" />
+                                {language === 'bn' ? 'পরিবর্তন' : 'Change'}
+                              </Button>
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -763,6 +772,16 @@ export default function AdminOrders() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Package Change Modal */}
+      <PackageChangeModal
+        open={pkgChangeOpen}
+        onOpenChange={setPkgChangeOpen}
+        orderItem={pkgChangeItem as any}
+        orderId={selectedOrder?.id || ''}
+        orderNumber={selectedOrder?.order_number || ''}
+        onSuccess={() => { fetchOrders(); setDetailOpen(false); }}
+      />
     </AdminLayout>
   );
 }
