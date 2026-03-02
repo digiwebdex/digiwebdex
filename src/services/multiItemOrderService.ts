@@ -168,10 +168,24 @@ export async function createOrderWithItems(
       });
     }
 
-    // --- Web / Software → one-time ---
+    // --- Web / Software → one-time + auto-create project ---
     if (item.type === 'web_development' || item.type === 'software_development') {
       const typeLabel = item.type === 'web_development' ? 'ওয়েব ডেভেলপমেন্ট' : 'সফটওয়্যার ডেভেলপমেন্ট';
       description = description || `${typeLabel} (${item.type})\nOne Time Payment`;
+
+      // Auto-create project record
+      const deliveryDate = new Date();
+      deliveryDate.setDate(deliveryDate.getDate() + (item.type === 'web_development' ? 30 : 45));
+
+      await supabase.from('projects').insert([{
+        user_id: userId,
+        order_id: order.id,
+        title: `${item.package} - ${item.domain || 'Project'}`,
+        service_type: item.type as Database['public']['Enums']['service_type'],
+        status: 'pending' as Database['public']['Enums']['project_status'],
+        deadline: deliveryDate.toISOString().split('T')[0],
+        description: `Auto-created from Order ${order.order_number}`,
+      }]);
     }
 
     // --- Digital marketing ---

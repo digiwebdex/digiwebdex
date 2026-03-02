@@ -227,26 +227,108 @@ class PaymentService {
 
       if (error) throw error;
 
-      // Update order and invoice if approved
+      // Update order and invoice if approved, then auto-activate services
       if (approved && payment) {
         if (payment.order_id) {
           await supabase
             .from('orders')
             .update({ status: 'paid', paid_at: new Date().toISOString() })
             .eq('id', payment.order_id);
+
+          // Auto-activate linked services
+          await this.activateServicesForOrder(payment.order_id);
         }
 
         if (payment.invoice_id) {
           await supabase
             .from('invoices')
-            .update({ status: 'paid', paid_at: new Date().toISOString() })
+            .update({ status: 'paid', paid_at: new Date().toISOString(), due_amount: 0 })
             .eq('id', payment.invoice_id);
+        }
+
+        // Send payment confirmation notification
+        try {
+          const { data: orderData } = await supabase
+            .from('orders')
+            .select('user_id, order_number, total')
+            .eq('id', payment.order_id)
+            .single();
+
+          if (orderData) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('full_name, phone')
+              .eq('user_id', orderData.user_id)
+              .single();
+
+            if (profile?.phone) {
+              await supabase.functions.invoke('send-sms', {
+                body: {
+                  phone: profile.phone,
+                  message: `✅ Payment Confirmed!\n\nOrder: ${orderData.order_number}\nAmount: ৳${orderData.total}\n\nThank you for your payment.\n- DigiWebDex`,
+                  type: 'customer',
+                },
+              });
+            }
+          }
+        } catch (notifErr) {
+          console.error('Payment notification error:', notifErr);
         }
       }
 
       return { error: null };
     } catch (err) {
       return { error: err as Error };
+    }
+  }
+
+  /**
+   * Auto-activate services linked to a paid order:
+   * - Hosting: set status to active
+   * - Domains: set status to active
+   * - Projects: set status to in_progress
+   * - Subscriptions: ensure active
+   */
+  private async activateServicesForOrder(orderId: string): Promise<void> {
+    try {
+      // Activate hosting accounts
+      await supabase
+        .from('hosting_accounts')
+        .update({ status: 'active' })
+        .eq('order_id', orderId)
+        .in('status', ['pending', 'suspended']);
+
+      // Activate domains
+      await supabase
+        .from('domains')
+        .update({ status: 'active' })
+        .eq('order_id', orderId)
+        .in('status', ['pending', 'registered']);
+
+      // Move projects to in_progress
+      await supabase
+        .from('projects')
+        .update({ status: 'in_progress' })
+        .eq('order_id', orderId)
+        .eq('status', 'pending');
+
+      // Reactivate suspended subscriptions linked via metadata
+      const { data: subs } = await supabase
+        .from('subscriptions')
+        .select('id, metadata')
+        .eq('status', 'suspended');
+
+      for (const sub of subs || []) {
+        const meta = sub.metadata as Record<string, unknown> | null;
+        if (meta?.order_id === orderId) {
+          await supabase
+            .from('subscriptions')
+            .update({ status: 'active', suspended_at: null })
+            .eq('id', sub.id);
+        }
+      }
+    } catch (err) {
+      console.error('Service activation error:', err);
     }
   }
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/lib/i18n';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
-import { Users, ShoppingCart, DollarSign, AlertCircle, RefreshCcw, TrendingUp } from 'lucide-react';
+import { Users, ShoppingCart, DollarSign, AlertCircle, RefreshCcw, TrendingUp, Clock, AlertTriangle, Headphones, FolderKanban } from 'lucide-react';
 import { StatCard } from '@/components/admin/dashboard/StatCard';
 import { RecentActivityFeed } from '@/components/admin/dashboard/RecentActivityFeed';
 import { ExpiringServicesAlert } from '@/components/admin/analytics/ExpiringServicesAlert';
@@ -14,13 +14,17 @@ interface DashboardStats {
   totalDue: number;
   activeServices: number;
   todayIncome: number;
+  pendingOrders: number;
+  overdueInvoices: number;
+  openTickets: number;
+  activeProjects: number;
 }
 
 async function getDashboardStats(): Promise<DashboardStats> {
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
-  const [profiles, orders, paidInvoices, dueInvoices, subscriptions, todayPaid] =
+  const [profiles, orders, paidInvoices, dueInvoices, subscriptions, todayPaid, pendingOrders, overdueInvoices, openTickets, activeProjects] =
     await Promise.all([
       supabase.from('profiles').select('id'),
       supabase.from('orders').select('id'),
@@ -28,6 +32,10 @@ async function getDashboardStats(): Promise<DashboardStats> {
       supabase.from('invoices').select('due_amount').in('status', ['unpaid', 'partial']),
       supabase.from('subscriptions').select('id').eq('status', 'active'),
       supabase.from('invoices').select('total').eq('status', 'paid').gte('paid_at', todayStart.toISOString()),
+      supabase.from('orders').select('id').eq('status', 'pending'),
+      supabase.from('invoices').select('id').eq('status', 'overdue'),
+      supabase.from('support_tickets').select('id').in('status', ['open', 'in_progress']),
+      supabase.from('projects').select('id').in('status', ['pending', 'in_progress']),
     ]);
 
   return {
@@ -37,6 +45,10 @@ async function getDashboardStats(): Promise<DashboardStats> {
     totalDue: (dueInvoices.data || []).reduce((s, i) => s + Number(i.due_amount || 0), 0),
     activeServices: subscriptions.data?.length || 0,
     todayIncome: (todayPaid.data || []).reduce((s, i) => s + Number(i.total), 0),
+    pendingOrders: pendingOrders.data?.length || 0,
+    overdueInvoices: overdueInvoices.data?.length || 0,
+    openTickets: openTickets.data?.length || 0,
+    activeProjects: activeProjects.data?.length || 0,
   };
 }
 
@@ -59,7 +71,7 @@ export default function AdminDashboard() {
       minimumFractionDigits: 0,
     }).format(n);
 
-  const s = stats || { totalCustomers: 0, totalOrders: 0, totalRevenue: 0, totalDue: 0, activeServices: 0, todayIncome: 0 };
+  const s = stats || { totalCustomers: 0, totalOrders: 0, totalRevenue: 0, totalDue: 0, activeServices: 0, todayIncome: 0, pendingOrders: 0, overdueInvoices: 0, openTickets: 0, activeProjects: 0 };
 
   return (
     <AdminLayout>
@@ -73,7 +85,7 @@ export default function AdminDashboard() {
           </p>
         </div>
 
-        {/* Stat Widgets */}
+        {/* Primary Stat Widgets */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <StatCard title={language === 'bn' ? 'মোট কাস্টমার' : 'Total Customers'} value={s.totalCustomers} icon={Users} color="text-blue-500" bgColor="bg-blue-500/10" loading={loading} />
           <StatCard title={language === 'bn' ? 'মোট অর্ডার' : 'Total Orders'} value={s.totalOrders} icon={ShoppingCart} color="text-green-500" bgColor="bg-green-500/10" loading={loading} />
@@ -81,6 +93,14 @@ export default function AdminDashboard() {
           <StatCard title={language === 'bn' ? 'মোট বকেয়া' : 'Total Due'} value={fmt(s.totalDue)} icon={AlertCircle} color="text-red-500" bgColor="bg-red-500/10" loading={loading} />
           <StatCard title={language === 'bn' ? 'সক্রিয় সার্ভিস' : 'Active Services'} value={s.activeServices} icon={RefreshCcw} color="text-cyan-500" bgColor="bg-cyan-500/10" loading={loading} />
           <StatCard title={language === 'bn' ? 'আজকের আয়' : 'Today Income'} value={fmt(s.todayIncome)} icon={TrendingUp} color="text-orange-500" bgColor="bg-orange-500/10" loading={loading} />
+        </div>
+
+        {/* Action-Required Widgets */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard title={language === 'bn' ? 'পেন্ডিং অর্ডার' : 'Pending Orders'} value={s.pendingOrders} icon={Clock} color="text-amber-500" bgColor="bg-amber-500/10" loading={loading} />
+          <StatCard title={language === 'bn' ? 'ওভারডিউ ইনভয়েস' : 'Overdue Invoices'} value={s.overdueInvoices} icon={AlertTriangle} color="text-red-600" bgColor="bg-red-600/10" loading={loading} />
+          <StatCard title={language === 'bn' ? 'ওপেন টিকেট' : 'Open Tickets'} value={s.openTickets} icon={Headphones} color="text-indigo-500" bgColor="bg-indigo-500/10" loading={loading} />
+          <StatCard title={language === 'bn' ? 'সক্রিয় প্রজেক্ট' : 'Active Projects'} value={s.activeProjects} icon={FolderKanban} color="text-emerald-500" bgColor="bg-emerald-500/10" loading={loading} />
         </div>
 
         {/* Recent Activity */}
