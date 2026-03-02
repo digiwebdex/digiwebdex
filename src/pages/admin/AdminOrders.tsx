@@ -17,12 +17,15 @@ import { format } from 'date-fns';
 import { Database } from '@/integrations/supabase/types';
 import { logAudit } from '@/lib/auditLog';
 import { printTable } from '@/lib/exportUtils';
-import { createOrderWithItems, type OrderItem } from '@/services/multiItemOrderService';
+import { createOrderWithItems, type OrderItem as MultiItemOrderItem } from '@/services/multiItemOrderService';
+
+type DbOrderItem = Database['public']['Tables']['order_items']['Row'];
 
 type Order = Database['public']['Tables']['orders']['Row'] & {
   profiles?: { full_name: string | null; phone: string | null } | null;
   services?: { name_en: string; name_bn: string } | null;
   service_packages?: { name_en: string; name_bn: string } | null;
+  order_items?: DbOrderItem[] | null;
 };
 
 const ORDER_STATUSES = [
@@ -171,7 +174,7 @@ export default function AdminOrders() {
     setCreating(true);
     try {
       // Map serviceItems to OrderItem format for multi-item service
-      const orderItems: OrderItem[] = serviceItems.map(item => {
+      const orderItems: MultiItemOrderItem[] = serviceItems.map(item => {
         const svc = servicesList.find(s => s.id === item.service_id);
         const pkg = item.package_id !== 'custom' ? packages.find(p => p.id === item.package_id) : null;
         return {
@@ -213,7 +216,7 @@ export default function AdminOrders() {
     setLoading(true);
     const { data, error } = await supabase
       .from('orders')
-      .select(`*, services:service_id (name_en, name_bn), service_packages:package_id (name_en, name_bn)`)
+      .select(`*, services:service_id (name_en, name_bn), service_packages:package_id (name_en, name_bn), order_items (*)`)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -363,11 +366,27 @@ export default function AdminOrders() {
     {
       key: 'service', header: language === 'bn' ? 'সার্ভিস' : 'Service',
       render: (row) => {
+        const items = row.order_items;
+        if (items && items.length > 0) {
+          return (
+            <div>
+              {items.slice(0, 2).map((item, i) => (
+                <p key={i} className="text-sm">{item.package_name || item.service_type}</p>
+              ))}
+              {items.length > 2 && <p className="text-xs text-muted-foreground">+{items.length - 2} more</p>}
+            </div>
+          );
+        }
         const sn = row.services ? (language === 'bn' ? row.services.name_bn : row.services.name_en) : '-';
         const pn = row.service_packages ? (language === 'bn' ? row.service_packages.name_bn : row.service_packages.name_en) : '';
         return (<div><p className="font-medium">{sn}</p>{pn && <p className="text-sm text-muted-foreground">{pn}</p>}</div>);
       },
-      exportValue: (row) => row.services ? (language === 'bn' ? row.services.name_bn : row.services.name_en) : '-',
+      exportValue: (row) => {
+        if (row.order_items && row.order_items.length > 0) {
+          return row.order_items.map(i => i.package_name || i.service_type).join(', ');
+        }
+        return row.services ? (language === 'bn' ? row.services.name_bn : row.services.name_en) : '-';
+      },
     },
     {
       key: 'total', header: language === 'bn' ? 'মোট' : 'Total', sortable: true,
@@ -473,6 +492,38 @@ export default function AdminOrders() {
                   <p className="font-medium text-lg text-red-600">{formatCurrency(selectedOrder.total - ((selectedOrder as any).advance_payment || 0))}</p>
                 </div>
               </div>
+
+              {/* Order Items Table */}
+              {selectedOrder.order_items && selectedOrder.order_items.length > 0 && (
+                <div>
+                  <Label className="text-muted-foreground mb-2 block">{language === 'bn' ? 'অর্ডার আইটেম' : 'Order Items'}</Label>
+                  <div className="border rounded-md overflow-hidden">
+                    <table className="w-full text-sm">
+                      <thead className="bg-muted">
+                        <tr>
+                          <th className="text-left p-2">#</th>
+                          <th className="text-left p-2">{language === 'bn' ? 'সার্ভিস' : 'Service'}</th>
+                          <th className="text-left p-2">{language === 'bn' ? 'প্যাকেজ' : 'Package'}</th>
+                          <th className="text-right p-2">{language === 'bn' ? 'মূল্য' : 'Price'}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedOrder.order_items.map((item, i) => (
+                          <tr key={item.id} className="border-t">
+                            <td className="p-2">{i + 1}</td>
+                            <td className="p-2">
+                              <span className="capitalize">{item.service_type?.replace('_', ' ')}</span>
+                              {item.domain && <div className="text-xs text-muted-foreground">{item.domain}</div>}
+                            </td>
+                            <td className="p-2">{item.package_name}</td>
+                            <td className="p-2 text-right font-medium">{formatCurrency(item.total)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
               {selectedOrder.notes && (
                 <div>

@@ -111,11 +111,23 @@ export async function createOrderWithItems(
     return d;
   };
 
-  // --- Build invoice items + subscriptions + meta ---
+  // --- Build invoice items + order items + subscriptions + meta ---
   const invoiceItemsToInsert: Array<{
     invoice_id: string;
     service_type: string;
     package_name: string;
+    domain: string | null;
+    description: string;
+    price: number;
+    qty: number;
+    total: number;
+    renewal_date: string | null;
+  }> = [];
+  const orderItemsToInsert: Array<{
+    order_id: string;
+    service_type: string;
+    package_name: string;
+    billing_type: string;
     domain: string | null;
     description: string;
     price: number;
@@ -167,10 +179,25 @@ export async function createOrderWithItems(
       description = description || `ডিজিটাল মার্কেটিং (${item.type})`;
     }
 
+    const billingType = (item.type === 'domain' || item.type === 'hosting') ? 'recurring' : 'one_time';
+
     invoiceItemsToInsert.push({
       invoice_id: invoice.id,
       service_type: item.type as string,
       package_name: item.package,
+      domain: item.domain || null,
+      description: description || item.package,
+      price: Number(item.price),
+      qty,
+      total: Number(item.price) * qty,
+      renewal_date: renewalDate,
+    });
+
+    orderItemsToInsert.push({
+      order_id: order.id,
+      service_type: item.type as string,
+      package_name: item.package,
+      billing_type: billingType,
       domain: item.domain || null,
       description: description || item.package,
       price: Number(item.price),
@@ -199,6 +226,13 @@ export async function createOrderWithItems(
     .insert(invoiceItemsToInsert);
 
   if (itemsError) throw new Error(itemsError.message);
+
+  // --- Insert order items ---
+  const { error: orderItemsError } = await supabase
+    .from('order_items')
+    .insert(orderItemsToInsert);
+
+  if (orderItemsError) throw new Error(orderItemsError.message);
 
   // --- Store order meta ---
   await supabase.from('order_meta').insert(metaEntries);

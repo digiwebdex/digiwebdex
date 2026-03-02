@@ -105,7 +105,7 @@ Deno.serve(async (req) => {
       return `${yy}${mm}${rand}`;
     };
 
-    // Collect package IDs to create orders for
+    // Collect package IDs to create order items for
     const packageSelections: { packageId: string; serviceTypeKey: string }[] = [];
 
     if (hosting && hosting !== "none" && hosting !== "") {
@@ -118,47 +118,94 @@ Deno.serve(async (req) => {
       packageSelections.push({ packageId: software, serviceTypeKey: "software_development" });
     }
 
-    const createdOrders: string[] = [];
+    let createdOrderId: string | null = null;
 
-    // Fetch package details and create orders
-    for (const sel of packageSelections) {
-      const { data: pkg } = await adminClient
-        .from("service_packages")
-        .select("id, name_en, name_bn, price, service_id")
-        .eq("id", sel.packageId)
-        .single();
+    if (packageSelections.length > 0) {
+      // Fetch all package details
+      const packageDetails: { id: string; name_en: string; price: number; service_id: string; serviceTypeKey: string }[] = [];
+      let totalAmount = 0;
 
-      if (!pkg) continue;
+      for (const sel of packageSelections) {
+        const { data: pkg } = await adminClient
+          .from("service_packages")
+          .select("id, name_en, name_bn, price, service_id")
+          .eq("id", sel.packageId)
+          .single();
 
-      const billingType = sel.serviceTypeKey === "hosting" ? "recurring" : "one_time";
+        if (pkg) {
+          packageDetails.push({ ...pkg, serviceTypeKey: sel.serviceTypeKey });
+          totalAmount += pkg.price;
+        }
+      }
 
-      const orderNumber = generateOrderNumber();
+      if (packageDetails.length > 0) {
+        const primaryPkg = packageDetails[0];
+        const orderNumber = generateOrderNumber();
 
-      const { data: order, error: orderError } = await adminClient
-        .from("orders")
-        .insert({
-          order_number: orderNumber,
-          user_id: userId,
-          service_id: pkg.service_id,
-          package_id: pkg.id,
-          service_type: sel.serviceTypeKey,
-          billing_type: billingType,
-          subtotal: pkg.price,
-          discount: 0,
-          tax: 0,
-          total: pkg.price,
-          advance_payment: 0,
-          status: "pending",
-          notes: `Auto-created with customer by admin. Package: ${pkg.name_en}`,
-          admin_notes: `Created by admin (${caller.email}) during customer onboarding`,
-        })
-        .select("id")
-        .single();
+        // Create ONE order
+        const { data: order, error: orderError } = await adminClient
+          .from("orders")
+          .insert({
+            order_number: orderNumber,
+            user_id: userId,
+            service_id: primaryPkg.service_id,
+            package_id: primaryPkg.id,
+            service_type: primaryPkg.serviceTypeKey,
+            billing_type: "one_time",
+            subtotal: totalAmount,
+            discount: 0,
+            tax: 0,
+            total: totalAmount,
+            advance_payment: 0,
+            status: "pending",
+            notes: `Auto-created with customer by admin. ${packageDetails.length} service(s).`,
+            admin_notes: `Created by admin (${caller.email}) during customer onboarding`,
+          })
+          .select("id")
+          .single();
 
-      if (order) {
-        createdOrders.push(order.id);
-      } else {
-        console.error("Order creation error:", orderError?.message);
+        if (order) {
+          createdOrderId = order.id;
+
+          // Create order_items for each package
+          const orderItems = packageDetails.map(pkg => ({
+            order_id: order.id,
+            service_type: pkg.serviceTypeKey,
+            package_name: pkg.name_en,
+            billing_type: pkg.serviceTypeKey === "hosting" ? "recurring" : "one_time",
+            price: pkg.price,
+            qty: 1,
+            total: pkg.price,
+            description: `${pkg.name_en} (${pkg.serviceTypeKey})`,
+          }));
+
+          await adminClient.from("order_items").insert(orderItems);
+
+          // Find auto-generated invoice and add invoice_items
+          const { data: invoice } = await adminClient
+            .from("invoices")
+            .select("id")
+            .eq("order_id", order.id)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .single();
+
+          if (invoice) {
+            const invoiceItems = packageDetails.map(pkg => ({
+              invoice_id: invoice.id,
+              service_type: pkg.serviceTypeKey,
+              package_name: pkg.name_en,
+              price: pkg.price,
+              qty: 1,
+              total: pkg.price,
+              description: `${pkg.name_en} (${pkg.serviceTypeKey})`,
+            }));
+
+            await adminClient.from("invoice_items").insert(invoiceItems);
+          }
+        } else {
+          console.error("Order creation error:", orderError?.message);
+        }
       }
     }
 
@@ -180,8 +227,8 @@ Deno.serve(async (req) => {
       JSON.stringify({ 
         success: true, 
         user_id: userId, 
-        orders_created: createdOrders.length,
-        message: `Customer created with ${createdOrders.length} order(s) and auto-generated invoice(s)` 
+        orders_created: createdOrderId ? 1 : 0,
+        message: `Customer created with ${createdOrderId ? '1 order (with ' + packageSelections.length + ' item(s))' : '0 orders'} and auto-generated invoice` 
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

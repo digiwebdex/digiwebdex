@@ -1993,6 +1993,59 @@ export type Database = {
           },
         ]
       }
+      order_items: {
+        Row: {
+          billing_type: string | null
+          created_at: string
+          description: string | null
+          domain: string | null
+          id: string
+          order_id: string
+          package_name: string | null
+          price: number
+          qty: number
+          renewal_date: string | null
+          service_type: string | null
+          total: number
+        }
+        Insert: {
+          billing_type?: string | null
+          created_at?: string
+          description?: string | null
+          domain?: string | null
+          id?: string
+          order_id: string
+          package_name?: string | null
+          price?: number
+          qty?: number
+          renewal_date?: string | null
+          service_type?: string | null
+          total?: number
+        }
+        Update: {
+          billing_type?: string | null
+          created_at?: string
+          description?: string | null
+          domain?: string | null
+          id?: string
+          order_id?: string
+          package_name?: string | null
+          price?: number
+          qty?: number
+          renewal_date?: string | null
+          service_type?: string | null
+          total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_meta: {
         Row: {
           created_at: string
