@@ -40,7 +40,7 @@ export default function AdminUsers() {
   // Add user form state
   const [addForm, setAddForm] = useState({
     email: '', password: '', full_name: '', phone: '', company_name: '', role: 'client',
-    city: '', address: '',
+    city: '', address: '', notes: '',
   });
 
   useEffect(() => {
@@ -118,7 +118,7 @@ export default function AdminUsers() {
     } else {
       toast({ title: language === 'bn' ? 'সফল' : 'Success', description: language === 'bn' ? 'নতুন কাস্টমার যোগ হয়েছে' : 'New customer added' });
       setAddModalOpen(false);
-      setAddForm({ email: '', password: '', full_name: '', phone: '', company_name: '', role: 'client', city: '', address: '' });
+      setAddForm({ email: '', password: '', full_name: '', phone: '', company_name: '', role: 'client', city: '', address: '', notes: '' });
       fetchUsers();
     }
     setSaving(false);
@@ -271,9 +271,18 @@ export default function AdminUsers() {
             <div className="space-y-2">
               <Label>{language === 'bn' ? 'পুরো নাম' : 'Full Name'} *</Label>
               <Input
+                autoFocus
                 value={addForm.full_name}
                 onChange={(e) => setAddForm({ ...addForm, full_name: e.target.value })}
-                placeholder={language === 'bn' ? 'নাম লিখুন' : 'Enter name'}
+                placeholder={language === 'bn' ? 'নাম লিখুন' : 'Enter full name'}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{language === 'bn' ? 'ফোন' : 'Phone'} *</Label>
+              <Input
+                value={addForm.phone}
+                onChange={(e) => setAddForm({ ...addForm, phone: e.target.value })}
+                placeholder={language === 'bn' ? 'ফোন নম্বর' : 'Phone number'}
               />
             </div>
             <div className="space-y-2">
@@ -292,14 +301,6 @@ export default function AdminUsers() {
                 value={addForm.password}
                 onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
                 placeholder={language === 'bn' ? 'পাসওয়ার্ড লিখুন' : 'Enter password'}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>{language === 'bn' ? 'ফোন' : 'Phone'}</Label>
-              <Input
-                value={addForm.phone}
-                onChange={(e) => setAddForm({ ...addForm, phone: e.target.value })}
-                placeholder={language === 'bn' ? 'ফোন নম্বর' : 'Phone number'}
               />
             </div>
             <div className="space-y-2">
@@ -325,6 +326,14 @@ export default function AdminUsers() {
               value={addForm.address}
               onChange={(e) => setAddForm({ ...addForm, address: e.target.value })}
               placeholder={language === 'bn' ? 'ঠিকানা লিখুন' : 'Enter address'}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>{language === 'bn' ? 'নোটস' : 'Notes'}</Label>
+            <Input
+              value={addForm.notes}
+              onChange={(e) => setAddForm({ ...addForm, notes: e.target.value })}
+              placeholder={language === 'bn' ? 'নোটস লিখুন' : 'Internal notes (optional)'}
             />
           </div>
           <div className="space-y-2">
