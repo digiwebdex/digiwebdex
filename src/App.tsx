@@ -97,6 +97,7 @@ import AdminCustomers from "./pages/admin/AdminCustomers";
 import AdminPermissions from "./pages/admin/AdminPermissions";
 import AdminInvoiceView from "./pages/admin/AdminInvoiceView";
 import AdminBundles from "./pages/admin/AdminBundles";
+import AdminBackupRestore from "./pages/admin/AdminBackupRestore";
 // Public Pages
 import ProposalView from "./pages/ProposalView";
 
@@ -213,6 +214,7 @@ const LanguageRoutes = () => {
           <Route path="/bn/admin/customers" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminCustomers /></ProtectedRoute>} />
           <Route path="/bn/admin/permissions" element={<ProtectedRoute requiredRoles={['admin']}><AdminPermissions /></ProtectedRoute>} />
           <Route path="/bn/admin/bundles" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminBundles /></ProtectedRoute>} />
+          <Route path="/bn/admin/backup" element={<ProtectedRoute requiredRoles={['admin']}><AdminBackupRestore /></ProtectedRoute>} />
           <Route path="/bn/admin/*" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminDashboard /></ProtectedRoute>} />
           
           {/* English routes */}
@@ -301,6 +303,7 @@ const LanguageRoutes = () => {
           <Route path="/en/admin/customers" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminCustomers /></ProtectedRoute>} />
           <Route path="/en/admin/permissions" element={<ProtectedRoute requiredRoles={['admin']}><AdminPermissions /></ProtectedRoute>} />
           <Route path="/en/admin/bundles" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminBundles /></ProtectedRoute>} />
+          <Route path="/en/admin/backup" element={<ProtectedRoute requiredRoles={['admin']}><AdminBackupRestore /></ProtectedRoute>} />
           <Route path="/en/admin/*" element={<ProtectedRoute requiredRoles={['admin', 'staff']}><AdminDashboard /></ProtectedRoute>} />
           
           {/* Dynamic Landing Pages - must be before catch-all */}
