@@ -11,7 +11,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
-import { Eye, Bell, Send, Trash2, Printer, Plus, ArrowUpDown } from 'lucide-react';
+import { Eye, Bell, Send, Trash2, Printer, Plus } from 'lucide-react';
+import OrderItemEditor from '@/components/admin/orders/OrderItemEditor';
 import OrdersBulkActions from '@/components/admin/orders/OrdersBulkActions';
 import PackageChangeModal from '@/components/admin/orders/PackageChangeModal';
 import { format } from 'date-fns';
@@ -497,41 +498,14 @@ export default function AdminOrders() {
 
               {/* Order Items Table */}
               {selectedOrder.order_items && selectedOrder.order_items.length > 0 && (
-                <div>
-                  <Label className="text-muted-foreground mb-2 block">{language === 'bn' ? 'অর্ডার আইটেম' : 'Order Items'}</Label>
-                  <div className="border rounded-md overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead className="bg-muted">
-                        <tr>
-                         <th className="text-left p-2">#</th>
-                          <th className="text-left p-2">{language === 'bn' ? 'সার্ভিস' : 'Service'}</th>
-                          <th className="text-left p-2">{language === 'bn' ? 'প্যাকেজ' : 'Package'}</th>
-                          <th className="text-right p-2">{language === 'bn' ? 'মূল্য' : 'Price'}</th>
-                          <th className="text-center p-2">{language === 'bn' ? 'পরিবর্তন' : 'Change'}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {selectedOrder.order_items.map((item, i) => (
-                          <tr key={item.id} className="border-t">
-                            <td className="p-2">{i + 1}</td>
-                            <td className="p-2">
-                              <span className="capitalize">{item.service_type?.replace('_', ' ')}</span>
-                              {item.domain && <div className="text-xs text-muted-foreground">{item.domain}</div>}
-                            </td>
-                            <td className="p-2">{item.package_name}</td>
-                            <td className="p-2 text-right font-medium">{formatCurrency(item.total)}</td>
-                            <td className="p-2 text-center">
-                              <Button size="sm" variant="ghost" className="h-7 text-xs gap-1" onClick={() => { setPkgChangeItem(item); setPkgChangeOpen(true); }}>
-                                <ArrowUpDown className="h-3 w-3" />
-                                {language === 'bn' ? 'পরিবর্তন' : 'Change'}
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+                <OrderItemEditor
+                  items={selectedOrder.order_items}
+                  orderId={selectedOrder.id}
+                  orderNumber={selectedOrder.order_number}
+                  formatCurrency={formatCurrency}
+                  onRefresh={() => { fetchOrders(); setDetailOpen(false); }}
+                  onPackageChange={(item) => { setPkgChangeItem(item); setPkgChangeOpen(true); }}
+                />
               )}
 
               {selectedOrder.notes && (
