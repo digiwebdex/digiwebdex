@@ -171,7 +171,7 @@ export default function GetStarted() {
       const genNum = orderNum || `ORD-${Date.now()}`;
       const total = getTotal();
       const domainName = domainMode === 'new' ? selectedDomain?.domain : existingDomain;
-      const customerName = user?.user_metadata?.full_name || signUpForm.getValues('fullName');
+      const customerName = (user as Record<string, any>)?.user_metadata?.full_name || user?.full_name || signUpForm.getValues('fullName');
       const customerEmail = user?.email || signUpForm.getValues('email');
 
       const { data: order, error } = await supabase.from('orders').insert({
