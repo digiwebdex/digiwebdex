@@ -3,7 +3,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { authenticateToken, optionalAuth } = require('../middleware/auth');
+const { authenticate: authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
 
