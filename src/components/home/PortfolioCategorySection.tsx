@@ -25,6 +25,15 @@ import seventripImg from '@/assets/portfolio/seventrip.jpg';
 import rahekabatravelsImg from '@/assets/portfolio/rahekabatravels.jpg';
 import saztravelvisaImg from '@/assets/portfolio/saztravelvisa.jpg';
 import masudtravelsImg from '@/assets/portfolio/masudtravelsagency.jpg';
+import alrawshaImg from '@/assets/portfolio/alrawshaintl.jpg';
+import kurigramImg from '@/assets/portfolio/kurigramoverseas.jpg';
+import worldjumperImg from '@/assets/portfolio/worldjumperbd.jpg';
+import manasikImg from '@/assets/portfolio/manasiktravelhub.jpg';
+import ecotrippersStudyImg from '@/assets/portfolio/ecotrippersstudy.jpg';
+import ecotrippersImg from '@/assets/portfolio/ecotrippers.jpg';
+import tubaalhijazImg from '@/assets/portfolio/tubaalhijaz.jpg';
+import triptasticImg from '@/assets/portfolio/triptastic.jpg';
+import smtradeintImg from '@/assets/portfolio/smtradeint.jpg';
 
 interface Project {
   id: string;
@@ -222,6 +231,87 @@ const projects: Project[] = [
     contributions: ['UI/UX', 'SEO', 'Automation'],
     screenshot: masudtravelsImg,
   },
+  {
+    id: '20',
+    name: 'Al Rawsha International',
+    url: 'alrawshaintl.com',
+    category: 'travel',
+    industry: 'Overseas Recruitment',
+    contributions: ['UI/UX', 'SEO', 'Performance'],
+    screenshot: alrawshaImg,
+  },
+  {
+    id: '21',
+    name: 'Kurigram Overseas',
+    url: 'kurigramoverseas.com',
+    category: 'travel',
+    industry: 'Overseas Employment',
+    contributions: ['UI/UX', 'SEO', 'Automation'],
+    screenshot: kurigramImg,
+  },
+  {
+    id: '22',
+    name: 'World Jumper BD',
+    url: 'worldjumperbd.com',
+    category: 'travel',
+    industry: 'Tours & Visa',
+    contributions: ['UI/UX', 'SEO', 'Performance'],
+    screenshot: worldjumperImg,
+  },
+  {
+    id: '23',
+    name: 'Manasik Travel Hub',
+    url: 'manasiktravelhub.com',
+    category: 'travel',
+    industry: 'Hajj & Umrah',
+    contributions: ['UI/UX', 'SEO', 'Performance'],
+    screenshot: manasikImg,
+  },
+  {
+    id: '24',
+    name: 'Eco Trippers Study',
+    url: 'ecotrippersstudy.com',
+    category: 'corporate',
+    industry: 'Study Abroad',
+    contributions: ['UI/UX', 'SEO', 'Automation'],
+    screenshot: ecotrippersStudyImg,
+  },
+  {
+    id: '25',
+    name: 'Eco Trippers',
+    url: 'ecotrippers.net',
+    category: 'travel',
+    industry: 'Tours & Visa',
+    contributions: ['UI/UX', 'SEO', 'Performance'],
+    screenshot: ecotrippersImg,
+  },
+  {
+    id: '26',
+    name: 'Tuba Al-Hijaz',
+    url: 'tubaalhijaz.com',
+    category: 'travel',
+    industry: 'Umrah Visa (KSA)',
+    contributions: ['UI/UX', 'Automation', 'Performance'],
+    screenshot: tubaalhijazImg,
+  },
+  {
+    id: '27',
+    name: 'Triptastic',
+    url: 'triptastic.com.bd',
+    category: 'travel',
+    industry: 'Hajj & Umrah',
+    contributions: ['UI/UX', 'SEO', 'Performance'],
+    screenshot: triptasticImg,
+  },
+  {
+    id: '28',
+    name: 'S. M. Trade International',
+    url: 'smtradeint.com',
+    category: 'ecommerce',
+    industry: 'Corporate Gifts',
+    contributions: ['UI/UX', 'SEO', 'Performance', 'Automation'],
+    screenshot: smtradeintImg,
+  },
 ];
 
 const contributionIcons: Record<string, React.ReactNode> = {
@@ -352,8 +442,8 @@ export function PortfolioCategorySection() {
         {/* Stats Row */}
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 animate-slide-up delay-400">
           {[
-            { value: '19+', label: language === 'bn' ? 'লাইভ প্রজেক্ট' : 'Live Projects' },
-            { value: '5', label: language === 'bn' ? 'ইন্ডাস্ট্রি' : 'Industries' },
+            { value: '28+', label: language === 'bn' ? 'লাইভ প্রজেক্ট' : 'Live Projects' },
+            { value: '8+', label: language === 'bn' ? 'ইন্ডাস্ট্রি' : 'Industries' },
             { value: '100%', label: language === 'bn' ? 'ক্লায়েন্ট সন্তুষ্টি' : 'Client Satisfaction' },
             { value: '24/7', label: language === 'bn' ? 'সাপোর্ট' : 'Support' },
           ].map((stat, index) => (
