@@ -95,6 +95,18 @@ if os.path.exists(NN_PATH):
             t, c = line.split("\t", 1)
             vps_notnull[t].add(c)
 
+# Load NOT NULL columns with no DB default. These must be included in COPY even
+# when the source export CSV does not contain that column.
+REQ_PATH = "/root/digiwebdex-migration/vps_required_no_default.tsv"
+vps_required_no_default = defaultdict(set)
+if os.path.exists(REQ_PATH):
+    with open(REQ_PATH, encoding="utf-8") as f:
+        for line in f:
+            line = line.rstrip("\n")
+            if not line or "\t" not in line: continue
+            t, c = line.split("\t", 1)
+            vps_required_no_default[t].add(c)
+
 pat = re.compile(
     r"^\\COPY\s+(\w+)\s+FROM\s+'(/import/[^']+\.csv)'\s+WITH\s*\(FORMAT csv,\s*HEADER true\);",
     re.IGNORECASE,
@@ -147,7 +159,7 @@ def filter_csv(src_path, keep_idx, dst_path, kept_cols, src_header, required):
         for row in r:
             if len(row) < len(header):
                 row = row + [""]*(len(header)-len(row))
-            out = [row[i] for i in keep_idx]
+            out = [row[i] if i >= 0 else "" for i in keep_idx]
             for pos, colname in required_positions:
                 if not out[pos]:
                     out[pos] = fill_value(colname, row, src_idx)
@@ -188,6 +200,13 @@ with open(SRC, "r", encoding="utf-8") as fin, open(OUT, "w", encoding="utf-8") a
         kept_cols = [csv_header[i] for i in keep_idx]
         dropped = [c for c in csv_header if c not in vps_set]
 
+        missing_required = [c for c in vps_cols[table]
+                            if c in vps_required_no_default.get(table, set())
+                            and c not in kept_cols]
+        for c in missing_required:
+            kept_cols.append(c)
+            keep_idx.append(-1)
+
         if not kept_cols:
             fout.write(f"-- SKIPPED (no matching columns): {table}\n")
             report.append(f"SKIP no-cols: {table} (csv has {csv_header}, vps has {sorted(vps_set)})")
@@ -204,10 +223,13 @@ with open(SRC, "r", encoding="utf-8") as fin, open(OUT, "w", encoding="utf-8") a
             f"WITH (FORMAT csv, HEADER true);\n"
         )
         rewrote += 1
+        notes = []
         if dropped:
-            report.append(f"OK {table}: kept {len(kept_cols)} cols, dropped {dropped} ({rows} rows)")
-        else:
-            report.append(f"OK {table}: all {len(kept_cols)} cols ({rows} rows)")
+            notes.append(f"dropped {dropped}")
+        if missing_required:
+            notes.append(f"added required {missing_required}")
+        suffix = f", {'; '.join(notes)}" if notes else ""
+        report.append(f"OK {table}: kept {len(kept_cols)} cols{suffix} ({rows} rows)")
 
 print(f"Rewrote: {rewrote}")
 print(f"Skipped (table missing on VPS): {skipped_missing_table}")
