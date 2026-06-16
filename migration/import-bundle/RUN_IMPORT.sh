@@ -181,7 +181,7 @@ with open(SRC, "r", encoding="utf-8") as fin, open(OUT, "w", encoding="utf-8") a
         # Write a filtered CSV containing ONLY the columns that exist on VPS
         filt_name = f"_filtered/{basename}"
         filt_path = os.path.join(ROOT, filt_name)
-        rows = filter_csv(src_csv, keep_idx, filt_path, kept_cols, csv_header)
+        rows = filter_csv(src_csv, keep_idx, filt_path, kept_cols, csv_header, vps_notnull.get(table, set()))
 
         col_list = ", ".join(f'"{c}"' for c in kept_cols)
         fout.write(
