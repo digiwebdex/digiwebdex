@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# DigiWebDex - Phase 1 Data Import (v7 - fill explicit NULLs in NOT NULL columns)
+# DigiWebDex - Phase 1 Data Import (v8 - add missing required columns before COPY)
 set -euo pipefail
 
 BUNDLE_DIR="/var/www/digiwebdex/migration/import-bundle"
@@ -45,8 +45,19 @@ WHERE table_schema='public'
   AND is_nullable='NO';
 " > "${WORK_DIR}/vps_notnull.tsv"
 
+# Required columns that have no default must be present in COPY input. If the
+# export CSV lacks them, the filtered CSV must add generated values explicitly.
+docker exec "${CONTAINER}" psql -U "${DB_USER}" -d "${DB_NAME}" -A -t -F $'\t' -c "
+SELECT table_name, column_name
+FROM information_schema.columns
+WHERE table_schema='public'
+  AND is_nullable='NO'
+  AND column_default IS NULL;
+" > "${WORK_DIR}/vps_required_no_default.tsv"
+
 echo "Tables found: $(cut -f1 ${WORK_DIR}/vps_columns.tsv | sort -u | wc -l)"
 echo "NOT NULL cols: $(wc -l < ${WORK_DIR}/vps_notnull.tsv)"
+echo "Required no-default cols: $(wc -l < ${WORK_DIR}/vps_required_no_default.tsv)"
 
 # 4. Rewrite vps_import.sql:
 #    - Skip tables that don't exist on VPS
