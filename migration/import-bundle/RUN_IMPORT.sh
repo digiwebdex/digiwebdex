@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# DigiWebDex - Phase 1 Data Import (v4 - schema-aware column intersection)
+# DigiWebDex - Phase 1 Data Import (v7 - fill explicit NULLs in NOT NULL columns)
 set -euo pipefail
 
 BUNDLE_DIR="/var/www/digiwebdex/migration/import-bundle"
@@ -36,17 +36,17 @@ WHERE table_schema='public'
 ORDER BY table_name, ordinal_position;
 " > "${WORK_DIR}/vps_columns.tsv"
 
-# Also dump NOT NULL columns that have NO default (these must be filled)
+# Also dump all NOT NULL columns. Even if a DB default exists, COPY will not use it
+# when the column is explicitly present with an empty value, so these must be filled.
 docker exec "${CONTAINER}" psql -U "${DB_USER}" -d "${DB_NAME}" -A -t -F $'\t' -c "
 SELECT table_name, column_name
 FROM information_schema.columns
 WHERE table_schema='public'
-  AND is_nullable='NO'
-  AND column_default IS NULL;
+  AND is_nullable='NO';
 " > "${WORK_DIR}/vps_notnull.tsv"
 
 echo "Tables found: $(cut -f1 ${WORK_DIR}/vps_columns.tsv | sort -u | wc -l)"
-echo "NOT NULL (no default) cols: $(wc -l < ${WORK_DIR}/vps_notnull.tsv)"
+echo "NOT NULL cols: $(wc -l < ${WORK_DIR}/vps_notnull.tsv)"
 
 # 4. Rewrite vps_import.sql:
 #    - Skip tables that don't exist on VPS
@@ -110,7 +110,11 @@ def fill_value(colname, row, src_idx):
         if cand in src_idx and row[src_idx[cand]]:
             val = row[src_idx[cand]]
             if colname in ("slug","template_key","key","code"):
-                return slugify(val) or f"row-{row[src_idx['id']][:8]}" if "id" in src_idx else "row"
+                if slugify(val):
+                    return slugify(val)
+                if "id" in src_idx and row[src_idx["id"]]:
+                    return f"row-{row[src_idx['id']][:8]}"
+                return "row"
             return val
     # Last-resort: derive from id
     if "id" in src_idx and row[src_idx["id"]]:
