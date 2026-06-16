@@ -89,8 +89,14 @@ def filter_csv(src_path, keep_idx, dst_path):
 rewrote = skipped_missing_table = skipped_no_columns = skipped_missing_csv = 0
 report = []
 
+tx_pat = re.compile(r"^\s*(BEGIN|COMMIT|ROLLBACK)\s*;?\s*$", re.IGNORECASE)
+
 with open(SRC, "r", encoding="utf-8") as fin, open(OUT, "w", encoding="utf-8") as fout:
     for line in fin:
+        # Strip outer BEGIN/COMMIT/ROLLBACK so one failure doesn't abort everything
+        if tx_pat.match(line):
+            fout.write(f"-- (stripped) {line}")
+            continue
         m = pat.match(line.strip())
         if not m:
             fout.write(line); continue
