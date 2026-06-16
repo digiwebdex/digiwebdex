@@ -35,7 +35,18 @@ FROM information_schema.columns
 WHERE table_schema='public'
 ORDER BY table_name, ordinal_position;
 " > "${WORK_DIR}/vps_columns.tsv"
+
+# Also dump NOT NULL columns that have NO default (these must be filled)
+docker exec "${CONTAINER}" psql -U "${DB_USER}" -d "${DB_NAME}" -A -t -F $'\t' -c "
+SELECT table_name, column_name
+FROM information_schema.columns
+WHERE table_schema='public'
+  AND is_nullable='NO'
+  AND column_default IS NULL;
+" > "${WORK_DIR}/vps_notnull.tsv"
+
 echo "Tables found: $(cut -f1 ${WORK_DIR}/vps_columns.tsv | sort -u | wc -l)"
+echo "NOT NULL (no default) cols: $(wc -l < ${WORK_DIR}/vps_notnull.tsv)"
 
 # 4. Rewrite vps_import.sql:
 #    - Skip tables that don't exist on VPS
@@ -62,6 +73,17 @@ with open(COLMAP, encoding="utf-8") as f:
         t, c = line.split("\t", 1)
         vps_cols[t].append(c)
 
+# Load NOT NULL columns (no default) per table
+NN_PATH = "/root/digiwebdex-migration/vps_notnull.tsv"
+vps_notnull = defaultdict(set)
+if os.path.exists(NN_PATH):
+    with open(NN_PATH, encoding="utf-8") as f:
+        for line in f:
+            line = line.rstrip("\n")
+            if not line or "\t" not in line: continue
+            t, c = line.split("\t", 1)
+            vps_notnull[t].add(c)
+
 pat = re.compile(
     r"^\\COPY\s+(\w+)\s+FROM\s+'(/import/[^']+\.csv)'\s+WITH\s*\(FORMAT csv,\s*HEADER true\);",
     re.IGNORECASE,
@@ -77,10 +99,29 @@ def slugify(s):
     s = _re.sub(r"[^a-z0-9]+", "-", s).strip("-")
     return s or None
 
-def filter_csv(src_path, keep_idx, dst_path, kept_cols, src_header):
-    # Indices in the source CSV for helpful fallback fields
-    idx = {c: i for i, c in enumerate(src_header)}
-    slug_pos = kept_cols.index("slug") if "slug" in kept_cols else -1
+# Fallback source columns to look at when a NOT NULL field is empty
+FALLBACK_FIELDS = ("name_en","name","title_en","title","name_bn","title_bn",
+                   "slug","label","key","event_name","email","phone","id")
+
+def fill_value(colname, row, src_idx):
+    """Return a non-empty placeholder for a required column."""
+    # Try common name-ish columns from the same row
+    for cand in FALLBACK_FIELDS:
+        if cand in src_idx and row[src_idx[cand]]:
+            val = row[src_idx[cand]]
+            if colname in ("slug","template_key","key","code"):
+                return slugify(val) or f"row-{row[src_idx['id']][:8]}" if "id" in src_idx else "row"
+            return val
+    # Last-resort: derive from id
+    if "id" in src_idx and row[src_idx["id"]]:
+        stub = row[src_idx["id"]][:8]
+        return f"{colname}-{stub}"
+    return f"{colname}-unknown"
+
+def filter_csv(src_path, keep_idx, dst_path, kept_cols, src_header, required):
+    src_idx = {c: i for i, c in enumerate(src_header)}
+    # Positions inside kept_cols that must be non-empty
+    required_positions = [(i, c) for i, c in enumerate(kept_cols) if c in required]
     with open(src_path, newline="", encoding="utf-8") as fin, \
          open(dst_path, "w", newline="", encoding="utf-8") as fout:
         r = csv.reader(fin); w = csv.writer(fout)
@@ -92,15 +133,9 @@ def filter_csv(src_path, keep_idx, dst_path, kept_cols, src_header):
             if len(row) < len(header):
                 row = row + [""]*(len(header)-len(row))
             out = [row[i] for i in keep_idx]
-            # Auto-fill slug if NOT NULL on VPS but empty in CSV
-            if slug_pos >= 0 and not out[slug_pos]:
-                src = ""
-                for cand in ("slug","name_en","name","title_en","title","name_bn"):
-                    if cand in idx and row[idx[cand]]:
-                        src = row[idx[cand]]; break
-                if not src and "id" in idx:
-                    src = row[idx["id"]][:8]
-                out[slug_pos] = slugify(src) or (row[idx["id"]][:8] if "id" in idx else "row")
+            for pos, colname in required_positions:
+                if not out[pos]:
+                    out[pos] = fill_value(colname, row, src_idx)
             w.writerow(out)
             n += 1
         return n
@@ -146,7 +181,7 @@ with open(SRC, "r", encoding="utf-8") as fin, open(OUT, "w", encoding="utf-8") a
         # Write a filtered CSV containing ONLY the columns that exist on VPS
         filt_name = f"_filtered/{basename}"
         filt_path = os.path.join(ROOT, filt_name)
-        rows = filter_csv(src_csv, keep_idx, filt_path, kept_cols, csv_header)
+        rows = filter_csv(src_csv, keep_idx, filt_path, kept_cols, csv_header, vps_notnull.get(table, set()))
 
         col_list = ", ".join(f'"{c}"' for c in kept_cols)
         fout.write(
