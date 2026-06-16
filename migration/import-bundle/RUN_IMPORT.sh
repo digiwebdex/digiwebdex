@@ -71,26 +71,51 @@ def read_csv_header(path):
     with open(path, newline="", encoding="utf-8") as f:
         return next(csv.reader(f), [])
 
-def filter_csv(src_path, keep_idx, dst_path):
+def slugify(s):
+    import re as _re
+    s = (s or "").strip().lower()
+    s = _re.sub(r"[^a-z0-9]+", "-", s).strip("-")
+    return s or None
+
+def filter_csv(src_path, keep_idx, dst_path, kept_cols, src_header):
+    # Indices in the source CSV for helpful fallback fields
+    idx = {c: i for i, c in enumerate(src_header)}
+    slug_pos = kept_cols.index("slug") if "slug" in kept_cols else -1
     with open(src_path, newline="", encoding="utf-8") as fin, \
          open(dst_path, "w", newline="", encoding="utf-8") as fout:
         r = csv.reader(fin); w = csv.writer(fout)
         header = next(r, None)
         if header is None: return 0
-        w.writerow([header[i] for i in keep_idx])
+        w.writerow(kept_cols)
         n = 0
         for row in r:
             if len(row) < len(header):
                 row = row + [""]*(len(header)-len(row))
-            w.writerow([row[i] for i in keep_idx])
+            out = [row[i] for i in keep_idx]
+            # Auto-fill slug if NOT NULL on VPS but empty in CSV
+            if slug_pos >= 0 and not out[slug_pos]:
+                src = ""
+                for cand in ("slug","name_en","name","title_en","title","name_bn"):
+                    if cand in idx and row[idx[cand]]:
+                        src = row[idx[cand]]; break
+                if not src and "id" in idx:
+                    src = row[idx["id"]][:8]
+                out[slug_pos] = slugify(src) or (row[idx["id"]][:8] if "id" in idx else "row")
+            w.writerow(out)
             n += 1
         return n
 
 rewrote = skipped_missing_table = skipped_no_columns = skipped_missing_csv = 0
 report = []
 
+tx_pat = re.compile(r"^\s*(BEGIN|COMMIT|ROLLBACK)\s*;?\s*$", re.IGNORECASE)
+
 with open(SRC, "r", encoding="utf-8") as fin, open(OUT, "w", encoding="utf-8") as fout:
     for line in fin:
+        # Strip outer BEGIN/COMMIT/ROLLBACK so one failure doesn't abort everything
+        if tx_pat.match(line):
+            fout.write(f"-- (stripped) {line}")
+            continue
         m = pat.match(line.strip())
         if not m:
             fout.write(line); continue
@@ -121,7 +146,7 @@ with open(SRC, "r", encoding="utf-8") as fin, open(OUT, "w", encoding="utf-8") a
         # Write a filtered CSV containing ONLY the columns that exist on VPS
         filt_name = f"_filtered/{basename}"
         filt_path = os.path.join(ROOT, filt_name)
-        rows = filter_csv(src_csv, keep_idx, filt_path)
+        rows = filter_csv(src_csv, keep_idx, filt_path, kept_cols, csv_header)
 
         col_list = ", ".join(f'"{c}"' for c in kept_cols)
         fout.write(
