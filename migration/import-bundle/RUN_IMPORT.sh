@@ -35,7 +35,18 @@ FROM information_schema.columns
 WHERE table_schema='public'
 ORDER BY table_name, ordinal_position;
 " > "${WORK_DIR}/vps_columns.tsv"
+
+# Also dump NOT NULL columns that have NO default (these must be filled)
+docker exec "${CONTAINER}" psql -U "${DB_USER}" -d "${DB_NAME}" -A -t -F $'\t' -c "
+SELECT table_name, column_name
+FROM information_schema.columns
+WHERE table_schema='public'
+  AND is_nullable='NO'
+  AND column_default IS NULL;
+" > "${WORK_DIR}/vps_notnull.tsv"
+
 echo "Tables found: $(cut -f1 ${WORK_DIR}/vps_columns.tsv | sort -u | wc -l)"
+echo "NOT NULL (no default) cols: $(wc -l < ${WORK_DIR}/vps_notnull.tsv)"
 
 # 4. Rewrite vps_import.sql:
 #    - Skip tables that don't exist on VPS
