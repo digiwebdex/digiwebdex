@@ -23,13 +23,39 @@ if [[ -z "$EMAIL" || -z "$PASSWORD" ]]; then
   exit 1
 fi
 
-# DB connection — adjust if your container/host differs
-PGHOST="${PGHOST:-localhost}"
-PGPORT="${PGPORT:-5433}"
-PGUSER="${PGUSER:-digiwebdex}"
-PGPASSWORD="${PGPASSWORD:-digiwebdex_secure_pass}"
-PGDATABASE="${PGDATABASE:-digiwebdex}"
+# DB connection — read the real VPS migration/.env values first.
+# PG* env vars still override these if you export them manually.
+ENV_FILE="/var/www/digiwebdex/migration/.env"
+if [[ -f "$ENV_FILE" ]]; then
+  while IFS='=' read -r key value; do
+    [[ -z "$key" || "$key" =~ ^[[:space:]]*# ]] && continue
+    value="${value%$'\r'}"
+    value="${value%\"}"
+    value="${value#\"}"
+    value="${value%\'}"
+    value="${value#\'}"
+    case "$key" in
+      DB_HOST) DB_HOST="$value" ;;
+      DB_PORT) DB_PORT="$value" ;;
+      DB_NAME) DB_NAME="$value" ;;
+      DB_USER) DB_USER="$value" ;;
+      DB_PASSWORD) DB_PASSWORD="$value" ;;
+    esac
+  done < "$ENV_FILE"
+fi
+
+PGHOST="${PGHOST:-${DB_HOST:-127.0.0.1}}"
+[[ "$PGHOST" == "localhost" ]] && PGHOST="127.0.0.1"
+PGPORT="${PGPORT:-${DB_PORT:-5433}}"
+PGUSER="${PGUSER:-${DB_USER:-digiwebdex_user}}"
+PGPASSWORD="${PGPASSWORD:-${DB_PASSWORD:-}}"
+PGDATABASE="${PGDATABASE:-${DB_NAME:-digiwebdex_db}}"
 export PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE
+
+if [[ -z "$PGPASSWORD" ]]; then
+  echo "Database password missing. Set DB_PASSWORD in /var/www/digiwebdex/migration/.env or export PGPASSWORD."
+  exit 1
+fi
 
 # Find a node + bcryptjs we can use (backend has it installed)
 BACKEND_DIR="/var/www/digiwebdex/migration/backend"
